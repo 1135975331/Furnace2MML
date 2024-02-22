@@ -1,0 +1,50 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
+        x:Class="Furnace2MML.MainWindow"
+        CanResize="True"
+        Title="Furnace2MML">
+        
+    <Grid Margin="0,-1,0,1">
+        <Label x:Name="CmdFilePathLabel" Content="Command Stream File Path" HorizontalAlignment="Left" Margin="148,72,0,0" VerticalAlignment="Top" Height="28" Width="201" FontSize="14" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" FontFamily="Consolas"/>
+        <Button x:Name="OpenCmdFileButton" Content="..." HorizontalAlignment="Left" Margin="351,70,0,0" VerticalAlignment="Top" Height="29" Width="39" Click="CmdFileSelectButton_Click" FontFamily="Consolas"/>
+        <TextBox x:Name="CmdFilePathTextBox" HorizontalAlignment="Left" Margin="81,106,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="394" Height="42" VerticalContentAlignment="Center" FontFamily="Consolas"/>
+        <Label x:Name="TxtOutFilePathLabel" Content="Text Output File Path" HorizontalAlignment="Left" Margin="159,167,0,0" VerticalAlignment="Top" Height="28" Width="178" FontSize="14" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" FontFamily="Consolas"/>
+        <Button x:Name="OpenTxtOutFileButton" Content="..." HorizontalAlignment="Left" Margin="351,164,0,0" VerticalAlignment="Top" Height="31" Width="44" Click="TxtOutFileSelectButton_Click" FontFamily="Consolas"/>
+        <TextBox x:Name="TxtOutFilePathTextBox" HorizontalAlignment="Left" Margin="81,201,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="394" Height="42" VerticalContentAlignment="Center" FontFamily="Consolas"/>
+        <TextBox x:Name="ResultOutputTextBox" HorizontalAlignment="Left" Height="336" Margin="68,397,0,0" TextWrapping="NoWrap" VerticalAlignment="Top" Width="789" FontSize="18" FontFamily="Consolas" FontStretch="Normal" FontStyle="Normal" TextAlignment="Left" IsReadOnly="True" IsUndoEnabled="False"
+                 ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                 ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+        <TextBox x:Name="LogTextBox" HorizontalAlignment="Left" Height="313" Margin="800,48,0,0" TextWrapping="WrapWithOverflow" Text="&lt;Log&gt;&#xD;&#xA;&#xA;" VerticalAlignment="Top" Width="349" FontFamily="Consolas"
+                 ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                 ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+        <Label x:Name="OutputLabel" Content="Output" HorizontalAlignment="Left" Margin="95,347,0,0" VerticalAlignment="Top" FontSize="18" FontWeight="Bold" FontFamily="Consolas"/>
+        <Button x:Name="ConvertStartButton" Content="Convert" HorizontalAlignment="Left" Margin="928,552,0,0" VerticalAlignment="Top" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Click="ConvertStartButton_Click" Height="68" Width="168" FontSize="20" FontFamily="Consolas"/>
+        <Button x:Name="ClipboardCopyButton" Content="Copy to&#10;Clipboard" HorizontalAlignment="Left" Margin="942,640,0,0" VerticalAlignment="Top" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Height="56" Width="140" Click="ClipboardCopyButton_Click" FontFamily="Consolas"/>
+        <Label x:Name="MetaOverwriteLabel" Content="Overwrite Metadata" HorizontalAlignment="Left" Margin="565,25,0,0" VerticalAlignment="Top" Width="180" FontSize="17" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontFamily="Consolas"/>
+        <Label x:Name="MetaOverwriteSubLabel" Content="(Default values will be used if TextBox is empty)" HorizontalAlignment="Left" Margin="504,48,0,0" VerticalAlignment="Top" Width="302" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontSize="10" FontFamily="Consolas"/>
+        <Label x:Name="MetaTitleLabel" Content="Title" HorizontalAlignment="Left" Margin="514,85,0,0" VerticalAlignment="Top" Width="75" FontSize="15" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" FontFamily="Consolas"/>
+        <Label x:Name="MetaComposerLabel" Content="Composer" HorizontalAlignment="Left" Margin="514,122,0,0" VerticalAlignment="Top" Width="75" FontSize="15" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" FontFamily="Consolas"/>
+        <Label x:Name="MetaArrangerLabel" Content="Arranger" HorizontalAlignment="Left" Margin="514,159,0,0" VerticalAlignment="Top" Width="75" FontSize="15" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" FontFamily="Consolas"/>
+        <Label x:Name="MetaTempoLabel" Content="Tempo" HorizontalAlignment="Left" Margin="514,196,0,0" VerticalAlignment="Top" Width="75" FontSize="15" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" FontFamily="Consolas"/>
+        <Label x:Name="MetaOptionLabel" Content="Option" HorizontalAlignment="Left" Margin="514,233,0,0" VerticalAlignment="Top" Width="75" FontSize="15" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" FontFamily="Consolas"/>
+        <Label x:Name="MetaFilenameLabel" Content="Filename" HorizontalAlignment="Left" Margin="514,270,0,0" VerticalAlignment="Top" Width="75" FontSize="15" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" FontFamily="Consolas"/>
+        <Label x:Name="MetaZenlenLabel" Content="Zenlen" HorizontalAlignment="Left" Margin="514,308,0,0" VerticalAlignment="Top" Width="75" FontSize="15" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" FontFamily="Consolas"/>
+        <Label x:Name="MetaVoldownLabel" Content="Volumedown(F,S,R)" HorizontalAlignment="Left" Margin="442,346,0,0" VerticalAlignment="Top" Width="147" FontSize="15" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" FontFamily="Consolas"/>
+        <TextBox x:Name="MetaTitleTextbox" HorizontalAlignment="Left" Margin="600,82,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="168" Height="35" VerticalContentAlignment="Center" FontFamily="Consolas"/>
+        <TextBox x:Name="MetaComposerTextbox" HorizontalAlignment="Left" Margin="600,119,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="168" Height="35" VerticalContentAlignment="Center" FontFamily="Consolas"/>
+        <TextBox x:Name="MetaArrangerTextbox" HorizontalAlignment="Left" Margin="600,156,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="168" Height="35" VerticalContentAlignment="Center" FontFamily="Consolas"/>
+        <TextBox x:Name="MetaTempoTextbox" HorizontalAlignment="Left" Margin="600,193,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="168" Height="35" VerticalContentAlignment="Center" FontFamily="Consolas"/>
+        <TextBox x:Name="MetaOptionTextbox" HorizontalAlignment="Left" Margin="600,230,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="168" Height="35" VerticalContentAlignment="Center" FontFamily="Consolas"/>
+        <TextBox x:Name="MetaFilenameTextbox" HorizontalAlignment="Left" Margin="600,267,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="168" Height="35" VerticalContentAlignment="Center" FontFamily="Consolas"/>
+        <TextBox x:Name="MetaZenlenTextbox" HorizontalAlignment="Left" Margin="600,304,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="168" Height="36" VerticalContentAlignment="Center" FontFamily="Consolas"/>
+        <TextBox x:Name="MetaVoldownFMTextbox" HorizontalAlignment="Left" Margin="600,342,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="54" Height="36" VerticalContentAlignment="Center" FontFamily="Consolas"/>
+        <TextBox x:Name="MetaVoldownSSGTextbox" HorizontalAlignment="Left" Margin="656,342,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="56" Height="36" VerticalContentAlignment="Center" FontFamily="Consolas"/>
+        <TextBox x:Name="MetaVoldownRhythmTextbox" HorizontalAlignment="Left" Margin="714,342,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="54" Height="36" VerticalContentAlignment="Center" FontFamily="Consolas"/>
+        <Label x:Name="CharCountLabel" Content="Character Count: 0" HorizontalAlignment="Left" Margin="880,407,0,0" VerticalAlignment="Top" Width="264" FontSize="15" FontFamily="Consolas"/>
+        <Label x:Name="SizeLabel" Content="Size/SizeLimit:  0KB / 61KB (0%)" HorizontalAlignment="Left" Margin="880,441,0,0" VerticalAlignment="Top" Width="285" Height="60" FontSize="15" FontFamily="Consolas"/>
+    </Grid>
+        
+</Window>
