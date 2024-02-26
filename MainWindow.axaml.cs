@@ -348,7 +348,8 @@ public partial class MainWindow : Window
 
         /* Metadata */
         var metaSb = new StringBuilder();
-        metaSb.AppendLine("; Converted with FurnaceCommandStream2MML").AppendLine()
+        metaSb.AppendLine(";;; Converted with Furnace2MML").AppendLine()
+           .AppendLine("; Metadata")
            .AppendLine($"#Title\t\t{songName}")
            .AppendLine($"#Composer\t{composer}")
            .AppendLine($"#Arranger\t{arranger}")
@@ -363,11 +364,14 @@ public partial class MainWindow : Window
            .AppendLine();
         ResultOutputTextBox.Text += metaSb.ToString();
 
+        /* Instrument Definition */
+        resultOutput.AppendLine(";;; Instrument Definition");
         var instSb = ConvertFurnaceToMML.ConvertInstrument(new StringBuilder());
         ResultOutputTextBox.Text += instSb.ToString();
 
 
         /* Initialize Order StringBuilder */
+        resultOutput.AppendLine(";;; Note Channels");
         var orderSb = new StringBuilder[MaxOrderNum + 1];
         for(var orderNum = 0; orderNum < orderSb.Length; orderNum++) {
             orderSb[orderNum] = new StringBuilder();
