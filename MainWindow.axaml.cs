@@ -1,3 +1,8 @@
+#define DEBUG
+// #undef DEBUG
+// #define RELEASE
+#undef RELEASE
+
 using System;
 using System.Collections.Generic;
 using System.IO;
