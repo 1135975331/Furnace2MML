@@ -362,8 +362,9 @@ public partial class MainWindow : Window
             // .AppendLine("#Memo\t\tConverted with FurnaceCommandStream2MML")
            .AppendLine()
            .AppendLine();
-        ResultOutputTextBox.Text += metaSb.ToString();
-
+        resultOutput.Append(metaSb);
+        PublicValue.MetadataOutput = metaSb;
+        
         /* Instrument Definition */
         resultOutput.AppendLine(";;; Instrument Definition");
         var instSb = ConvertFurnaceToMML.ConvertInstrument(new StringBuilder());
@@ -450,15 +451,5 @@ public partial class MainWindow : Window
         Clipboard.SetTextAsync(ResultOutputTextBox.Text);
         LogInfo("Output is copied to clipboard.");
     }
-
-
-    /*
-    private static void OnClosing(object? sender, CancelEventArgs e)
-    {
-        foreach(var win in Application.Current) { // MainWindow가 닫히면 다른 창도 닫혀야 함
-            if(win is not MainWindow)
-                ((Window) win).Close();
-        }
-    }
-*/
+    
 }
