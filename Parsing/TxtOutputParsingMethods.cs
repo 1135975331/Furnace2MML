@@ -320,7 +320,7 @@ public class TxtOutputParsingMethods(StreamReader sr)
                     var effType = byte.Parse(effTypeStr, NumberStyles.HexNumber);
                     var effVal  = effValStr.Equals("..") ? (byte) 0 : byte.Parse(effValStr, NumberStyles.HexNumber);
 
-                    if(!ValidOtherEffectTypes.Contains(effType))
+                    if(!OtherEffectTypes.Contains(effType))
                         continue;
 
                     var effStruct = new OtherEffect(curTick, chNum, effType, effVal);

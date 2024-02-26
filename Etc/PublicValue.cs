@@ -24,6 +24,8 @@ public static class PublicValue
 	// public static readonly long[] ValidFractionLength = { 1, 2, 3, 4, 6, 8, 12, 16, 24, 32, 48, 96 };
     public static readonly byte[] ValidOtherEffectTypes = [0x09, 0x0F, 0xF0,  0x0B, 0x0D, 0xFF];
     public static int CurDefaultNoteFractionLength = 4;	 
+    public static readonly byte[] OtherEffectTypes = [0x09, 0x0F, 0xF0,  0x0B, 0x0D, 0xFF];
+    public static int CurDefaultNoteFractionLength = 4;
 }														   
 															
 															
