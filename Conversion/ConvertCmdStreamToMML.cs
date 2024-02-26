@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
-using Furnace2MML;
-using FurnaceCommandStream2MML.Etc;
-using FurnaceCommandStream2MML.Utils;
-namespace FurnaceCommandStream2MML.Conversion;
+using Furnace2MML.Etc;
+using Furnace2MML.Utils;
+
+namespace Furnace2MML.Conversion;
 
 public static class ConvertCmdStreamToMML
 {

@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Text;
-using FurnaceCommandStream2MML.Etc;
-using static FurnaceCommandStream2MML.Etc.PublicValue;
-namespace FurnaceCommandStream2MML.Utils;
+using static Furnace2MML.Etc.PublicValue;
+namespace Furnace2MML.Utils;
 
 public static class MiscellaneousConversionUtil
 {

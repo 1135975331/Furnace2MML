@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Text;
-using FurnaceCommandStream2MML.Etc;
-using FurnaceCommandStream2MML.Utils;
-using static FurnaceCommandStream2MML.Etc.InstOperator;
-using static FurnaceCommandStream2MML.Etc.PublicValue;
+using Furnace2MML.Etc;
+using Furnace2MML.Utils;
+using static Furnace2MML.Etc.InstOperator;
+using static Furnace2MML.Etc.PublicValue;
 
-namespace FurnaceCommandStream2MML.Conversion;
+namespace Furnace2MML.Conversion;
 
 public static class ConvertFurnaceToMML
 {

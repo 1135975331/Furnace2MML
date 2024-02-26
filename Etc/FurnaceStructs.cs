@@ -1,6 +1,7 @@
 ﻿using System;
-using FurnaceCommandStream2MML.Utils;
-namespace FurnaceCommandStream2MML.Etc;
+using Furnace2MML.Utils;
+
+namespace Furnace2MML.Etc;
 
 public struct SongInformation
 {

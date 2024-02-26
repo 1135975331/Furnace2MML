@@ -6,15 +6,18 @@ using System.Text;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using Avalonia.Media;
 using Avalonia.Platform.Storage;
+using Furnace2MML.Conversion;
+using Furnace2MML.Etc;
 using Furnace2MML.Parsing;
-using FurnaceCommandStream2MML.Conversion;
-using FurnaceCommandStream2MML.Etc;
-using FurnaceCommandStream2MML.Utils;
-using static FurnaceCommandStream2MML.Etc.ErrorWhileConversion;
-using static FurnaceCommandStream2MML.Etc.ErrorWhileConversionMethods;
-using static FurnaceCommandStream2MML.Etc.PrintLog;
-using static FurnaceCommandStream2MML.Etc.PublicValue;
+using Furnace2MML.Utils;
+using static Furnace2MML.Etc.ErrorWhileConversion;
+using static Furnace2MML.Etc.ErrorWhileConversionMethods;
+using static Furnace2MML.Etc.PrintLog;
+using static Furnace2MML.Etc.PublicValue;
+using Util = Furnace2MML.Utils.Util;
+
 
 // todo Progressbar
 // todo Document

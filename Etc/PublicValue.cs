@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
-namespace FurnaceCommandStream2MML.Etc;
+using System.Text;
+
+namespace Furnace2MML.Etc;
 
 public static class PublicValue
 {

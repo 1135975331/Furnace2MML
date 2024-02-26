@@ -4,10 +4,10 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
-using FurnaceCommandStream2MML.Etc;
-using FurnaceCommandStream2MML.Utils;
-using static FurnaceCommandStream2MML.Etc.InstOperator;
-using static FurnaceCommandStream2MML.Etc.PublicValue;
+using Furnace2MML.Etc;
+using Furnace2MML.Utils;
+using static Furnace2MML.Etc.InstOperator;
+using static Furnace2MML.Etc.PublicValue;
 namespace Furnace2MML.Parsing;
 
 public class TxtOutputParsingMethods(StreamReader sr)

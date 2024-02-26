@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Avalonia;
-namespace FurnaceCommandStream2MML.Utils;
+
+namespace Furnace2MML.Utils;
 
 public static partial class Util
 {

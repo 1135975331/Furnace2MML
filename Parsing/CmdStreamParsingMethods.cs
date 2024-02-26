@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using FurnaceCommandStream2MML.Etc;
-using FurnaceCommandStream2MML.Utils;
-using static FurnaceCommandStream2MML.Etc.PublicValue;
-using static FurnaceCommandStream2MML.Utils.CmdStreamToMMLUtil;
+using Furnace2MML.Etc;
+using Furnace2MML.Utils;
+using static Furnace2MML.Etc.PublicValue;
+using static Furnace2MML.Utils.CmdStreamToMMLUtil;
 namespace Furnace2MML.Parsing;
 
 public class CmdStreamParsingMethods

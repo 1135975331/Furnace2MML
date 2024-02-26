@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using FurnaceCommandStream2MML.Conversion;
-using FurnaceCommandStream2MML.Etc;
-using static FurnaceCommandStream2MML.Etc.PublicValue;
-namespace FurnaceCommandStream2MML.Utils;
+using Furnace2MML.Etc;
+using static Furnace2MML.Etc.PublicValue;
+namespace Furnace2MML.Utils;
 
 public static class CmdStreamToMMLUtil
 {

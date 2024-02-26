@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-namespace FurnaceCommandStream2MML.Conversion;
+using System.Text;
+
+namespace Furnace2MML.Conversion;
 
 public static class DrumConversion
 {

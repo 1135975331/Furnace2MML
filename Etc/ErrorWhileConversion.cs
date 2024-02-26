@@ -1,7 +1,7 @@
 ﻿using System;
-using static FurnaceCommandStream2MML.Etc.ErrorWhileConversion;
+using static Furnace2MML.Etc.ErrorWhileConversion;
 
-namespace FurnaceCommandStream2MML.Etc;
+namespace Furnace2MML.Etc;
 
 
 public enum ErrorWhileConversion

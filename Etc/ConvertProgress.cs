@@ -1,5 +1,6 @@
 ﻿using Avalonia.Controls;
-namespace FurnaceCommandStream2MML.Etc;
+
+namespace Furnace2MML.Etc;
 
 public static class ConvertProgress
 {

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using Furnace2MML.Parsing;
-using FurnaceCommandStream2MML.Etc;
-namespace FurnaceCommandStream2MML.Utils;
+using Furnace2MML.Etc;
+
+namespace Furnace2MML.Utils;
 
 public static class TxtOutputToMMLUtil
 {
