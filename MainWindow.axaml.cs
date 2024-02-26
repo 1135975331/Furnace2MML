@@ -453,14 +453,14 @@ public partial class MainWindow : Window
     {
         var textToCopy = new StringBuilder();
         
-        if(MetadataCopyCheckbox is { IsEnabled: true })  
+        if(MetadataCopyCheckbox is { IsChecked: true })  
             textToCopy.Append(PublicValue.MetadataOutput);
-        if(InstDefCopyCheckbox is { IsEnabled: true }) 
+        if(InstDefCopyCheckbox is { IsChecked: true }) 
             textToCopy.Append(PublicValue.InstDefOutput);
-        if(NoteChCopyCheckbox is { IsEnabled: true }) 
+        if(NoteChCopyCheckbox is { IsChecked: true }) 
             textToCopy.Append(PublicValue.NoteChannelsOutput);
         
-        Clipboard.SetTextAsync(ResultOutputTextBox.Text);
+        Clipboard.SetTextAsync(textToCopy.ToString());
         LogInfo("Output is copied to clipboard.");
     }
     
