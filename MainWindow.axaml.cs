@@ -27,7 +27,6 @@ using Util = Furnace2MML.Utils.Util;
 // todo Progressbar
 // todo Document
 // todo CmdType enum화
-// todo  드럼파트 0번은 SSG리듬을 사용하지 않는 드럼이 재생되도록
 
 namespace Furnace2MML;
 
@@ -37,7 +36,7 @@ public partial class MainWindow : Window
     public string TxtOutFilePath;
     public StreamReader Sr;
     
-    private static readonly FilePickerFileType TextFileTypeFilter = new FilePickerFileType("Text Files") { Patterns = ["*.txt"] };
+    private static readonly FilePickerFileType TextFileTypeFilter = new("Text Files") { Patterns = ["*.txt"] };
 
     public MainWindow()
     {
@@ -368,7 +367,7 @@ public partial class MainWindow : Window
         /* Instrument Definition */
         resultOutput.AppendLine(";;; Instrument Definition");
         var instSb = ConvertFurnaceToMML.ConvertInstrument(new StringBuilder());
-        ResultOutputTextBox.Text += instSb.ToString();
+        resultOutput.Append(instSb);
         PublicValue.InstDefOutput = instSb;
 
 
@@ -393,6 +392,7 @@ public partial class MainWindow : Window
             ResultOutputTextBox.Text += ordSb.AppendLine().ToString();
 
         PublicValue.NoteChannelsOutput = orderSb;
+        ResultOutputTextBox.Text = resultOutput.ToString();
         return true;
 
         #region Local Functions
