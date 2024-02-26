@@ -335,6 +335,7 @@ public partial class MainWindow : Window
     private bool Convert()
     {
         ResultOutputTextBox.Clear();
+        var resultOutput = new StringBuilder();
 
         var songName = MetaTitleTextbox.Text.Length != 0 ? MetaTitleTextbox.Text : SongInfo.SongName;
         var composer = MetaComposerTextbox.Text.Length != 0 ? MetaTitleTextbox.Text : SongInfo.Author;
@@ -376,7 +377,7 @@ public partial class MainWindow : Window
         var orderSb = new StringBuilder[MaxOrderNum + 1];
         for(var orderNum = 0; orderNum < orderSb.Length; orderNum++) {
             orderSb[orderNum] = new StringBuilder();
-            orderSb[orderNum].AppendLine($";;; [{orderNum:X2}|{orderNum:D3}] ({CmdStreamToMMLUtil.GetOrderStartTick(orderNum)}~{CmdStreamToMMLUtil.GetOrderStartTick(orderNum+1)-1} Tick)");
+            orderSb[orderNum].AppendLine($"; [{orderNum:X2}|{orderNum:D3}] ({CmdStreamToMMLUtil.GetOrderStartTick(orderNum)}~{CmdStreamToMMLUtil.GetOrderStartTick(orderNum+1)-1} Tick)");
         }
 
         var loopPointOrder = TxtOutputToMMLUtil.GetLoopPoint(OtherEffects);
@@ -388,8 +389,8 @@ public partial class MainWindow : Window
         ConvertFurnaceToMML.ConvertDrumsToMML(orderSb);
 
         /* Output results to ResultOutputTextBox */
-        foreach(var ordSb in orderSb)
-            ResultOutputTextBox.Text += ordSb.AppendLine().ToString();
+        foreach (var ordSb in orderSb)
+            resultOutput.Append(ordSb).AppendLine();
 
         PublicValue.NoteChannelsOutput = orderSb;
         ResultOutputTextBox.Text = resultOutput.ToString();
