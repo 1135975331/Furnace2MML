@@ -369,6 +369,7 @@ public partial class MainWindow : Window
         resultOutput.AppendLine(";;; Instrument Definition");
         var instSb = ConvertFurnaceToMML.ConvertInstrument(new StringBuilder());
         ResultOutputTextBox.Text += instSb.ToString();
+        PublicValue.InstDefOutput = instSb;
 
 
         /* Initialize Order StringBuilder */
@@ -391,6 +392,7 @@ public partial class MainWindow : Window
         foreach(var ordSb in orderSb)
             ResultOutputTextBox.Text += ordSb.AppendLine().ToString();
 
+        PublicValue.NoteChannelsOutput = orderSb;
         return true;
 
         #region Local Functions
