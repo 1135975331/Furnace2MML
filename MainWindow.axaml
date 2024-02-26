@@ -7,7 +7,7 @@
         CanResize="True"
         Title="Furnace2MML">
         
-    <Grid Margin="0,-1,0,1">
+    <Grid Margin="0,0,0,0">
         <Label x:Name="CmdFilePathLabel" Content="Command Stream File Path" HorizontalAlignment="Left" Margin="148,72,0,0" VerticalAlignment="Top" Height="28" Width="201" FontSize="14" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" FontFamily="Consolas"/>
         <Button x:Name="OpenCmdFileButton" Content="..." HorizontalAlignment="Left" Margin="351,70,0,0" VerticalAlignment="Top" Height="29" Width="39" Click="CmdFileSelectButton_Click" FontFamily="Consolas"/>
         <TextBox x:Name="CmdFilePathTextBox" HorizontalAlignment="Left" Margin="81,106,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="394" Height="42" VerticalContentAlignment="Center" FontFamily="Consolas"/>
@@ -21,8 +21,13 @@
                  ScrollViewer.HorizontalScrollBarVisibility="Auto"
                  ScrollViewer.VerticalScrollBarVisibility="Auto"/>
         <Label x:Name="OutputLabel" Content="Output" HorizontalAlignment="Left" Margin="95,347,0,0" VerticalAlignment="Top" FontSize="18" FontWeight="Bold" FontFamily="Consolas"/>
-        <Button x:Name="ConvertStartButton" Content="Convert" HorizontalAlignment="Left" Margin="928,552,0,0" VerticalAlignment="Top" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Click="ConvertStartButton_Click" Height="68" Width="168" FontSize="20" FontFamily="Consolas"/>
-        <Button x:Name="ClipboardCopyButton" Content="Copy to&#10;Clipboard" HorizontalAlignment="Left" Margin="942,640,0,0" VerticalAlignment="Top" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Height="56" Width="140" Click="ClipboardCopyButton_Click" FontFamily="Consolas"/>
+        <Button x:Name="ConvertStartButton" Content="Convert" HorizontalAlignment="Left" Margin="928,495,0,0" VerticalAlignment="Top" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Height="68" Width="168" FontSize="20" FontFamily="Consolas" Click="ConvertStartButton_Click"/>
+        
+        <CheckBox x:Name="MetadataCopyCheckbox" Content="Metadata" HorizontalAlignment="Left" Margin="880,580,0,0" VerticalAlignment="Top" FontSize="16" FontStretch="Normal" FontFamily="Consolas" IsChecked="True"/>
+        <CheckBox x:Name="InstDefCopyCheckbox" Content="Inst Definition" HorizontalAlignment="Left" Margin="880,605,0,0" VerticalAlignment="Top" FontSize="16" FontStretch="Normal" FontFamily="Consolas" IsChecked="True"/>
+        <CheckBox x:Name="NoteChCopyCheckbox" Content="Note Channels" HorizontalAlignment="Left" Margin="880,630,0,0" VerticalAlignment="Top" FontSize="16" FontStretch="Normal" FontFamily="Consolas" IsChecked="True"/>  
+        <Button x:Name="ClipboardCopyButton" Content="Copy to&#10;Clipboard" HorizontalAlignment="Left" Margin="942,670,0,0" VerticalAlignment="Top" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Height="56" Width="140" FontSize="12" FontStretch="Condensed" Click="ClipboardCopyButton_Click" FontFamily="Consolas"/>
+        
         <Label x:Name="MetaOverwriteLabel" Content="Overwrite Metadata" HorizontalAlignment="Left" Margin="565,25,0,0" VerticalAlignment="Top" Width="180" FontSize="17" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontFamily="Consolas"/>
         <Label x:Name="MetaOverwriteSubLabel" Content="(Default values will be used if TextBox is empty)" HorizontalAlignment="Left" Margin="504,48,0,0" VerticalAlignment="Top" Width="302" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontSize="10" FontFamily="Consolas"/>
         <Label x:Name="MetaTitleLabel" Content="Title" HorizontalAlignment="Left" Margin="514,85,0,0" VerticalAlignment="Top" Width="75" FontSize="15" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" FontFamily="Consolas"/>

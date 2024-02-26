@@ -448,6 +448,15 @@ public partial class MainWindow : Window
 
     private void ClipboardCopyButton_Click(object sender, RoutedEventArgs e)
     {
+        var textToCopy = new StringBuilder();
+        
+        if(MetadataCopyCheckbox is { IsEnabled: true })  
+            textToCopy.Append(PublicValue.MetadataOutput);
+        if(InstDefCopyCheckbox is { IsEnabled: true }) 
+            textToCopy.Append(PublicValue.InstDefOutput);
+        if(NoteChCopyCheckbox is { IsEnabled: true }) 
+            textToCopy.Append(PublicValue.NoteChannelsOutput);
+        
         Clipboard.SetTextAsync(ResultOutputTextBox.Text);
         LogInfo("Output is copied to clipboard.");
     }
