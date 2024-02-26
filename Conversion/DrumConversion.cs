@@ -7,39 +7,59 @@ namespace Furnace2MML.Conversion;
 
 public static class DrumConversion
 {
+	public static string ToDrumSoundSource(IEnumerable<int[]> drumChNums)
+	{
+		var sb = new StringBuilder();
+		foreach(var drumChNum in drumChNums) {
+			var mml = drumChNum[0] switch {
+				9  => "\\b",  // bass drum
+				10 => "\\s",  // snare drum
+				11 => "\\c",  // cymbals
+				12 => "\\h",  // hi-hat
+				13 => "\\t",  // tom 
+				14 => "\\i",  // rim shot
+				_  => ""
+			};
+			sb.Append(mml);
+		}
+		
+		return sb.ToString();
+	}
+    
+    
     /*
      *  Ch   ins  
-     * Kick     - @1 Bass Drum
-     * Snare 00 - @2 Snare Drum 1
-     * Snare 01 - @64 Snare Drum 2
-     * Top   00 - @256 Hi-Hat Open
-     * Top   01 - @512 Crash Cymbal
-     * Top   02 - @1024 Ride Cymbal
-     * HiHat    - @128 Hi-Hat Close
-     * Tom   00 - @4 Low Tom
-     * Tom   01 - @8 Middle Tom
-     * Tom   02 - @16 High Tom
-     * Rim      - @32 Rim Shot
+     * Kick  01 - @1 Bass Drum
+     * Snare 01 - @2 Snare Drum 1
+     * Snare 02 - @64 Snare Drum 2
+     * Top   01 - @256 Hi-Hat Open
+     * Top   02 - @512 Crash Cymbal
+     * Top   03 - @1024 Ride Cymbal
+     * HiHat 01 - @128 Hi-Hat Close
+     * Tom   01 - @4 Low Tom
+     * Tom   02 - @8 Middle Tom
+     * Tom   03 - @16 High Tom
+     * Rim   01 - @32 Rim Shot
      */
-	public static string MidiDrumToMMLDrum(List<int[]> drumChNums)
+	public static string ToInternalSSGDrum(IEnumerable<int[]> drumChNums)
 	{
 		var mmlDrumPlayID = drumChNums.Select(drumCh => drumCh[0] switch {
-				9 => 1,
+				9  when drumCh[1] == 1 => 1,
 
-				10 when drumCh[1] == 0 => 2,
-				10 when drumCh[1] == 1 => 64,
+				10 when drumCh[1] == 1 => 2,
+				10 when drumCh[1] == 2 => 64,
 
-				11 when drumCh[1] == 0 => 256,
-				11 when drumCh[1] == 1 => 512,
-				11 when drumCh[1] == 2 => 1024,
+				11 when drumCh[1] == 1 => 256,
+				11 when drumCh[1] == 2 => 512,
+				11 when drumCh[1] == 3 => 1024,
 
-				12 => 128,
+				12 when drumCh[1] == 1 => 128,
 
-				13 when drumCh[1] == 0 => 4,
-				13 when drumCh[1] == 1 => 8,
-				13 when drumCh[1] == 2 => 16,
+				13 when drumCh[1] == 1 => 4,
+				13 when drumCh[1] == 2 => 8,
+				13 when drumCh[1] == 3 => 16,
 
-				14 => 32,
+				14 when drumCh[1] == 1 => 32,
 
 				_ => 0
 			})

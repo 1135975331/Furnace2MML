@@ -9,6 +9,7 @@ using static Furnace2MML.Etc.PublicValue;
 
 namespace Furnace2MML.Conversion;
 
+[SuppressMessage("ReSharper", "InconsistentNaming")]
 public static class ConvertFurnaceToMML
 {
     public static StringBuilder ConvertInstrument(StringBuilder instSb)
@@ -132,6 +133,7 @@ public static class ConvertFurnaceToMML
             }
 
             switch(cmdType) {
+                case "HINT_VOLUME":   ConvertCmdStreamToMML.ConvertVolume(drumCmd, tickLen, orderSb[curOrderNum]); break;
                 case "INSTRUMENT":
                     curInstNum[drumCmd.Channel-9] = drumCmd.Value1;
                     break;
@@ -154,40 +156,45 @@ public static class ConvertFurnaceToMML
     }
     
     /*
-     * Kick     - @1 Bass Drum
-     * Snare 00 - @2 Snare Drum 1
-     * Snare 01 - @64 Snare Drum 2
-     * Top   00 - @256 Hi-Hat Open
-     * Top   01 - @512 Crash Cymbal
-     * Top   02 - @1024 Ride Cymbal
-     * HiHat    - @128 Hi-Hat Close
-     * Tom   00 - @4 Low Tom
-     * Tom   01 - @8 Middle Tom
-     * Tom   02 - @16 High Tom
-     * Rim      - @32 Rim Shot
+     * [Drum]  00 - YM2608 Drum Sound Source (without internal SSG drums)
+     *  Kick   01 - @1 Bass Drum
+     *  Snare  01 - @2 Snare Drum 1
+     *  Snare  02 - @64 Snare Drum 2
+     *  Top    01 - @256 Hi-Hat Open
+     *  Top    02 - @512 Crash Cymbal
+     *  Top    03 - @1024 Ride Cymbal
+     *  HiHat  01 - @128 Hi-Hat Close
+     *  Tom    01 - @4 Low Tom
+     *  Tom    02 - @8 Middle Tom
+     *  Tom    03 - @16 High Tom
+     *  Rim    01 - @32 Rim Shot
      */
     private static string _prevMMLDrum = "";
     private static int _prevOrderNum = -1;
     private static bool _firstDrumProcessed = false;
     public static void ConvertDrumNoteOn(List<int[]> chNums, int curOrderNum, int tickLen, StringBuilder sb)
     {
-        var mmlDrum    = DrumConversion.MidiDrumToMMLDrum(chNums);
+        var soundSourceOnly = chNums.Where(elem => elem[1] == 0);
+        var withInternalSSG = chNums.Where(elem => elem[1] >= 1);
+        
+        var soundSourceDrumStr = DrumConversion.ToDrumSoundSource(soundSourceOnly);
+        var internalSSGDrumStr    = DrumConversion.ToInternalSSGDrum(withInternalSSG);
         var mmlFracLen = CmdStreamToMMLUtil.FormatNoteLength(tickLen, PublicValue.ValidFractionLength, PublicValue.CurDefaultNoteFractionLength);
         // var mmlFracLen = CommandToMMLUtil.ConvertBetweenTickAndFraction(tickLen);
 
-        var isRest = mmlDrum.Equals("r");
+        var isRest = internalSSGDrumStr.Equals("r");
         if(curOrderNum != _prevOrderNum) {
             _prevOrderNum       = curOrderNum;
             _firstDrumProcessed = false;
         }
 
-        if(!isRest && _firstDrumProcessed && mmlDrum.Equals(_prevMMLDrum))
-            mmlDrum = ""; // In order to reduce file size
+        if(!isRest && _firstDrumProcessed && internalSSGDrumStr.Equals(_prevMMLDrum))
+            internalSSGDrumStr = ""; // In order to reduce file size
         else if(!isRest) {
-            _prevMMLDrum        = mmlDrum;
+            _prevMMLDrum        = internalSSGDrumStr;
             _firstDrumProcessed = true;
         }
-
-        sb.Append(isRest ? $"r{mmlFracLen}" : $"{mmlDrum}c{mmlFracLen}");
+        
+        sb.Append(soundSourceDrumStr).Append(isRest ? $"r" : $"{internalSSGDrumStr}c").Append(mmlFracLen);
     }
 }
