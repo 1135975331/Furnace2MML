@@ -353,7 +353,6 @@ public class TxtOutputParsingMethods(StreamReader sr)
         }
         
         MaxOrderNum = curOrderNum;
-        SetTickPerUnits();
         if(EndTick == -1)
             EndTick = OrderStartTimes[MaxOrderNum].StartTick + TickPerUnitChanges[^1].TickPerOrder;
             

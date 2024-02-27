@@ -138,8 +138,6 @@ public static class CmdStreamToMMLUtil
         curOrderSb.Append(mmlFracLen);
         return curOrderSb;
     }
-
-
     
 
     public static StringBuilder FormatNoteLength(int tickLenP, int[] validFractionLength, int defaultFractionLength)
@@ -238,48 +236,6 @@ public static class CmdStreamToMMLUtil
         }
         #endregion
     }
-
-    /*
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="cmdList"></param>
-    /// <param name="curIdx"></param>
-    /// <param name="cmdTypeToFind"></param>
-    /// <param name="direction"></param>
-    /// <param name="conditionInverted">결과를 반전시키는가(포함하지 않는 경우로 변경하는가)의 여부</param>
-    /// <returns></returns>
-    public static FurnaceCommand GetFirstCmdByCmdType(List<FurnaceCommand> cmdList, int curIdx, string[] cmdTypeToFind, string direction = "forward", bool conditionInverted = false)
-    {
-        switch(direction) {
-            case "forward": {
-                var listLen = cmdList.Count;
-                for(var i = curIdx + 1; i < listLen; i++)
-                    if(SearchCondition(cmdList[i].CmdType))
-                        return cmdList[i];
-                break;
-            }
-            case "backward": {
-                for(var i = curIdx - 1; i >= 0; i--)
-                    if(SearchCondition(cmdList[i].CmdType))
-                        return cmdList[i];
-                break;
-            }
-            default:
-                throw new ArgumentOutOfRangeException($"Invalid direction argument: {direction}");
-        }
-        
-        var lastTick = GetLastTick();
-        return new FurnaceCommand(lastTick, MiscellaneousConversionUtil.GetOrderNum(lastTick), cmdList[0].Channel, "NOTE_OFF", 0, 0);
-        // return new FurnaceCommand(-1, -1, "INVALID_NOT_FOUND", -1, -1);
-
-        #region Local Functions
-        /* ----------------------------------Local Functions-------------------------------------- #1#
-        bool SearchCondition(string s)
-            => conditionInverted ? !cmdTypeToFind.Contains(s) : cmdTypeToFind.Contains(s);
-        #endregion
-    }
-    */
 
     /// <summary>
     /// Search for the first cmd that meets the condition.
