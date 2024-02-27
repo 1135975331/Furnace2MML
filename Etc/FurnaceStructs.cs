@@ -101,6 +101,9 @@ public struct FurnaceCommand(int tick, byte orderNum, byte channel, string cmdTy
             _            => 1,
         };
     }
+
+    public static bool operator ==(FurnaceCommand left, FurnaceCommand right) => left.Equals(right);
+    public static bool operator !=(FurnaceCommand left, FurnaceCommand right) => !(left == right);
 }
 
 
