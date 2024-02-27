@@ -49,16 +49,12 @@ public partial class MainWindow : Window
 		#if DEBUG
         var testFilesDirPath = Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.FullName + @"\FurnaceForTest";
         LogDebug($"TestFilesDir: {testFilesDirPath}");
-        // GetFilePaths(testFilesDirPath + @"\hurairu\hurairu_cmd.txt", OutputFileType.CMD_STREAM);
-        // GetFilePaths(testFilesDirPath + @"\hurairu\hurairu_txt.txt", OutputFileType.TXT_OUTPUT);
+        GetFilePaths(testFilesDirPath + @"\hurairu\hurairu_cmd.txt", OutputFileType.CMD_STREAM);
+        GetFilePaths(testFilesDirPath + @"\hurairu\hurairu_txt.txt", OutputFileType.TXT_OUTPUT);
         // GetFilePaths(testFilesDirPath + @"\tuya\tuya_cmd.txt", OutputFileType.CMD_STREAM);
         // GetFilePaths(testFilesDirPath + @"\tuya\tuya_txt.txt", OutputFileType.TXT_OUTPUT);
         // GetFilePaths($@"{testFilesDirPath}\okf\okf_cmd.txt", OutputFileType.CMD_STREAM);
         // GetFilePaths($@"{testFilesDirPath}\okf\okf_txt.txt", OutputFileType.TXT_OUTPUT);
-        GetFilePaths($@"{testFilesDirPath}\etc\bestgirl_cmd.txt", OutputFileType.CMD_STREAM);
-        GetFilePaths($@"{testFilesDirPath}\etc\bestgirl_txt.txt", OutputFileType.TXT_OUTPUT);
-        // GetFilePaths($@"{testFilesDirPath}\etc\corridor_cmd.txt", OutputFileType.CMD_STREAM);
-        // GetFilePaths($@"{testFilesDirPath}\etc\corridor_txt.txt", OutputFileType.TXT_OUTPUT);
         StartConvert();
 		#endif
     }
