@@ -131,7 +131,7 @@ public partial class MainWindow : Window
         DrumCmds.Clear();
         OtherEffects.Clear();
         TickPerUnitChanges.Clear();
-        OrderStartTicks.Clear();
+        OrderStartTimes.Clear();
         MaxOrderNum = -1;
     }
 
