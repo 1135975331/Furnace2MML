@@ -16,8 +16,10 @@ public static class CmdStreamToMMLUtil
     /// 해당 메소드에 Tick길이를 넣으면 Fraction길이,
     /// Fraction길이를 넣으면 Tick길이가 반환된다.
     /// </summary>
-    /// <param name="value"></param>
-    /// <returns>value == Tick => Fraction, value == Fraction => Tick</returns>
+    /// <param name="value">Tick Length of Fraction Length</param>
+    /// <returns>If value is Tick Length, returns Fraction Length <br/>
+    /// If value is Fraction Length, returns Tick Length
+    /// </returns>
     public static int ConvertBetweenTickAndFraction(int value)
     {
         return value switch {
@@ -280,14 +282,18 @@ public static class CmdStreamToMMLUtil
     */
 
     /// <summary>
-    /// Search for the first cmd that meets condition.
+    /// Search for the first cmd that meets the condition.
     /// </summary>
-    /// <param name="cmdList"></param>
-    /// <param name="curIdx"></param>
+    /// <param name="cmdList">List of FurnaceCommand</param>
+    /// <param name="curIdx">Current index</param>
     /// <param name="predicateToSearch"></param>
-    /// <param name="predicateToStopSearching">Sets a condition that stops searching for performance.</param>
-    /// <param name="direction"></param>
-    /// <returns></returns>
+    /// <param name="predicateToStopSearching">A condition that stops searching for performance.</param>
+    /// <param name="direction">Search direction. Only forward(increasing index) or backward(decreasing index) is valid.</param>
+    /// <exception cref="ArgumentOutOfRangeException">If direction parameter is neither forward nor backward.</exception>
+    /// <returns>The first FurnaceCommand that meets the condition. <br/>
+    /// If searching was stopped by &lt;predicateToStopSearching&gt; condition, returns FurnaceCommand with "SEARCH_STOPPED" CmdType. <br/>
+    /// If there is no FurnaceCommand that meet the conditions, returns FurnaceCommand with &lt;EndTick&gt;Tick and "NOTE_OFF" CmdType.
+    /// </returns>
     public static FurnaceCommand GetFirstCertainCmd(List<FurnaceCommand> cmdList, int curIdx, Predicate<FurnaceCommand> predicateToSearch, Predicate<FurnaceCommand>? predicateToStopSearching = null, string direction = "forward")
     {
         var cmdWhenStopped = new FurnaceCommand(-1, 0xFF, 0xFF, "SEARCH_STOPPED", -1, -1);

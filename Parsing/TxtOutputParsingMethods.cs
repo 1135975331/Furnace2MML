@@ -273,9 +273,9 @@ public class TxtOutputParsingMethods(StreamReader sr)
     }
 
     /// <summary>
-    /// OtherEffect, OrderStartTick, MaxOrderNum에 대한 파싱 작업
+    /// Parsing for OtherEffect, OrderStartTick and MaxOrderNum
     /// </summary>
-    /// <param name="curReadingLineNum"></param>
+    /// <param name="curReadingLineNum">Currently reading line number of the file</param>
     public void ParsePatterns(ref int curReadingLineNum)
     {
         var effList                = OtherEffects;
