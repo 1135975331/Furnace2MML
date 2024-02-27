@@ -159,14 +159,16 @@ public struct OtherEffect(int tick, byte channel, byte effType, byte value)
         => $"{Channel:00} | {Tick}: [({Category}: {EffTypeStr}) {EffType:X2}{Value:X2}]";
 }
 
-public struct TickPerUnitChange(int time, int tickPerRow, int tickPerOrder)
+public readonly struct TickPerUnitChange(int timeTick, int timeOrderNum, int timeRowNum, int tickPerRow, int tickPerOrder)
 {
-    public readonly int Time = time;
-    public readonly int TickPerRow = tickPerRow;
+    public readonly int TimeTick = timeTick;
+    public readonly int TimeOrderNum = timeOrderNum;
+    public readonly int TimeRowNum = timeRowNum;
+    public readonly int TickPerRow = tickPerRow;  // == Speed Value
     public readonly int TickPerOrder = tickPerOrder;
 
     public override string ToString()
-        => $"Tick: {Time} | Row: {TickPerRow}, Order: {TickPerOrder}";
+        => $"Time: {TimeTick}({TimeOrderNum}:{TimeRowNum}) | TPR: {TickPerRow}, TPO: {TickPerOrder}";
 }
 
 public readonly struct OrderStartTime(byte orderNum, int orderStartTick, int skippedTick, int totalSkippedTick)
