@@ -16,7 +16,7 @@ public static class PublicValue
     public static List<OtherEffect> OtherEffects = [];
 	
     public static List<TickPerUnitChange> TickPerUnitChanges = [];
-	public static List<OrderStartTick> OrderStartTicks = [];
+	public static List<OrderStartTime> OrderStartTimes = [];
 	public static int EndTick = -1;
 	public static int MaxOrderNum = -1;
     
