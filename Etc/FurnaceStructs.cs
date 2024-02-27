@@ -169,7 +169,7 @@ public struct TickPerUnitChange(int time, int tickPerRow, int tickPerOrder)
         => $"Tick: {Time} | Row: {TickPerRow}, Order: {TickPerOrder}";
 }
 
-public struct OrderStartTick(byte orderNum, int orderStartTick, int skippedTick, int totalSkippedTick)
+public readonly struct OrderStartTime(byte orderNum, int orderStartTick, int skippedTick, int totalSkippedTick)
 {
     public readonly byte OrderNum = orderNum;
     public readonly int StartTick = orderStartTick;
