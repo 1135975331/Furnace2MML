@@ -286,6 +286,8 @@ public class TxtOutputParsingMethods(StreamReader sr)
         var totalSkippedTicks      = 0;
         var orderStartTickAssigned = false;
 
+        SetTickPerUnit(0, 0, 0, curTickPerRow);
+
         while(!CmdStreamReader.EndOfStream) {
             var line = CmdStreamReader.ReadLineCountingLineNum(ref curReadingLineNum);
             if(string.IsNullOrEmpty(line))
@@ -299,10 +301,10 @@ public class TxtOutputParsingMethods(StreamReader sr)
 
             var splitLine        = line.Split('|');
             var curPatternRowNum = int.Parse(splitLine[0].Trim(), NumberStyles.HexNumber);
-            var curTick          = (curOrderNum*patternLen + curPatternRowNum) * curTickPerRow - totalSkippedTicks; // curOrderNum * patternLen * 3 + curPatternRowNum * 3 - skippedRows * tickPerRow
+            var curTick          = GetCurTick(curOrderNum, curPatternRowNum, skippedTicks); 
 
             if(!orderStartTickAssigned) {
-                OrderStartTicks.Add(new OrderStartTick(curOrderNum, curTick, skippedTicks, totalSkippedTicks));
+                OrderStartTimes.Add(new OrderStartTime(curOrderNum, curTick, skippedTicks, totalSkippedTicks));
                 skippedTicks = 0;
                 orderStartTickAssigned = true;
             }
@@ -334,15 +336,16 @@ public class TxtOutputParsingMethods(StreamReader sr)
                         
                         case 0x0B: // Jump to pattern
                             if(effStruct.Value <= curOrderNum)
-                                EndTick = effStruct.Tick + curTickPerRow;
+                                EndTick = curTick + curTickPerRow;
                             break;
                         
                         case 0xFF: // Stop song
-                            EndTick = effStruct.Tick + curTickPerRow;
+                            EndTick = curTick + curTickPerRow;
                             break;
                         
                         case 0x0F: // Set speed
                             curTickPerRow = effVal;
+                            SetTickPerUnit(curTick, curOrderNum, curPatternRowNum, effStruct.Value);
                             break;
                     }
                 }
@@ -352,7 +355,7 @@ public class TxtOutputParsingMethods(StreamReader sr)
         MaxOrderNum = curOrderNum;
         SetTickPerUnits();
         if(EndTick == -1)
-            EndTick = OrderStartTicks[MaxOrderNum].StartTick + TickPerUnitChanges[^1].TickPerOrder;
+            EndTick = OrderStartTimes[MaxOrderNum].StartTick + TickPerUnitChanges[^1].TickPerOrder;
             
     }
     
@@ -366,23 +369,35 @@ public class TxtOutputParsingMethods(StreamReader sr)
     private static string GetValue(IReadOnlyList<string> splitStr) => splitStr.Count != 1 ? splitStr[1] : "";
     private static int GetIntValue(string line) => int.Parse(GetValue(line));
     private static byte GetByteValue(string line) => byte.Parse(GetValue(line));
-    
-    private void SetTickPerUnits()
+
+    /// <summary>
+    /// Get tick time of current row
+    /// </summary>
+    /// <param name="curOrderNum">Number of the current order</param>
+    /// <param name="curRowNum">Number of the current row</param>
+    /// <param name="skippedTicks">Skipped ticks for this order, which is occured by jumping to next order(0x0D)</param>
+    /// <returns>Tick time of current row</returns>
+    /// <exception cref="InvalidOperationException">if last tickPerUnitChange.TimeOrderNum is larger than curOrderNum</exception>
+    private int GetCurTick(int curOrderNum, int curRowNum, int skippedTicks)
     {
-        var effList    = OtherEffects;
-        var initSpeed  = PublicValue.Subsong.Speed;
-        var patternLen = PublicValue.Subsong.PatternLen;
+        var tickPerUnitChange = PublicValue.TickPerUnitChanges[^1];
+
+        if(tickPerUnitChange.TimeOrderNum <= curOrderNum)
+            return tickPerUnitChange.TimeTick + GetDeltaRowNum() * tickPerUnitChange.TickPerRow - skippedTicks;
         
-        TickPerUnitChanges.Add(new TickPerUnitChange(0, initSpeed, initSpeed * patternLen));
-        
-        var effListLen = effList.Count;
-        for(var i = 0; i < effListLen; i++) {
-            var eff = effList[i];
-            if(eff.EffType != 0x0F) // 0x0F: Set speed
-                continue; 
-            
-            TickPerUnitChanges.Add(new TickPerUnitChange(eff.Tick, eff.Value, patternLen * eff.Value));
+        throw new InvalidOperationException();
+
+        #region Local Functions
+        /* -------------------------------- Local Functions ------------------------------------- */
+        int GetDeltaRowNum()
+        {
+            var deltaOrderNum = curOrderNum - tickPerUnitChange.TimeOrderNum;
+            var deltaRowNum = PublicValue.Subsong.PatternLen * deltaOrderNum + (curRowNum - tickPerUnitChange.TimeRowNum);
+            return deltaRowNum;
         }
+        #endregion
     }
     
+    private void SetTickPerUnit(int timeTick, int timeOrderNum, int timeRowNum, int speed) 
+        => TickPerUnitChanges.Add(new TickPerUnitChange(timeTick, timeOrderNum, timeRowNum, speed, speed * PublicValue.Subsong.PatternLen));
 }
