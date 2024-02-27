@@ -69,7 +69,7 @@ public static class CmdStreamToMMLUtil
             return otherNote.Tick - curCmd.Tick;
         }
 
-        var songTotalTick = GetLastTick();
+        var songTotalTick = EndTick;
         return songTotalTick - curCmd.Tick;
     }
     
@@ -322,8 +322,7 @@ public static class CmdStreamToMMLUtil
                 throw new ArgumentOutOfRangeException($"Invalid direction argument: {direction}");
         }
         
-        var lastTick = GetLastTick();
-        return new FurnaceCommand(lastTick, MiscellaneousConversionUtil.GetOrderNum(lastTick), cmdList[0].Channel, "NOTE_OFF", 0, 0);
+        return new FurnaceCommand(EndTick, MiscellaneousConversionUtil.GetOrderNum(EndTick), cmdList[0].Channel, "NOTE_OFF", 0, 0);
     }
 
 
@@ -353,8 +352,5 @@ public static class CmdStreamToMMLUtil
     
     
     public static int GetOrderStartTick(int orderNum)
-        => orderNum <= MaxOrderNum ? OrderStartTicks[orderNum].StartTick : GetLastTick();
-
-    public static int GetLastTick()
-        => EndTick;
+        => orderNum <= MaxOrderNum ? OrderStartTimes[orderNum].StartTick : EndTick;
 }
