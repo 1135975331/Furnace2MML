@@ -453,8 +453,9 @@ public partial class MainWindow : Window
             textToCopy.Append(PublicValue.MetadataOutput);
         if(InstDefCopyCheckbox is { IsChecked: true }) 
             textToCopy.Append(PublicValue.InstDefOutput);
-        if(NoteChCopyCheckbox is { IsChecked: true }) 
-            textToCopy.Append(PublicValue.NoteChannelsOutput);
+        if(NoteChCopyCheckbox is { IsChecked: true })
+            foreach(var channelOutput in PublicValue.NoteChannelsOutput)
+                textToCopy.Append(channelOutput);
         
         Clipboard.SetTextAsync(textToCopy.ToString());
         LogInfo("Output is copied to clipboard.");
