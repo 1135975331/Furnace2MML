@@ -140,7 +140,12 @@ public static class ConvertCmdStreamToMML
         var mmlNote = CmdStreamToMMLUtil.GetMMLNote(noteNum, ref defaultOct).ToString();
         curOrderSb.Append('&').Append(mmlNote).AppendFracLength(tickLen);
     }
-    
-    
+
+
+    public static void ResetAllFields()
+    {
+        _arpValue = 0;
+        _arpTickSpeed = 1;
+    }
 
 }

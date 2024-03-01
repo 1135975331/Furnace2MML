@@ -132,7 +132,15 @@ public partial class MainWindow : Window
         OtherEffects.Clear();
         TickPerUnitChanges.Clear();
         OrderStartTimes.Clear();
+        EndTick = -1;
         MaxOrderNum = -1;
+
+        MetadataOutput = null!;
+        InstDefOutput = null!;
+        NoteChannelsOutput = null!;
+        
+        ConvertFurnaceToMML.ResetAllFields();
+        ConvertCmdStreamToMML.ResetAllFields();
     }
 
     private bool ParseTextOutput(string textOutputFilePath)

@@ -197,4 +197,11 @@ public static class ConvertFurnaceToMML
         
         sb.Append(soundSourceDrumStr).Append(isRest ? $"r" : $"{internalSSGDrumStr}c").Append(mmlFracLen);
     }
+
+    public static void ResetAllFields()
+    {
+        _prevMMLDrum = "";
+        _prevOrderNum = -1;
+        _firstDrumProcessed = false;
+    }
 }
