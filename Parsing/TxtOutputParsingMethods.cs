@@ -284,6 +284,7 @@ public class TxtOutputParsingMethods(StreamReader sr)
         var curOrderNum            = byte.MaxValue;
         var skippedTicks = 0;
         var totalSkippedTicks      = 0;
+        var totalSkippedTicksUntilTickPerUnitChange = 0;
         var orderStartTickAssigned = false;
 
         SetTickPerUnit(0, 0, 0, curTickPerRow);
@@ -301,7 +302,7 @@ public class TxtOutputParsingMethods(StreamReader sr)
 
             var splitLine        = line.Split('|');
             var curPatternRowNum = int.Parse(splitLine[0].Trim(), NumberStyles.HexNumber);
-            var curTick          = GetCurTick(curOrderNum, curPatternRowNum, skippedTicks); 
+            var curTick          = GetCurTick(curOrderNum, curPatternRowNum, totalSkippedTicksUntilTickPerUnitChange); 
 
             if(!orderStartTickAssigned) {
                 OrderStartTimes.Add(new OrderStartTime(curOrderNum, curTick, skippedTicks, totalSkippedTicks));
@@ -331,6 +332,7 @@ public class TxtOutputParsingMethods(StreamReader sr)
                     switch(effType) {
                         case 0x0D: // Jump to next pattern
                             skippedTicks = (patternLen-1 - curPatternRowNum) * curTickPerRow;
+                            totalSkippedTicksUntilTickPerUnitChange += skippedTicks;
                             totalSkippedTicks += skippedTicks;
                             break;
                         
@@ -345,6 +347,7 @@ public class TxtOutputParsingMethods(StreamReader sr)
                         
                         case 0x0F: // Set speed
                             curTickPerRow = effVal;
+                            totalSkippedTicksUntilTickPerUnitChange = 0;
                             SetTickPerUnit(curTick, curOrderNum, curPatternRowNum, effStruct.Value);
                             break;
                     }
@@ -374,15 +377,15 @@ public class TxtOutputParsingMethods(StreamReader sr)
     /// </summary>
     /// <param name="curOrderNum">Number of the current order</param>
     /// <param name="curRowNum">Number of the current row</param>
-    /// <param name="skippedTicks">Skipped ticks for this order, which is occured by jumping to next order(0x0D)</param>
+    /// <param name="totalSkippedTicksUntilTickPerUnitChange">Total skipped ticks until <c>tickPerUnit</c> changes</param>
     /// <returns>Tick time of current row</returns>
     /// <exception cref="InvalidOperationException">if last tickPerUnitChange.TimeOrderNum is larger than curOrderNum</exception>
-    private int GetCurTick(int curOrderNum, int curRowNum, int skippedTicks)
+    private int GetCurTick(int curOrderNum, int curRowNum, int totalSkippedTicksUntilTickPerUnitChange)
     {
         var tickPerUnitChange = PublicValue.TickPerUnitChanges[^1];
 
         if(tickPerUnitChange.TimeOrderNum <= curOrderNum)
-            return tickPerUnitChange.TimeTick + GetDeltaRowNum() * tickPerUnitChange.TickPerRow - skippedTicks;
+            return tickPerUnitChange.TimeTick + GetDeltaRowNum() * tickPerUnitChange.TickPerRow - totalSkippedTicksUntilTickPerUnitChange;
         
         throw new InvalidOperationException();
 
