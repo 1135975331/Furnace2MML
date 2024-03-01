@@ -8,128 +8,40 @@ namespace Furnace2MML.Parsing;
 
 public class CmdStreamParsingMethods
 {
-    /// <summary>
+       /// <summary>
     /// 마지막 줄이 >> LOOP 0 인 경우, Order의 첫 줄에 노트가 있으면 중복되는 Command Stream이 생김
     /// 이 메소드는 이러한 중복을 제거함
     /// (중복을 제거하면서 curTick값도 재조정함)
     /// </summary>
     /// <param name="curTick"></param>
     /// <param name="lastLine"></param>
-    public void RemoveDuplicatedEventsAtTheEnd(ref int curTick, string lastLine)
+    public void RemoveDuplicatedCommandsAtTheEnd(ref int curTick, string lastLine)
     {
         if(lastLine.Equals(">> END"))  //  There's no duplicates if the lastLine is ">> END"
             return;
         
-        var noteCmds      = NoteCmds;
-        var drumCmds      = DrumCmds;
-        var firstTickCmds = new List<FurnaceCommand>();
-        var lastTickCmds  = new List<FurnaceCommand>();
+        var noteCmds = NoteCmds;
+        var drumCmds = DrumCmds;
         
         for(var chNum = 0; chNum < 9; chNum++) {
-            var noteCmdCh = noteCmds[chNum];
-            if(noteCmdCh.Count == 0)
+            var noteCmdCh    = noteCmds[chNum];
+            var noteCmdChLen = noteCmdCh.Count;
+            if(noteCmdChLen == 0)
                 continue;
             
-            AppendToFirstTickCmds(noteCmdCh[0].Tick, noteCmdCh);
-            AppendToLastTickCmds(noteCmdCh[^1].Tick, noteCmdCh);
+            RemoveDuplicatedCommand(noteCmdCh);
         }
         
-        AppendToFirstTickCmds(drumCmds[0].Tick, drumCmds);
-        AppendToLastTickCmds(drumCmds[^1].Tick, drumCmds);
+        RemoveDuplicatedCommand(drumCmds);
         
-
-        var duplicateTick = lastTickCmds[0].Tick;
-        var lastTickCmdsLen = lastTickCmds.Count;
-        for(var i = 0; i < lastTickCmdsLen; i++) {
-            var lastTickCmd = lastTickCmds[i];
-            foreach(var firstTickCmd in firstTickCmds) {
-                bool isDuplicate;
-
-                if(firstTickCmd.CmdType.Equals("HINT_LEGATO") && lastTickCmd.CmdType.Equals("NOTE_ON") ||
-                   firstTickCmd.CmdType.Equals("NOTE_ON") && lastTickCmd.CmdType.Equals("HINT_LEGATO")) {  // if CmdType of one of the two is "NOTE_ON", and the other one is "HINT_LEGATO"
-                    isDuplicate = firstTickCmd.Channel == lastTickCmd.Channel &&
-                                  firstTickCmd.Value1 == lastTickCmd.Value1;
-                } else {
-                    isDuplicate = firstTickCmd.Channel == lastTickCmd.Channel &&
-                                  firstTickCmd.Value1 == lastTickCmd.Value1 &&
-                                  firstTickCmd.Value2 == lastTickCmd.Value2;
-                }
-
-                if(isDuplicate) {
-                    lastTickCmds.RemoveAtIdxLoop(ref i, ref lastTickCmdsLen);
-                    break;
-                }
-            }
-        }
-
-        if(lastTickCmdsLen != 0)
-            return;
-        
-        for(var chNum = 0; chNum < 9; chNum++) {
-            var noteCmdCh = noteCmds[chNum];
-            if(noteCmdCh.Count == 0)
-                continue;
-            
-            noteCmdCh.RemoveAll(cmd => cmd.Tick == duplicateTick);
-        }
-
-        return;
-        
-        #region Loacl Functions
-        /* ------------------------------------ Local Functions --------------------------------------- */
-        void AppendToFirstTickCmds(int firstTick, List<FurnaceCommand> cmdList)
-        {
-            if(firstTickCmds == null) 
-                throw new NullReferenceException();
-
-            if(firstTickCmds.Count != 0) {
-                if(firstTick > firstTickCmds[0].Tick)
-                    return;
-                if(firstTick < firstTickCmds[0].Tick)
-                    firstTickCmds.Clear();
-            }
-
-            var cmdListLen = cmdList.Count;
-            for(var i = 0; i < cmdListLen; i++) {
-                var cmd = cmdList[i];
-                
-                if(cmd.Tick < firstTick)
-                    throw new InvalidOperationException();
-                if(cmd.Tick != firstTick)
-                    break;
-                
-                firstTickCmds.Add(cmd);
-            }
-        }
-        
-        void AppendToLastTickCmds(int lastTick, List<FurnaceCommand> cmdList)
-        {
-            if(lastTickCmds == null) 
-                throw new NullReferenceException();
-
-            if(lastTickCmds.Count != 0) {
-                if(lastTick < lastTickCmds[0].Tick)
-                    return;
-                if(lastTick > lastTickCmds[0].Tick)
-                    lastTickCmds.Clear();
-            }
-
-            var cmdListLen = cmdList.Count;
-            for(var i = cmdListLen - 1; i >= 0; i--) {
-                var cmd = cmdList[i];
-                
-                if(cmd.Tick > lastTick)
-                    throw new InvalidOperationException();
-                if(cmd.Tick != lastTick)
-                    break;
-                
-                lastTickCmds.Add(cmd);
-            }
-        }
+        #region Local Functions
+        /* -------------------------------- Local Functions ----------------------------------- */
+        void RemoveDuplicatedCommand(List<FurnaceCommand> cmdList) 
+            => cmdList.RemoveAll(cmd => cmd.Tick >= EndTick);
         #endregion
     }
-
-
+ 
+    
     /// <summary>
     /// 각 Order의 시작부분에 NOTE_OFF 명령을 끼워넣는 메소드
     /// </summary>
