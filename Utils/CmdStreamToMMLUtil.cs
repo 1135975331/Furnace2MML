@@ -8,9 +8,6 @@ namespace Furnace2MML.Utils;
 
 public static class CmdStreamToMMLUtil
 {
-    
-    
-    
     /// <summary>
     ///  Tick 혹은 Fraction 길이를 서로 반대로 바꿔주는 메소드
     /// 해당 메소드에 Tick길이를 넣으면 Fraction길이,
@@ -247,8 +244,8 @@ public static class CmdStreamToMMLUtil
     /// <param name="direction">Search direction. Only forward(increasing index) or backward(decreasing index) is valid.</param>
     /// <exception cref="ArgumentOutOfRangeException">If direction parameter is neither forward nor backward.</exception>
     /// <returns>The first FurnaceCommand that meets the condition. <br/>
-    /// If searching was stopped by &lt;predicateToStopSearching&gt; condition, returns FurnaceCommand with "SEARCH_STOPPED" CmdType. <br/>
-    /// If there is no FurnaceCommand that meet the conditions, returns FurnaceCommand with &lt;EndTick&gt;Tick and "NOTE_OFF" CmdType.
+    /// If searching was stopped by <c>predicateToStopSearching</c> condition, returns FurnaceCommand with <c>"SEARCH_STOPPED"</c> CmdType. <br/>
+    /// If there is no FurnaceCommand that meet the conditions, returns FurnaceCommand with <c>EndTick</c>Tick and <c>"NOTE_OFF"</c> CmdType.
     /// </returns>
     public static FurnaceCommand GetFirstCertainCmd(List<FurnaceCommand> cmdList, int curIdx, Predicate<FurnaceCommand> predicateToSearch, Predicate<FurnaceCommand>? predicateToStopSearching = null, string direction = "forward")
     {
