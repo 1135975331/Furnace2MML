@@ -95,10 +95,11 @@ public struct FurnaceCommand(int tick, byte orderNum, byte channel, string cmdTy
     private static int GetCmdTypeOrderPriority(string cmdType)
     {
         return cmdType switch {
-            "NOTE_ON"    => 3,
-            "NOTE_OFF"   => 3,
-            "HINT_PORTA" => 2,
-            _            => 1,
+            "NOTE_ON"     => 3,
+            "NOTE_OFF"    => 3,
+            "HINT_PORTA"  => 2,
+            "HINT_LEGATO" => 2,
+            _             => 1,
         };
     }
 
