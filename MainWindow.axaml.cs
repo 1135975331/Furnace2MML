@@ -285,7 +285,7 @@ public partial class MainWindow : Window
             if(line.Contains(">> TICK "))
                 curTick = int.Parse(line[8..]);
             else if(line.Contains(">> END") || line.Contains(">> LOOP"))
-                cmdStreamParser.RemoveDuplicatedEventsAtTheEnd(ref curTick, line);
+                cmdStreamParser.RemoveDuplicatedCommandsAtTheEnd(ref curTick, line);
             else {
                 var split    = line.Trim().Split(" ");
                 var orderNum = MiscellaneousConversionUtil.GetOrderNum(curTick);
@@ -409,7 +409,7 @@ public partial class MainWindow : Window
             var rhyVoldown = MetaVoldownRhythmTextbox.Text;
 
             var sb = new StringBuilder();
-            sb.Append(fmVoldown.Length != 0 ? $"F{fmVoldown}" : "F18")
+            sb.Append(fmVoldown.Length != 0 ? $"F{fmVoldown}" : "F15")
                .Append(ssgVoldown.Length != 0 ? $"S{ssgVoldown}" : "")
                .Append(rhyVoldown.Length != 0 ? $"R{rhyVoldown}" : "");
 

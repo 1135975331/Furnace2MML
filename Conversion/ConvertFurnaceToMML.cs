@@ -133,15 +133,12 @@ public static class ConvertFurnaceToMML
             }
 
             switch(cmdType) {
-                case "HINT_VOLUME":   ConvertCmdStreamToMML.ConvertVolume(drumCmd, tickLen, orderSb[curOrderNum]); break;
-                case "INSTRUMENT":
-                    curInstNum[drumCmd.Channel-9] = drumCmd.Value1;
-                    break;
+                // case "HINT_VOLUME": ConvertCmdStreamToMML.ConvertVolume(drumCmd, tickLen, orderSb[curOrderNum]); break;
+                case "INSTRUMENT":  curInstNum[drumCmd.Channel-9] = drumCmd.Value1; break;
                 case "NOTE_ON":
                     var drum = drumCmd.Channel is >= 9 and <= 14 ? new[] {drumCmd.Channel, curInstNum[drumCmd.Channel-9]} : [16, curInstNum[0]];
                     drumsChAtIdenticalTick.Add(drum);
                     break;
-                // case "NOTE_OFF": Convert2MML.ConvertNoteOff(tickLen, orderSb[curOrderNum]); break;
             }
 
             if(tickLen == 0)
