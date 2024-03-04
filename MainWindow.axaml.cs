@@ -111,10 +111,12 @@ public partial class MainWindow : Window
     {
         ClearPreviousData();
 
-        // return if the parse method returns false(unsuccessful).
-        if(!ParseTextOutput(TxtOutFilePath))
+        
+        var isTxtOutputParseSuccessful = ParseTextOutput(TxtOutFilePath); Sr.Close();
+        if(!isTxtOutputParseSuccessful)  // return if the parse method returns false(unsuccessful).
             return;
-        if(!ParseCommandStream(CmdFilePath))
+        var isCmdStreamParseSuccessful = ParseCommandStream(CmdFilePath); Sr.Close();
+        if(!isCmdStreamParseSuccessful)
             return;
 
         Convert();
@@ -224,7 +226,6 @@ public partial class MainWindow : Window
             LogTextBox.Text = errMsg;
         }
 #endif
-        Sr.Close();
         return true;
     }
 
@@ -331,7 +332,6 @@ public partial class MainWindow : Window
             LogTextBox.Text = errMsg;
         }
 #endif
-        Sr.Close();
         return true;
     }
 
