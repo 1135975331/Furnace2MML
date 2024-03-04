@@ -69,12 +69,24 @@ public static class ConvertCmdStreamToMML
             curOrderSb.Append('r').AppendFracLength(tickLen);
     }
 
-    public static void ConvertVolume(FurnaceCommand cmd, int tickLen, StringBuilder curOrderSb)
+    
+    private static readonly string[] CmdTypeToFindVolumeChange = ["NOTE_ON", "HINT_LEGATO"];
+    public static void ConvertVolume(List<FurnaceCommand> cmdList, int curIdx, int tickLen, StringBuilder curOrderSb)
     {
-        var volumeValue = cmd.Value1;
+        var curCmd = cmdList[curIdx];
+        var volumeValue = curCmd.Value1;
+        
+        var playingNoteCmd = CmdStreamToMMLUtil.GetFirstCertainCmd(cmdList, curIdx, cmd => CmdTypeToFindVolumeChange.Contains(cmd.CmdType), predicateToStopSearching: cmd => cmd.CmdType.Equals("NOTE_OFF"), direction: "backward", isCmdFound: out var isFoundBackward);
+        var nextNoteCmd = CmdStreamToMMLUtil.GetFirstCertainCmd(cmdList, curIdx, cmd => CmdTypeToFindVolumeChange.Contains(cmd.CmdType), predicateToStopSearching: cmd => cmd.CmdType.Equals("NOTE_OFF"), direction: "forward", isCmdFound: out _);
+        
+        if(isFoundBackward && (tickLen > 0 || (tickLen == 0 && nextNoteCmd.CmdType.Equals("HINT_LEGATO"))))  // Volume change while note is playing
+            curOrderSb.Append('&');
+        
         curOrderSb.Append('V').Append(volumeValue);
-        if(tickLen > 0)
-            curOrderSb.Append('r').AppendFracLength(tickLen);
+
+        var pitchStrOrRest = isFoundBackward ? CmdStreamToMMLUtil.GetPitchStr(playingNoteCmd.Value1 % 12) : "r";
+        if(tickLen > 0) 
+            curOrderSb.Append(pitchStrOrRest).AppendFracLength(tickLen);
     }
 
     private const int TICK_OF_FRAC1 = 96;
@@ -134,11 +146,19 @@ public static class ConvertCmdStreamToMML
         #endregion
     }
 
-    public static void ConvertLegato(FurnaceCommand cmd, int tickLen, ref int defaultOct, StringBuilder curOrderSb)
+    public static void ConvertLegato(List<FurnaceCommand> cmdList, int curIdx, int tickLen, ref int defaultOct, StringBuilder curOrderSb)
     {
-        var noteNum = cmd.Value1;
+        var curCmd = cmdList[curIdx];
+        
+        var noteNum = curCmd.Value1;
         var mmlNote = CmdStreamToMMLUtil.GetMMLNote(noteNum, ref defaultOct).ToString();
-        curOrderSb.Append('&').Append(mmlNote).AppendFracLength(tickLen);
+        
+        var prevNotePlayCmd = CmdStreamToMMLUtil.GetFirstCertainCmd(cmdList, curIdx, cmd => CmdTypeToFindVolumeChange.Contains(cmd.CmdType), predicateToStopSearching: cmd => cmd.CmdType.Equals("NOTE_OFF"), direction: "backward", isCmdFound: out var isFound);
+        var prevVolumeChangeCmd = CmdStreamToMMLUtil.GetFirstCertainCmd(cmdList, curIdx, cmd => cmd.CmdType.Equals("HINT_LEGATO"), predicateToStopSearching: cmd => CmdTypeToFindVolumeChange.Contains(cmd.CmdType), direction: "backward", isCmdFound: out _);
+        
+        // if(isFound )  // if NOTE_ON or HINT_LEGATO is found, '&' is appended at ConvertVolume method
+        curOrderSb.Append('&');
+        curOrderSb.Append(mmlNote).AppendFracLength(tickLen);
     }
 
 
