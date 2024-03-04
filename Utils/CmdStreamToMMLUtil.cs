@@ -190,7 +190,7 @@ public static class CmdStreamToMMLUtil
         return strBuilder.Remove(0, 1);
     }
 
-    private static readonly string[] NoteOnOrNoteOff = ["NOTE_ON", "NOTE_OFF"];
+    private static readonly string[] DefaultFracLenCmdTypes = ["NOTE_ON", "NOTE_OFF", "HINT_LEGATO"];
     public static int GetDefaultNoteFracLenForThisOrder(List<FurnaceCommand> cmdList, int curOrder, int curIdx)
     {
         var nextOrderStartTick = GetOrderStartTick(curOrder+1);
@@ -201,7 +201,7 @@ public static class CmdStreamToMMLUtil
         for(var i = curIdx; i < cmdListLen; i++) {
             var curCmd = cmdList[i];
 
-            if(curCmd.CmdType.EqualsAny(NoteOnOrNoteOff)) {
+            if(curCmd.CmdType.EqualsAny(DefaultFracLenCmdTypes)) {
                 var fracLen = ConvertBetweenTickAndFraction(GetCmdTickLength(cmdList, i));
                 
                 if(!fracLenCounts.TryAdd(fracLen, 1))
