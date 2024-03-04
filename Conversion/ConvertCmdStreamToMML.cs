@@ -88,9 +88,9 @@ public static class ConvertCmdStreamToMML
         if(curCmd.Value1 == -1)
             return;
 
-        var prevCmd = CmdStreamToMMLUtil.GetFirstCertainCmd(cmdList, curCmdIdx, cmd => CmdTypeToFindPrevCmd.Contains(cmd.CmdType), direction: "backward");  
+        var prevCmd = CmdStreamToMMLUtil.GetFirstCertainCmd(cmdList, curCmdIdx, cmd => CmdTypeToFindPrevCmd.Contains(cmd.CmdType), direction: "backward", isCmdFound: out _);  
         
-        var nextCmdForLength = CmdStreamToMMLUtil.GetFirstCertainCmd(cmdList, curCmdIdx, cmd => CmdTypeToFindNextCmd.Contains(cmd.CmdType), direction: "forward");
+        var nextCmdForLength = CmdStreamToMMLUtil.GetFirstCertainCmd(cmdList, curCmdIdx, cmd => CmdTypeToFindNextCmd.Contains(cmd.CmdType), direction: "forward", isCmdFound: out _);
         
         var portaLength    = nextCmdForLength.Tick - curCmd.Tick;
         var isPortaLenLong = portaLength > TICK_OF_FRAC1;
