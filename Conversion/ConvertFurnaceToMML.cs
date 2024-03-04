@@ -91,11 +91,11 @@ public static class ConvertFurnaceToMML
                     case "HINT_ARPEGGIO": ConvertCmdStreamToMML.SetArpeggioStatus(noteCmd); break;
                     case "INSTRUMENT":    ConvertCmdStreamToMML.ConvertInstrument(noteCmd, tickLen, orderSb[curOrderNum]); break; 
                     case "PANNING":       ConvertCmdStreamToMML.ConvertPanning(noteCmd, tickLen, orderSb[curOrderNum]); break;
-                    case "HINT_VOLUME":   ConvertCmdStreamToMML.ConvertVolume(noteCmd, tickLen, orderSb[curOrderNum]); break;
+                    case "HINT_VOLUME":   ConvertCmdStreamToMML.ConvertVolume(noteCmdCh, i, tickLen, orderSb[curOrderNum]); break;
                     case "NOTE_ON":       ConvertCmdStreamToMML.ConvertNoteOn(noteCmd, tickLen, ref prevOctave, orderSb[curOrderNum]); break;
                     case "NOTE_OFF":      ConvertCmdStreamToMML.ConvertNoteOff(tickLen, orderSb[curOrderNum]); break;
                     case "HINT_PORTA":    ConvertCmdStreamToMML.ConvertPortamento(noteCmdCh, i, ref prevOctave, orderSb[curOrderNum]); break;
-                    case "HINT_LEGATO":   ConvertCmdStreamToMML.ConvertLegato(noteCmd, tickLen, ref prevOctave, orderSb[curOrderNum]); break;
+                    case "HINT_LEGATO":   ConvertCmdStreamToMML.ConvertLegato(noteCmdCh, i, tickLen, ref prevOctave, orderSb[curOrderNum]); break;
                 }
 
             }
