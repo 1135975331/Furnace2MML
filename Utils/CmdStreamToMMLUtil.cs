@@ -242,12 +242,13 @@ public static class CmdStreamToMMLUtil
     /// <param name="predicateToSearch"></param>
     /// <param name="predicateToStopSearching">A condition that stops searching for performance.</param>
     /// <param name="direction">Search direction. Only forward(increasing index) or backward(decreasing index) is valid.</param>
+    /// <param name="isCmdFound">if such cmd is found, <c>isCmdFound</c> is <c>true</c>. if cmd is not found, or searching is stopped, <c>isCmdFound</c> is <c>false</c>.</param>
     /// <exception cref="ArgumentOutOfRangeException">If direction parameter is neither forward nor backward.</exception>
     /// <returns>The first FurnaceCommand that meets the condition. <br/>
     /// If searching was stopped by <c>predicateToStopSearching</c> condition, returns FurnaceCommand with <c>"SEARCH_STOPPED"</c> CmdType. <br/>
     /// If there is no FurnaceCommand that meet the conditions, returns FurnaceCommand with <c>EndTick</c>Tick and <c>"NOTE_OFF"</c> CmdType.
     /// </returns>
-    public static FurnaceCommand GetFirstCertainCmd(List<FurnaceCommand> cmdList, int curIdx, Predicate<FurnaceCommand> predicateToSearch, Predicate<FurnaceCommand>? predicateToStopSearching = null, string direction = "forward")
+    public static FurnaceCommand GetFirstCertainCmd(List<FurnaceCommand> cmdList, int curIdx, Predicate<FurnaceCommand> predicateToSearch, out bool isCmdFound, Predicate<FurnaceCommand>? predicateToStopSearching = null, string direction = "forward")
     {
         var cmdWhenStopped = new FurnaceCommand(-1, 0xFF, 0xFF, "SEARCH_STOPPED", -1, -1);
         
@@ -255,26 +256,35 @@ public static class CmdStreamToMMLUtil
             case "forward": {
                 var listLen = cmdList.Count;
                 for(var i = curIdx + 1; i < listLen; i++) {
-                    if(predicateToSearch(cmdList[i]))
+                    if(predicateToSearch(cmdList[i])) {
+                        isCmdFound = true;
                         return cmdList[i];
-                    if(predicateToStopSearching != null && predicateToStopSearching(cmdList[i]))
+                    }
+                    if(predicateToStopSearching != null && predicateToStopSearching(cmdList[i])) {
+                        isCmdFound = false;
                         return cmdWhenStopped;
+                    }
                 }
                 break;
             }
             case "backward": {
                 for(var i = curIdx - 1; i >= 0; i--) {
-                    if(predicateToSearch(cmdList[i]))
+                    if(predicateToSearch(cmdList[i])) {
+                        isCmdFound = true;
                         return cmdList[i];
-                    if(predicateToStopSearching != null && predicateToStopSearching(cmdList[i]))
+                    }
+                    if(predicateToStopSearching != null && predicateToStopSearching(cmdList[i])) {
+                        isCmdFound = false;
                         return cmdWhenStopped;
+                    }
                 }
                 break;
             }
             default:
                 throw new ArgumentOutOfRangeException($"Invalid direction argument: {direction}");
         }
-        
+
+        isCmdFound = false;
         return new FurnaceCommand(EndTick, MiscellaneousConversionUtil.GetOrderNum(EndTick), cmdList[0].Channel, "NOTE_OFF", 0, 0);
     }
 
