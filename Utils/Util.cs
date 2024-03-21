@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -68,9 +69,9 @@ public static partial class Util
 	}
 	*/
 
-	public static bool EqualsAny(this string source, params string[] otherStrings)
-		=> otherStrings.Any(source.Equals);
-    
+	public static bool EqualsAny<T>(this T source, params T[] otherStrings) 
+		=> otherStrings.Any(elem => elem != null && elem.Equals(source));
+
 	public static string TrimExceptWords(this string str)
 		=> RegexExceptWords().Replace(str, "");
     public static string LeaveAlphabetOnly(this string str) 
