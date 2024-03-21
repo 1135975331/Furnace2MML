@@ -63,12 +63,11 @@ public struct FurnaceCommand(int tick, byte orderNum, byte channel, string cmdTy
 
     public override string ToString()
     {
-        switch(CmdType) {
-            case "NOTE_ON": case "HINT_LEGATO": case "HINT_PORTA":
-                return $"{Channel:00} | {OrderNum:X2} {Tick}: [{Value1:X2}({MiscellaneousConversionUtil.GetPitchChar(Value1)}) {Value2:X2}({Value2:000}) {CmdType}]";
-            default:
-                return $"{Channel:00} | {OrderNum:X2} {Tick}: [{Value1:X2}({Value1:000}) {Value2:X2}({Value2:000}) {CmdType}]";
-        }
+        return CmdType switch {
+            CmdType.NOTE_ON or CmdType.HINT_LEGATO or CmdType.HINT_PORTA =>
+                 $"{Channel:00}({GetChannelName(Channel)}) | {OrderNum:X2} {Tick}: [{Value1:X2}({MiscellaneousConversionUtil.GetPitchChar(Value1)}) {Value2:X2}({Value2:000}) {_cmdTypeStr}]",
+            _ => $"{Channel:00}({GetChannelName(Channel)}) | {OrderNum:X2} {Tick}: [{Value1:X2}({Value1:000}) {Value2:X2}({Value2:000}) {_cmdTypeStr}]"
+        };
     }
     // => $"[{Tick} {Channel} {CmdType} {Value1} {Value2}]";
     public int CompareTo(FurnaceCommand other)
@@ -105,6 +104,30 @@ public struct FurnaceCommand(int tick, byte orderNum, byte channel, string cmdTy
             _                   => 1,
         };
     }
+    
+    public static string GetChannelName(int chNum)
+    {
+        return chNum switch {
+            0  => "F1",
+            1  => "F2",
+            2  => "F3",
+            3  => "F4",
+            4  => "F5",
+            5  => "F6",
+            6  => "S1",
+            7  => "S2",
+            8  => "S3",
+            9  => "BD",
+            10 => "SD",
+            11 => "TP",
+            12 => "HH",
+            13 => "TM",
+            14 => "RM",
+            15 => "AP",
+        };
+    }
+    
+    public static CmdType GetCmdTypeEnum(string cmdTypeStr) => Enum.Parse<CmdType>(cmdTypeStr);
 
     public static bool operator ==(FurnaceCommand left, FurnaceCommand right) => left.Equals(right);
     public static bool operator !=(FurnaceCommand left, FurnaceCommand right) => !(left == right);
