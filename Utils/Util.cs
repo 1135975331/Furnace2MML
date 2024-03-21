@@ -42,7 +42,7 @@ public static partial class Util
         listLen--;
         idx--;
 	}
-
+	
 	// Referenced code from: https://stackoverflow.com/questions/10293236/accessing-the-scrollviewer-of-a-listbox-from-c-sharp
 	/*
 	public static Visual GetDescendantByType(Visual element, Type type)

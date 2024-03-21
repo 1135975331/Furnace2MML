@@ -184,12 +184,8 @@ public static class ConvertFurnaceToMML
             _firstDrumProcessed = false;
         }
 
-        if(!isRest && _firstDrumProcessed && internalSSGDrumStr.Equals(_prevMMLDrum))
-            internalSSGDrumStr = ""; // In order to reduce file size
-        else if(!isRest) {
-            _prevMMLDrum        = internalSSGDrumStr;
-            _firstDrumProcessed = true;
         if(!isRest) {
+            if(_firstDrumProcessed && internalSSGDrumStr.Equals(_prevMMLDrum))
                 internalSSGDrumStr = ""; // In order to reduce file size
             else {
                 _prevMMLDrum        = internalSSGDrumStr;

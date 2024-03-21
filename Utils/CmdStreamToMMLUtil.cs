@@ -126,9 +126,7 @@ public static class CmdStreamToMMLUtil
 
 
     public static int ConvertTickrateToTempo(double tickrate)
-    {
-        return (int)(tickrate * 2.5);
-    }
+        => (int)(tickrate * 2.5);
 
     public static StringBuilder AppendFracLength(this StringBuilder curOrderSb, int tickLen)
     {

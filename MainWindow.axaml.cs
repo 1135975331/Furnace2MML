@@ -353,19 +353,19 @@ public partial class MainWindow : Window
         /* Metadata */
         var metaSb = new StringBuilder();
         metaSb.AppendLine(";;; Converted with Furnace2MML").AppendLine()
-           .AppendLine("; Metadata")
-           .AppendLine($"#Title\t\t{songName}")
-           .AppendLine($"#Composer\t{composer}")
-           .AppendLine($"#Arranger\t{arranger}")
-           .AppendLine($"#Tempo\t\t{tempo}")
-           .AppendLine($"#Option\t\t{option}")
-           .AppendLine($"#Filename\t{filename}")
-           .AppendLine($"#Zenlen\t\t{zenlen}")
-           .AppendLine($"#Volumedown\t{voldown}")
-           .AppendLine($"{Memo}")
-            // .AppendLine("#Memo\t\tConverted with FurnaceCommandStream2MML")
-           .AppendLine()
-           .AppendLine();
+              .AppendLine("; Metadata")
+              .AppendLine($"#Title\t\t{songName}")
+              .AppendLine($"#Composer\t{composer}")
+              .AppendLine($"#Arranger\t{arranger}")
+              .AppendLine($"#Tempo\t\t{tempo}")
+              .AppendLine($"#Option\t\t{option}")
+              .AppendLine($"#Filename\t{filename}")
+              .AppendLine($"#Zenlen\t\t{zenlen}")
+              .AppendLine($"#Volumedown\t{voldown}")
+              .AppendLine($"{Memo}")
+               // .AppendLine("#Memo\t\tConverted with FurnaceCommandStream2MML")
+              .AppendLine()
+              .AppendLine();
         resultOutput.Append(metaSb);
         PublicValue.MetadataOutput = metaSb;
         
