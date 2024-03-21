@@ -425,7 +425,7 @@ public partial class MainWindow : Window
                     continue;
 
                 var firstNoteOnCmd = CmdStreamToMMLUtil.GetFirstNoteOn(noteCmdCh);
-                if(firstNoteOnCmd.CmdType.Equals("NO_NOTE_ON")) // if there's no NOTE_ON on the channel
+                if(firstNoteOnCmd.CmdType == CmdType.NO_NOTE_ON) // if there's no NOTE_ON on the channel
                     continue;
 
                 ordSb.Append(CmdStreamToMMLUtil.ConvertChannel(chNum));
