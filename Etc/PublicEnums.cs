@@ -14,3 +14,12 @@ public enum EffectValueType
 {
     UNUSED, XX, XY 
 }
+
+public enum CmdType
+{
+    NOTE_ON, NOTE_OFF, HINT_LEGATO, HINT_PORTA, PRE_PORTA,
+    HINT_VOLUME, HINT_ARPEGGIO, INSTRUMENT, PANNING,
+    HINT_ARP_TIME,
+    
+    NO_NOTE_ON, SEARCH_STOPPED
+}

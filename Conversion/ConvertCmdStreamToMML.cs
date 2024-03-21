@@ -70,16 +70,16 @@ public static class ConvertCmdStreamToMML
     }
 
     
-    private static readonly string[] CmdTypeToFindVolumeChange = ["NOTE_ON", "HINT_LEGATO"];
+    private static readonly CmdType[] CmdTypeToFindVolumeChange = [CmdType.NOTE_ON, CmdType.HINT_LEGATO];
     public static void ConvertVolume(List<FurnaceCommand> cmdList, int curIdx, int tickLen, StringBuilder curOrderSb)
     {
         var curCmd = cmdList[curIdx];
         var volumeValue = curCmd.Value1;
         
-        var playingNoteCmd = CmdStreamToMMLUtil.GetFirstCertainCmd(cmdList, curIdx, cmd => CmdTypeToFindVolumeChange.Contains(cmd.CmdType), predicateToStopSearching: cmd => cmd.CmdType.Equals("NOTE_OFF"), direction: "backward", isCmdFound: out var isFoundBackward);
-        var nextNoteCmd = CmdStreamToMMLUtil.GetFirstCertainCmd(cmdList, curIdx, cmd => CmdTypeToFindVolumeChange.Contains(cmd.CmdType), predicateToStopSearching: cmd => cmd.CmdType.Equals("NOTE_OFF"), direction: "forward", isCmdFound: out _);
+        var playingNoteCmd = CmdStreamToMMLUtil.GetFirstCertainCmd(cmdList, curIdx, cmd => CmdTypeToFindVolumeChange.Contains(cmd.CmdType), predicateToStopSearching: cmd => cmd.CmdType == CmdType.NOTE_OFF, direction: "backward", isCmdFound: out var isFoundBackward);
+        var nextNoteCmd    = CmdStreamToMMLUtil.GetFirstCertainCmd(cmdList, curIdx, cmd => CmdTypeToFindVolumeChange.Contains(cmd.CmdType), predicateToStopSearching: cmd => cmd.CmdType == CmdType.NOTE_OFF, direction: "forward", isCmdFound: out _);
         
-        if(isFoundBackward && (tickLen > 0 || (tickLen == 0 && nextNoteCmd.CmdType.Equals("HINT_LEGATO"))))  // Volume change while note is playing
+        if(isFoundBackward && (tickLen > 0 || (tickLen == 0 && nextNoteCmd.CmdType == CmdType.HINT_LEGATO)))  // Volume change while note is playing
             curOrderSb.Append('&');
         
         curOrderSb.Append('V').Append(volumeValue);
@@ -90,8 +90,8 @@ public static class ConvertCmdStreamToMML
     }
 
     private const int TICK_OF_FRAC1 = 96;
-    private static readonly string[] CmdTypeToFindPrevCmd = ["HINT_PORTA", "NOTE_ON"];
-    private static readonly string[] CmdTypeToFindNextCmd = ["NOTE_ON", "NOTE_OFF", "HINT_PORTA", "HINT_LEGATO"];
+    private static readonly CmdType[] CmdTypeToFindPrevCmd = [CmdType.HINT_PORTA, CmdType.NOTE_ON];
+    private static readonly CmdType[] CmdTypeToFindNextCmd = [CmdType.NOTE_ON, CmdType.NOTE_OFF, CmdType.HINT_PORTA, CmdType.HINT_LEGATO];
     public static void ConvertPortamento(List<FurnaceCommand> cmdList, int curCmdIdx, ref int defaultOct,  StringBuilder curOrderSb)
     {
         var curCmd = cmdList[curCmdIdx];
@@ -153,8 +153,8 @@ public static class ConvertCmdStreamToMML
         var noteNum = curCmd.Value1;
         var mmlNote = CmdStreamToMMLUtil.GetMMLNote(noteNum, ref defaultOct).ToString();
         
-        var prevNotePlayCmd = CmdStreamToMMLUtil.GetFirstCertainCmd(cmdList, curIdx, cmd => CmdTypeToFindVolumeChange.Contains(cmd.CmdType), predicateToStopSearching: cmd => cmd.CmdType.Equals("NOTE_OFF"), direction: "backward", isCmdFound: out var isFound);
-        var prevVolumeChangeCmd = CmdStreamToMMLUtil.GetFirstCertainCmd(cmdList, curIdx, cmd => cmd.CmdType.Equals("HINT_LEGATO"), predicateToStopSearching: cmd => CmdTypeToFindVolumeChange.Contains(cmd.CmdType), direction: "backward", isCmdFound: out _);
+        // var prevNotePlayCmd = CmdStreamToMMLUtil.GetFirstCertainCmd(cmdList, curIdx, cmd => CmdTypeToFindVolumeChange.Contains(cmd.CmdType), predicateToStopSearching: cmd => cmd.CmdType == CmdType.NOTE_OFF, direction: "backward", isCmdFound: out var isFound);
+        // var prevVolumeChangeCmd = CmdStreamToMMLUtil.GetFirstCertainCmd(cmdList, curIdx, cmd => cmd.CmdType == CmdType.HINT_LEGATO, predicateToStopSearching: cmd => CmdTypeToFindVolumeChange.Contains(cmd.CmdType), direction: "backward", isCmdFound: out _);
         
         // if(isFound )  // if NOTE_ON or HINT_LEGATO is found, '&' is appended at ConvertVolume method
         curOrderSb.Append('&');

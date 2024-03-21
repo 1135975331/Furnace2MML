@@ -57,7 +57,7 @@ public static class ConvertFurnaceToMML
                 continue;
         
             var firstNoteOnCmd = CmdStreamToMMLUtil.GetFirstNoteOn(noteCmdCh);
-            if(firstNoteOnCmd.CmdType.Equals("NO_NOTE_ON")) // if there's no NOTE_ON on the channel
+            if(firstNoteOnCmd.CmdType == CmdType.NO_NOTE_ON) // if there's no NOTE_ON on the channel
                 continue;
             
             var prevOctave = firstNoteOnCmd.Value1 / 12;
@@ -87,17 +87,16 @@ public static class ConvertFurnaceToMML
 
                 // - => ignored
                 switch(cmdType) {
-                    case "HINT_ARP_TIME": ConvertCmdStreamToMML.SetArpSpeed(noteCmd); break;
-                    case "HINT_ARPEGGIO": ConvertCmdStreamToMML.SetArpeggioStatus(noteCmd); break;
-                    case "INSTRUMENT":    ConvertCmdStreamToMML.ConvertInstrument(noteCmd, tickLen, orderSb[curOrderNum]); break; 
-                    case "PANNING":       ConvertCmdStreamToMML.ConvertPanning(noteCmd, tickLen, orderSb[curOrderNum]); break;
-                    case "HINT_VOLUME":   ConvertCmdStreamToMML.ConvertVolume(noteCmdCh, i, tickLen, orderSb[curOrderNum]); break;
-                    case "NOTE_ON":       ConvertCmdStreamToMML.ConvertNoteOn(noteCmd, tickLen, ref prevOctave, orderSb[curOrderNum]); break;
-                    case "NOTE_OFF":      ConvertCmdStreamToMML.ConvertNoteOff(tickLen, orderSb[curOrderNum]); break;
-                    case "HINT_PORTA":    ConvertCmdStreamToMML.ConvertPortamento(noteCmdCh, i, ref prevOctave, orderSb[curOrderNum]); break;
-                    case "HINT_LEGATO":   ConvertCmdStreamToMML.ConvertLegato(noteCmdCh, i, tickLen, ref prevOctave, orderSb[curOrderNum]); break;
+                    case CmdType.HINT_ARP_TIME: ConvertCmdStreamToMML.SetArpSpeed(noteCmd); break;
+                    case CmdType.HINT_ARPEGGIO: ConvertCmdStreamToMML.SetArpeggioStatus(noteCmd); break;
+                    case CmdType.INSTRUMENT:    ConvertCmdStreamToMML.ConvertInstrument(noteCmd, tickLen, orderSb[curOrderNum]); break; 
+                    case CmdType.PANNING:       ConvertCmdStreamToMML.ConvertPanning(noteCmd, tickLen, orderSb[curOrderNum]); break;
+                    case CmdType.HINT_VOLUME:   ConvertCmdStreamToMML.ConvertVolume(noteCmdCh, i, tickLen, orderSb[curOrderNum]); break;
+                    case CmdType.NOTE_ON:       ConvertCmdStreamToMML.ConvertNoteOn(noteCmd, tickLen, ref prevOctave, orderSb[curOrderNum]); break;
+                    case CmdType.NOTE_OFF:      ConvertCmdStreamToMML.ConvertNoteOff(tickLen, orderSb[curOrderNum]); break;
+                    case CmdType.HINT_PORTA:    ConvertCmdStreamToMML.ConvertPortamento(noteCmdCh, i, ref prevOctave, orderSb[curOrderNum]); break;
+                    case CmdType.HINT_LEGATO:   ConvertCmdStreamToMML.ConvertLegato(noteCmdCh, i, tickLen, ref prevOctave, orderSb[curOrderNum]); break;
                 }
-
             }
 
             for(var i = 0; i <= MaxOrderNum; i++)
@@ -133,9 +132,9 @@ public static class ConvertFurnaceToMML
             }
 
             switch(cmdType) {
-                // case "HINT_VOLUME": ConvertCmdStreamToMML.ConvertVolume(drumCmd, tickLen, orderSb[curOrderNum]); break;
-                case "INSTRUMENT":  curInstNum[drumCmd.Channel-9] = drumCmd.Value1; break;
-                case "NOTE_ON":
+                // case CmdType.HINT_VOLUME: ConvertCmdStreamToMML.ConvertVolume(drumCmd, tickLen, orderSb[curOrderNum]); break;
+                case CmdType.INSTRUMENT:  curInstNum[drumCmd.Channel-9] = drumCmd.Value1; break;
+                case CmdType.NOTE_ON:
                     var drum = drumCmd.Channel is >= 9 and <= 14 ? new[] {drumCmd.Channel, curInstNum[drumCmd.Channel-9]} : [16, curInstNum[0]];
                     drumsChAtIdenticalTick.Add(drum);
                     break;
@@ -175,7 +174,7 @@ public static class ConvertFurnaceToMML
         var withInternalSSG = chNums.Where(elem => elem[1] >= 1);
         
         var soundSourceDrumStr = DrumConversion.ToDrumSoundSource(soundSourceOnly);
-        var internalSSGDrumStr    = DrumConversion.ToInternalSSGDrum(withInternalSSG);
+        var internalSSGDrumStr = DrumConversion.ToInternalSSGDrum(withInternalSSG);
         var mmlFracLen = CmdStreamToMMLUtil.FormatNoteLength(tickLen, PublicValue.ValidFractionLength, PublicValue.CurDefaultNoteFractionLength);
         // var mmlFracLen = CommandToMMLUtil.ConvertBetweenTickAndFraction(tickLen);
 
@@ -190,9 +189,15 @@ public static class ConvertFurnaceToMML
         else if(!isRest) {
             _prevMMLDrum        = internalSSGDrumStr;
             _firstDrumProcessed = true;
+        if(!isRest) {
+                internalSSGDrumStr = ""; // In order to reduce file size
+            else {
+                _prevMMLDrum        = internalSSGDrumStr;
+                _firstDrumProcessed = true;
+            }
         }
         
-        sb.Append(soundSourceDrumStr).Append(isRest ? $"r" : $"{internalSSGDrumStr}c").Append(mmlFracLen);
+        sb.Append(soundSourceDrumStr).Append(isRest ? "r" : $"{internalSSGDrumStr}c").Append(mmlFracLen);
     }
 
     public static void ResetAllFields()

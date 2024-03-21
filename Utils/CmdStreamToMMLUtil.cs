@@ -122,7 +122,7 @@ public static class CmdStreamToMMLUtil
     }
 
     public static FurnaceCommand GetFirstNoteOn(List<FurnaceCommand> cmdsInCh)
-        => cmdsInCh.FirstOrDefault(cmd => cmd.CmdType.Equals("NOTE_ON"), new FurnaceCommand(-1, byte.MaxValue, byte.MaxValue, "NO_NOTE_ON", -1, -1));
+        => cmdsInCh.FirstOrDefault(cmd => cmd.CmdType == CmdType.NOTE_ON, new FurnaceCommand(-1, byte.MaxValue, byte.MaxValue, "NO_NOTE_ON", -1, -1));
 
 
     public static int ConvertTickrateToTempo(double tickrate)
@@ -190,7 +190,8 @@ public static class CmdStreamToMMLUtil
         return strBuilder.Remove(0, 1);
     }
 
-    private static readonly string[] DefaultFracLenCmdTypes = ["NOTE_ON", "NOTE_OFF", "HINT_LEGATO"];
+    // private static readonly string[] DefaultFracLenCmdTypes = ["NOTE_ON", "NOTE_OFF", "HINT_LEGATO"];
+    private static readonly CmdType[] DefaultFracLenCmdTypes = [CmdType.NOTE_ON, CmdType.NOTE_OFF, CmdType.HINT_LEGATO];
     public static int GetDefaultNoteFracLenForThisOrder(List<FurnaceCommand> cmdList, int curOrder, int curIdx)
     {
         var nextOrderStartTick = GetOrderStartTick(curOrder+1);

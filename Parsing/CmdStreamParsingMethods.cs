@@ -73,7 +73,7 @@ public class CmdStreamParsingMethods
                 var curCmdOrderNum = curCmd.OrderNum;
                 var nextOrderTick  = GetOrderStartTick(curCmdOrderNum + 1);
                 
-                if(isNoteCmd && curCmd.CmdType.Equals("NOTE_ON"))
+                if(isNoteCmd && curCmd.CmdType == CmdType.NOTE_ON)
                     continue;
                 if(curCmdOrderNum >= MaxOrderNum)
                     break;
@@ -127,18 +127,18 @@ public class CmdStreamParsingMethods
                 }
 
                 switch(curCmd.CmdType) {
-                    case "HINT_PORTA":  
+                    case CmdType.HINT_PORTA:  
                         hintPortaFound = true;
                         if(curCmd.Value2 == 0) // If Value2 of the HINT_PORTA is 0, it's useless
                             noteCmdChList.RemoveAtIdxLoop(ref i, ref noteCmdChLen);
                         else
                             cmdsToRemove.Add(curCmd);
                         break;
-                    case "PRE_PORTA": 
+                    case CmdType.PRE_PORTA: 
                         prePortaFound = true;
                         noteCmdChList.RemoveAtIdxLoop(ref i, ref noteCmdChLen);
                         break;
-                    case "HINT_LEGATO":
+                    case CmdType.HINT_LEGATO:
                         hintLegatoFound = true;
                         if(IsUnnecessaryLegatoCmd(noteCmdChList, i))  // If Value2 of the HINT_PORTA is 0, it's unnecessary
                             noteCmdChList.RemoveAtIdxLoop(ref i, ref noteCmdChLen);
@@ -170,13 +170,13 @@ public class CmdStreamParsingMethods
                 var cmd = cmdList[i];
                 
                 switch(cmd.CmdType) {
-                    case "NOTE_ON":
+                    case CmdType.NOTE_ON:
                         noteOnFound = true;
                         break;
-                    case "HINT_PORTA":
+                    case CmdType.HINT_PORTA:
                         hintPortaFound = true;
                         break;
-                    case "NOTE_OFF" when (!hintPortaFound):
+                    case CmdType.NOTE_OFF when (!hintPortaFound):
                         return true;
                 }
 
@@ -209,10 +209,10 @@ public class CmdStreamParsingMethods
                     zeroHintArpFound = false;
                 }
 
-                if(!zeroHintArpFound && curCmd.CmdType.Equals("HINT_ARPEGGIO") && curCmd is { Value1: 0, Value2: 0 })  // when curCmd is HINT_ARPEGGIO 0 0
+                if(!zeroHintArpFound && curCmd.CmdType == CmdType.HINT_ARPEGGIO && curCmd is { Value1: 0, Value2: 0 })  // when curCmd is HINT_ARPEGGIO 0 0
                     zeroHintArpFound = true;
 
-                if(zeroHintArpFound && curCmd.CmdType.Equals("HINT_LEGATO"))
+                if(zeroHintArpFound && curCmd.CmdType == CmdType.HINT_LEGATO)
                     noteCmdChList.RemoveAtIdxLoop(ref i, ref noteCmdChLen);
             }
         }
