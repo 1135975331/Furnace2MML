@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Furnace2MML.Utils;
 
 namespace Furnace2MML.Etc;
@@ -46,27 +46,35 @@ public struct SubsongData()
 /// <summary>
 /// Note On/Off, Portamento, Volume, Panning, etc.
 /// </summary>
-public struct FurnaceCommand(int tick, byte orderNum, byte channel, string cmdTypeStr, int value1, int value2) : IComparable<FurnaceCommand>
+public struct FurnaceCommand(int tick, byte orderNum, byte channel, CmdType cmdType, int value1, int value2) : IComparable<FurnaceCommand>
 {
     public readonly int Tick = tick;
+    public readonly int Length;
     public readonly byte OrderNum = orderNum;  // OrderNum cannot be 0xFF(255)
     public readonly byte Channel = channel;
-    private readonly string _cmdTypeStr = cmdTypeStr;
-    public readonly CmdType CmdType = GetCmdTypeEnum(cmdTypeStr);
+    private readonly string _cmdTypeStr;
+    public readonly CmdType CmdType = cmdType;
     
     public int Value1 = value1;
     public readonly int Value2 = value2;
+    
+    
+    public FurnaceCommand(int tick, byte orderNum, byte channel, string cmdTypeStr, int value1, int value2) : this(tick, orderNum, channel, CmdType.INVALID, value1, value2) 
+        => CmdType = GetCmdTypeEnum(cmdTypeStr);
+
+    public FurnaceCommand(int tick, int length, byte orderNum, byte channel, string cmdTypeStr, int value1, int value2) : this(tick, orderNum, channel, cmdTypeStr, value1, value2) 
+        => Length  = length;
 
     //  Copy otherCmd except tick
-    public FurnaceCommand(int tick, FurnaceCommand otherCmd) : this(otherCmd.Tick, otherCmd.OrderNum, otherCmd.Channel, otherCmd._cmdTypeStr, otherCmd.Value1, otherCmd.Value2)
+    public FurnaceCommand(int tick, FurnaceCommand otherCmd) : this(otherCmd.Tick, otherCmd.Length, otherCmd.OrderNum, otherCmd.Channel, otherCmd._cmdTypeStr, otherCmd.Value1, otherCmd.Value2)
         => Tick = tick;
 
     public override string ToString()
     {
         return CmdType switch {
             CmdType.NOTE_ON or CmdType.HINT_LEGATO or CmdType.HINT_PORTA =>
-                 $"{Channel:00}({GetChannelName(Channel)}) | {OrderNum:X2} {Tick}: [{Value1:X2}({MiscellaneousConversionUtil.GetPitchChar(Value1)}) {Value2:X2}({Value2:000}) {_cmdTypeStr}]",
-            _ => $"{Channel:00}({GetChannelName(Channel)}) | {OrderNum:X2} {Tick}: [{Value1:X2}({Value1:000}) {Value2:X2}({Value2:000}) {_cmdTypeStr}]"
+                 $"{Channel:00}({GetChannelName(Channel)}) | {OrderNum:X2} {Tick}: [{Value1:X2}({MiscellaneousConversionUtil.GetPitchChar(Value1, true)}) {Value2:X2}({Value2:000}) {CmdType}]",
+            _ => $"{Channel:00}({GetChannelName(Channel)}) | {OrderNum:X2} {Tick}: [{Value1:X2}({Value1:000}) {Value2:X2}({Value2:000}) {CmdType}]"
         };
     }
     // => $"[{Tick} {Channel} {CmdType} {Value1} {Value2}]";
@@ -87,7 +95,7 @@ public struct FurnaceCommand(int tick, byte orderNum, byte channel, string cmdTy
            Value2   == other.Value2;
     
     public override int GetHashCode()
-        => HashCode.Combine(Tick, OrderNum, Channel, _cmdTypeStr, Value1, Value2);
+        => HashCode.Combine(Tick, OrderNum, Channel, CmdType, Value1, Value2);
 
     /// <summary>
     /// A larger value will be ordered at the back of the array
