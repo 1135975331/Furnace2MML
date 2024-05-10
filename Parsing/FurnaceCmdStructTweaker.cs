@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Furnace2MML.Etc;
 using Furnace2MML.Utils;
@@ -6,7 +6,7 @@ using static Furnace2MML.Etc.PublicValue;
 using static Furnace2MML.Utils.CmdStreamToMMLUtil;
 namespace Furnace2MML.Parsing;
 
-public class CmdStreamParsingMethods
+public class FurnaceCmdStructTweaker
 {
        /// <summary>
     /// 마지막 줄이 >> LOOP 0 인 경우, Order의 첫 줄에 노트가 있으면 중복되는 Command Stream이 생김
