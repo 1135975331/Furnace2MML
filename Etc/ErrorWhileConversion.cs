@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using static Furnace2MML.Etc.ErrorWhileConversion;
 
 namespace Furnace2MML.Etc;
@@ -9,7 +9,8 @@ public enum ErrorWhileConversion
 	/* 파일을 선택 중 발생한 에러 */
 	NO_FILE_SELECTED,   // 경로를 지정하지 않은 경우
 	FILE_NOT_FOUND,     // 지정된 경로에 파일이 없을 경우, 찾을 수 없는 경우
-	FILE_NOT_VALID,     // 파일 형식이 지원되지 않는 경우, MIDI 파일이 아닌 경우
+	FILE_NOT_VALID_TXT,     // 파일 형식이 지원되지 않는 경우, txt 파일이 아닌 경우
+	FILE_NOT_VALID_FCS,     // 파일 형식이 지원되지 않는 경우, FCS bin 파일이 아닌 경우
 	FILE_PATH_TOO_LONG, // 파일 경로가 너무 긴 경우
 	FILE_EMPTY,         // 빈 파일인 경우 (첫번째 출이 null인 경우)
         
@@ -57,7 +58,8 @@ public static class ErrorWhileConversionMethods
 		var errMsg = error switch {
 			NO_FILE_SELECTED   => "Error: No MIDI file is selected.",
 			FILE_NOT_FOUND     => "Error: File is not found in that path.",
-			FILE_NOT_VALID     => "Error: File is not valid. Please select MIDI(*.mid) file.",
+			FILE_NOT_VALID_TXT     => "Error: File is not valid. Please select Text Output(*.txt) file.",
+			FILE_NOT_VALID_FCS     => "Error: File is not valid. Please select Furnace Command Stream(*.bin) file.",
 			FILE_PATH_TOO_LONG => "Error: File path or name is too long. (paths must be less than 248 characters, and file names must be less than 260 characters)",
 			FILE_EMPTY         => "Error: File is empty",
                 
