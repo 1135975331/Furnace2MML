@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Text;
 using static Furnace2MML.Etc.PublicValue;
 namespace Furnace2MML.Utils;
@@ -18,11 +18,14 @@ public static class MiscellaneousConversionUtil
         return byte.MaxValue;
     }
 
-    public static string GetPitchChar(int noteNum)
+    public static string GetPitchChar(int noteNum, bool isBinCmd = false)
     {
-        var octave     = noteNum / 12;
-        var pitch      = noteNum % 12;
-        
+        var octave = noteNum / 12;
+        var pitch  = noteNum % 12;
+
+        if(isBinCmd)
+            octave -= 5;
+
         var pitchChar = pitch switch {
             0  => "C-",
             1  => "C#",
@@ -38,7 +41,7 @@ public static class MiscellaneousConversionUtil
             11 => "B-",
             _  => throw new ArgumentOutOfRangeException($"Invalid pitch value: {pitch}")
         };
-        
+
         return new StringBuilder(pitchChar).Append(octave).ToString();
     }
 }
