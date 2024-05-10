@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -314,8 +314,6 @@ public static class CmdStreamToMMLUtil
         nextTick = -1;
         return -1;
     }
-    
-    
     
     public static int GetOrderStartTick(int orderNum)
         => orderNum <= MaxOrderNum ? OrderStartTimes[orderNum].StartTick : EndTick;
