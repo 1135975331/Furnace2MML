@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -9,7 +9,7 @@ namespace Furnace2MML.Utils;
 public static partial class Util
 {
 	public static string GetFileExtensionFromPath(string filePath)
-	{
+	{ 
 		var splitPathStr = filePath.Split('.');
 		return splitPathStr[^1];
 	}
@@ -18,6 +18,15 @@ public static partial class Util
 	{
 		curNumberLine++;
 		return reader.ReadLine();
+	}
+	
+	public static int GetIntFrom4Bytes(byte[] bytesArr)
+	{
+		if(bytesArr.Length != 4)
+			throw new ArgumentException($"4 bytes value (bytesArr.count == 4) is expected. ({bytesArr.Length})");
+        
+		// little endian
+		return (bytesArr[3] << 2*3) + (bytesArr[2] << 2*2) + (bytesArr[1] << 2*1) + bytesArr[0];
 	}
 
 	public static string ToEscapedString(this string origin)
