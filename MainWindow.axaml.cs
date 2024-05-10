@@ -11,7 +11,6 @@ using System.Text;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
-using Avalonia.Media;
 using Avalonia.Platform.Storage;
 using Furnace2MML.Conversion;
 using Furnace2MML.Etc;
@@ -26,7 +25,6 @@ using Util = Furnace2MML.Utils.Util;
 
 // todo Progressbar
 // todo Document
-// todo CmdType enum화
 
 namespace Furnace2MML;
 
@@ -35,6 +33,7 @@ public partial class MainWindow : Window
     public string CmdFilePath;
     public string TxtOutFilePath;
     public StreamReader Sr;
+    public BinaryReader Br;
     
     private static readonly FilePickerFileType TextFileTypeFilter = new("Text Files") { Patterns = ["*.txt"] };
 
@@ -47,14 +46,10 @@ public partial class MainWindow : Window
         PrintLog.LogTextBox = LogTextBox;
         
 		#if DEBUG
-        var testFilesDirPath = Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.FullName + @"\FurnaceForTest";
+        var testFilesDirPath = Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.FullName + @"/FurnaceForTest";
         LogDebug($"TestFilesDir: {testFilesDirPath}");
-        GetFilePaths(testFilesDirPath + @"\hurairu\hurairu_cmd.txt", OutputFileType.CMD_STREAM);
-        GetFilePaths(testFilesDirPath + @"\hurairu\hurairu_txt.txt", OutputFileType.TXT_OUTPUT);
-        // GetFilePaths(testFilesDirPath + @"\tuya\tuya_cmd.txt", OutputFileType.CMD_STREAM);
-        // GetFilePaths(testFilesDirPath + @"\tuya\tuya_txt.txt", OutputFileType.TXT_OUTPUT);
-        // GetFilePaths($@"{testFilesDirPath}\okf\okf_cmd.txt", OutputFileType.CMD_STREAM);
-        // GetFilePaths($@"{testFilesDirPath}\okf\okf_txt.txt", OutputFileType.TXT_OUTPUT);
+        GetFilePaths($@"{testFilesDirPath}/etc/binaryStreamAnalysis3.bin", OutputFileType.CMD_STREAM);
+        GetFilePaths($@"{testFilesDirPath}/etc/binaryStreamAnalysis3.txt", OutputFileType.TXT_OUTPUT);
         StartConvert();
 		#endif
     }
@@ -93,36 +88,42 @@ public partial class MainWindow : Window
             case OutputFileType.CMD_STREAM:
                 CmdFilePath             = filePath;
                 CmdFilePathTextBox.Text = filePath;
+                
+                if(!Util.GetFileExtensionFromPath(filePath).Equals("bin"))
+                    ResultOutputTextBox.Text = GetErrorMessage(FILE_NOT_VALID_FCS);
                 break;
             case OutputFileType.TXT_OUTPUT:
                 TxtOutFilePath             = filePath;
                 TxtOutFilePathTextBox.Text = filePath;
+                
+                if(!Util.GetFileExtensionFromPath(filePath).Equals("txt"))
+                    ResultOutputTextBox.Text = GetErrorMessage(FILE_NOT_VALID_TXT);
                 break;
             default:
                 throw new ArgumentOutOfRangeException($"Invalid output file type: {outputFileType}");
         }
 
-        if(!Util.GetFileExtensionFromPath(filePath).Equals("txt")) {
-            ResultOutputTextBox.Text = GetErrorMessage(FILE_NOT_VALID);
-        }
     }
 
     private void StartConvert()
     {
         ClearPreviousData();
-
         
         var isTxtOutputParseSuccessful = ParseTextOutput(TxtOutFilePath); Sr.Close();
         if(!isTxtOutputParseSuccessful)  // return if the parse method returns false(unsuccessful).
             return;
-        var isCmdStreamParseSuccessful = ParseCommandStream(CmdFilePath); Sr.Close();
+        
+        var isCmdStreamParseSuccessful = ParseBinCommandStream(CmdFilePath); Br.Close();
         if(!isCmdStreamParseSuccessful)
             return;
+        /*
+        var isCmdStreamParseSuccessful = ParseTextCommandStream(CmdFilePath); Sr.Close();
+        if(!isCmdStreamParseSuccessful)
+            return;
+            */
 
         Convert();
         CountCharSize();
-
-        // LogElapsedTime();
     }
 
     private static void ClearPreviousData()
@@ -229,9 +230,196 @@ public partial class MainWindow : Window
         return true;
     }
 
-    private bool ParseCommandStream(string cmdFilePath)
+    private bool ParseBinCommandStream(string binCmdFilePath)
     {
-        try { Sr = new StreamReader(cmdFilePath); } catch(ArgumentException e) {
+        if(!File.Exists(binCmdFilePath)) {
+            ResultOutputTextBox.Text = GetErrorMessage(FILE_NOT_FOUND);
+            return false;
+        }
+
+        using var binCmdFileStream = File.Open(binCmdFilePath, FileMode.Open);
+        
+        try {
+            Br = new BinaryReader(binCmdFileStream); 
+        } catch(ArgumentException e) {
+            ResultOutputTextBox.Text = GetExceptionErrorMessage(FILE_NOT_FOUND, e);
+            return false;
+        } catch(PathTooLongException e) {
+            ResultOutputTextBox.Text = GetExceptionErrorMessage(FILE_PATH_TOO_LONG, e);
+            return false;
+        } catch(DirectoryNotFoundException e) {
+            ResultOutputTextBox.Text = GetExceptionErrorMessage(FILE_NOT_FOUND, e);
+            return false;
+        } catch(FileNotFoundException e) {
+            ResultOutputTextBox.Text = GetExceptionErrorMessage(FILE_NOT_FOUND, e);
+            return false;
+        } catch(Exception e) {
+            ResultOutputTextBox.Text = GetExceptionErrorMessage(UNKNOWN_ERROR, e);
+            return false;
+        }
+        
+        NoteCmds = new List<FurnaceCommand>[9];
+        for(var chNum = 0; chNum < NoteCmds.Length; chNum++)
+            NoteCmds[chNum] = [];
+        DrumCmds = [];
+
+        var brBaseStream  = Br.BaseStream;
+
+        // Parsing First 4 bytes: "FCS\0"
+        var first4Byte = Br.ReadBytes(4); 
+        if(first4Byte.Length != 4) {
+            ResultOutputTextBox.Text = GetErrorMessage(FILE_EMPTY);
+            return false;
+        }
+        if(!(first4Byte[0] == 'F' && first4Byte[1] == 'C' && first4Byte[2] == 'S' && first4Byte[3] == '\0')) {
+            ResultOutputTextBox.Text = GetErrorMessage(NOT_FURNACE_CMD_STREAM);
+            return false;
+        }
+
+        // Parsing channel count
+        var chCountBin = Br.ReadBytes(4);
+        var chCount    = Util.GetIntFrom4Bytes(chCountBin);
+        
+       // Initialize Data Arrays, they are in the PublicValues.cs
+        ChDataStartAddr = new int[chCount];
+        PresetDelays    = new byte[chCount];
+        SpeedDialCmads  = new byte[chCount];
+        ChData          = new List<byte>[chCount];
+
+        // Parsing pointers to channel data
+        for(var ch=0; ch<chCount; ch++) {
+            var chStartAddrBin = Br.ReadBytes(4);
+            ChDataStartAddr[ch] = Util.GetIntFrom4Bytes(chStartAddrBin);
+        }
+        
+        // Parsing delay presets
+        for(var ch=0; ch<chCount; ch++) {
+            var binByte = Br.ReadByte();
+            PresetDelays[ch] = binByte;
+        }
+        
+        // Parsing speed dial commands
+        for(var ch=0; ch<chCount; ch++) {
+            var binByte = Br.ReadByte();
+            SpeedDialCmads[ch] = binByte;
+        }
+        
+        for(var ch=0; ch<chCount; ch++) {
+            ChData[ch] = [];
+            var curChDataEndAddr = ch + 1 < chCount ? ChDataStartAddr[ch + 1] - 1 : brBaseStream.Length-1;
+            var curReadingAddr   = brBaseStream.Position;;
+            
+            while(curReadingAddr < curChDataEndAddr) {
+                curReadingAddr   = brBaseStream.Position;
+                var binByte      = Br.ReadByte();
+                ChData[ch].Add(binByte);
+            }
+        }
+
+        
+        // Convert Binary Data to FurnaceCommand Struct
+        for(byte ch=0; ch<chCount; ch++) {
+            var curChData    = ChData[ch];
+
+            var curTick = 0;
+            var curVol  = 0xFF;
+            // var curDelay = -1;
+
+            for(var i=0; i<curChData.Count;) {
+                var curByteVal = curChData[i];
+                var valueCount = 0;
+                
+                if(curByteVal is >= 0xE0 and <= 0xEF) { // Note Preset Delays
+                    var presetDelayIdx = curByteVal & 0x0F;
+                    var delay          = PresetDelays[presetDelayIdx];
+                    curTick += delay;
+                } else if(curByteVal <= 0xCA) {       // 0x00 ~ 0xCA
+                    var cmdType = curByteVal switch { // 다른 파일에 유틸리티 함수로 만들 것
+                        <= 0xB4 => CmdType.NOTE_ON,   // 0x00 <= curByteVal <= 0xB4 (byte: 0x00 ~ 0xFF)
+                        0xB5    => CmdType.NOTE_OFF,
+                        0xB6    => CmdType.NOTE_OFF_ENV, // Note off env
+                        0xB7    => CmdType.ENV_RELEASE,  // env release
+                        0xB8    => CmdType.INSTRUMENT,
+                        0xBE    => CmdType.PANNING,
+
+                        0xC0 => CmdType.PRE_PORTA,
+                        0xC2 => CmdType.VIBRATO,
+                        0xC3 => CmdType.VIB_RANGE,
+                        0xC4 => CmdType.VIB_SHAPE,
+                        0xC5 => CmdType.PITCH,
+                        0xC6 => CmdType.HINT_ARPEGGIO,
+                        0xC7 => CmdType.HINT_VOLUME,
+                        0xC8 => CmdType.VOL_SLIDE,
+                        0xC9 => CmdType.HINT_PORTA,
+                        0xCA => CmdType.HINT_LEGATO,
+                        // ...
+                        _ => CmdType.INVALID
+                    };
+
+                    valueCount = cmdType switch {
+                        CmdType.NOTE_ON      or 
+                        CmdType.NOTE_OFF     or
+                        CmdType.NOTE_OFF_ENV or
+                        CmdType.ENV_RELEASE => 0,
+                            
+                        CmdType.INSTRUMENT  or
+                        CmdType.VIB_RANGE   or
+                        CmdType.VIB_SHAPE   or
+                        CmdType.PITCH       or
+                        CmdType.HINT_VOLUME or
+                        CmdType.HINT_LEGATO => 1,
+                            
+                        CmdType.PANNING       or
+                        CmdType.PRE_PORTA     or
+                        CmdType.VIBRATO       or
+                        CmdType.HINT_ARPEGGIO or
+                        CmdType.VOL_SLIDE     or
+                        CmdType.HINT_PORTA => 2,
+                            
+                        _ => throw new ArgumentOutOfRangeException()
+                    };
+
+                    var orderNum = MiscellaneousConversionUtil.GetOrderNum(curTick);
+                    var value1   = valueCount >= 1 ? curChData[i+1] : curByteVal;  // value1 = curByteVal when valueCount is 0
+                    var value2   = valueCount >= 2 ? curChData[i+2] : -1;
+                    // var value1   = valueCount >= 1 ? BinCmdStreamParsingMethods.GetValue1(curChData[i+1], cmdType) : curByteVal;
+                    // var value2   = valueCount >= 2 ? BinCmdStreamParsingMethods.GetValue2(curChData[i+2], cmdType) : -1;
+
+                    // if(cmdType.EqualsAny(CmdType.NOTE_ON, CmdType.HINT_PORTA, CmdType.HINT_LEGATO) && ch is >= 0 and <= 5)
+                    // value1 += 12; // Increases octave of FM channels by 1
+
+                    var cmdStruct = new FurnaceCommand(curTick, orderNum, ch, cmdType, value1, value2);
+
+                    switch(ch) {
+                        case >= 0 and <= 8: // 0~5: FM 1~6, 6~8: SSG 1~3
+                            NoteCmds[ch].Add(cmdStruct);
+                            break;
+                        case >= 9 and <= 14: // Drum
+                            DrumCmds.Add(cmdStruct);
+                            break;
+                        // default: ADPCM << Not in use
+                    }
+                }
+
+                i += 1+valueCount;
+            }
+        }
+        
+        var furnaceCmdStructTweaker = new FurnaceCmdStructTweaker();
+        furnaceCmdStructTweaker.InsertNoteOffAtStartOfEachOrder();
+        furnaceCmdStructTweaker.RemoveUnnecessaryPortamentoCommands();
+        furnaceCmdStructTweaker.RemoveUnnecessaryLegatoCommands();
+        furnaceCmdStructTweaker.FixRetriggerCommands();
+        furnaceCmdStructTweaker.ReorderCommands();
+        
+        return true;
+    }
+    
+    [Obsolete("Text Command Stream has been removed since Furnace v0.6.2")]
+    #region ParseTextCommandStream_Legacy
+    private bool ParseTextCommandStream(string txtCmdFilePath)
+    {
+        try { Sr = new StreamReader(txtCmdFilePath); } catch(ArgumentException e) {
             ResultOutputTextBox.Text = GetExceptionErrorMessage(FILE_NOT_FOUND, e);
             return false;
         } catch(PathTooLongException e) {
@@ -269,7 +457,7 @@ public partial class MainWindow : Window
         DrumCmds = [];
 
         // 본격적인 Stream 파싱 시작
-        var cmdStreamParser        = new CmdStreamParsingMethods();
+        var furnaceCmdStructTweaker        = new FurnaceCmdStructTweaker();
         var curTick                = -1;
         var isCurrentSectionStream = false;
         while(!Sr.EndOfStream) {
@@ -286,7 +474,7 @@ public partial class MainWindow : Window
             if(line.Contains(">> TICK "))
                 curTick = int.Parse(line[8..]);
             else if(line.Contains(">> END") || line.Contains(">> LOOP"))
-                cmdStreamParser.RemoveDuplicatedCommandsAtTheEnd(ref curTick, line);
+                furnaceCmdStructTweaker.RemoveDuplicatedCommandsAtTheEnd(ref curTick, line);
             else {
                 var split    = line.Trim().Split(" ");
                 var orderNum = MiscellaneousConversionUtil.GetOrderNum(curTick);
@@ -321,11 +509,11 @@ public partial class MainWindow : Window
         if(DrumCmds.Count != 0 && DrumCmds[0].Tick != 0)
             DrumCmds.Insert(0, new FurnaceCommand(0, 0, 16, "NOTE_ON", 0, 0));  // Channel Number outside 9~14 in DrumCmds are regarded as Rest
 
-        cmdStreamParser.InsertNoteOffAtStartOfEachOrder();
-        cmdStreamParser.RemoveUnnecessaryPortamentoCommands();
-        cmdStreamParser.RemoveUnnecessaryLegatoCommands();
-        cmdStreamParser.FixRetriggerCommands();
-        cmdStreamParser.ReorderCommands();
+        furnaceCmdStructTweaker.InsertNoteOffAtStartOfEachOrder();
+        furnaceCmdStructTweaker.RemoveUnnecessaryPortamentoCommands();
+        furnaceCmdStructTweaker.RemoveUnnecessaryLegatoCommands();
+        furnaceCmdStructTweaker.FixRetriggerCommands();
+        furnaceCmdStructTweaker.ReorderCommands();
 #if RELEASE
         } catch(Exception e) {
             var errMsg = $"An error has occured while parsing the command stream at line {curReadingLineNum}.\n\nStackTrace: {e.StackTrace}\n\nMsg: {e.Message}\n\n\n\n";
@@ -334,7 +522,7 @@ public partial class MainWindow : Window
 #endif
         return true;
     }
-
+    #endregion 
 
     private bool Convert()
     {
