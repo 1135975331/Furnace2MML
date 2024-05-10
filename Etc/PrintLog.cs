@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Avalonia.Controls;
 
 namespace Furnace2MML.Etc;

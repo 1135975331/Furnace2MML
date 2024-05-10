@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Furnace2MML.Etc;
 
 namespace Furnace2MML.Utils;
