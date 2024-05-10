@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Text;
 
 namespace Furnace2MML.Etc;
@@ -10,6 +10,11 @@ public static class PublicValue
     // public List<Subsong> Subsongs;
     public static SubsongData Subsong;
     public static string Memo = "";
+
+    public static int[]        ChDataStartAddr = [];
+    public static byte[]       PresetDelays    = [];
+    public static byte[]       SpeedDialCmads  = [];
+    public static List<byte>[] ChData          = [];
     
     public static List<FurnaceCommand>[] NoteCmds = []; // 배열의 각 원소는 각 채널의 명령어들
     public static List<FurnaceCommand> DrumCmds = [];
