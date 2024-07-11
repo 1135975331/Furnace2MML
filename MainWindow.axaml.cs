@@ -588,7 +588,7 @@ public partial class MainWindow : Window
         var tempo    = int.TryParse(MetaTempoTextbox.Text, out _) ? MetaTempoTextbox.Text : CmdStreamToMMLUtil.ConvertTickrateToTempo(Subsong.TickRate).ToString();
         var option   = MetaOptionTextbox.Text.Length != 0 ? MetaOptionTextbox.Text : "/v/c";
         var filename = MetaFilenameTextbox.Text.Length != 0 ? MetaFilenameTextbox.Text : ".M2";
-        var zenlen   = MetaZenlenTextbox.Text.Length != 0 ? MetaZenlenTextbox.Text : "192";
+        var zenlen   = MetaZenlenTextbox.Text.Length != 0 ? MetaZenlenTextbox.Text : PublicValue.Zenlen.ToString();
         var voldown  = GetVoldownMeta();
 
         /* Metadata */
@@ -651,8 +651,8 @@ public partial class MainWindow : Window
             var rhyVoldown = MetaVoldownRhythmTextbox.Text;
 
             var sb = new StringBuilder();
-            sb.Append(fmVoldown.Length != 0 ? $"F{fmVoldown}" : "F15")
-               .Append(ssgVoldown.Length != 0 ? $"S{ssgVoldown}" : "")
+            sb.Append(fmVoldown.Length != 0 ? $"F{fmVoldown}" : "F20")
+               .Append(ssgVoldown.Length != 0 ? $"S{ssgVoldown}" : "S-10")
                .Append(rhyVoldown.Length != 0 ? $"R{rhyVoldown}" : "");
 
             return sb.ToString();
