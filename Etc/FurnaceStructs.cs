@@ -40,6 +40,8 @@ public struct SubsongData()
     public readonly int[] VirtualTempo = new int[2];  // 0: Numerator / 1: Denominator
     public int TimeBase;
     public int PatternLen;
+
+    public float GetVirtTempoInDecimal() => (float)VirtualTempo[0] / VirtualTempo[1];
 }
 
 
