@@ -98,7 +98,17 @@ public static class ConvertFurnaceToMML
                     case CmdType.HINT_LEGATO:   ConvertCmdStreamToMML.ConvertLegato(noteCmdCh, i, tickLen, ref prevOctave, orderSbArr[curOrderNum]); break;
                 }
             }
-
+            
+            /* Set Channel Instrument at the time of the loop to end of the MML*/
+            if(LoopStartOrder != 1) {
+                var lastOrderSb = orderSbArr[MaxOrderNum];
+                var chCmdList = NoteCmds[chNum];
+                
+                CmdStreamToMMLUtil.GetFirstCertainCmd(chCmdList, 0, cmd => cmd.Tick >= LoopStartTick, out _, out var foundCmdIdx);
+                var instCmd = CmdStreamToMMLUtil.GetFirstCertainCmd(chCmdList, foundCmdIdx, cmd => cmd.CmdType == CmdType.INSTRUMENT,  out _, out _, direction: "backward");
+                lastOrderSb.Append($"@{instCmd.Value1}");
+            }
+            
             for(var i = 0; i <= MaxOrderNum; i++)
                 orderSbArr[i].AppendLine();
         }
