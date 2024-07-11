@@ -566,10 +566,11 @@ public partial class MainWindow : Window
 
         /* Initialize Order StringBuilder */
         resultOutput.AppendLine(";;; Note Channels");
-        var orderSb = new StringBuilder[MaxOrderNum + 1];
-        for(var orderNum = 0; orderNum < orderSb.Length; orderNum++) {
-            orderSb[orderNum] = new StringBuilder();
-            orderSb[orderNum].AppendLine($"; [{orderNum:X2}|{orderNum:D3}] ({CmdStreamToMMLUtil.GetOrderStartTick(orderNum)}~{CmdStreamToMMLUtil.GetOrderStartTick(orderNum+1)-1} Tick)");
+        var orderSbArrLen = MaxOrderNum + 1;
+        var orderSbArr = new StringBuilder[orderSbArrLen];
+        for(var orderNum = 0; orderNum < orderSbArrLen; orderNum++) {
+            orderSbArr[orderNum] = new StringBuilder();
+            orderSbArr[orderNum].AppendLine($"; [{orderNum:X2}|{orderNum:D3}] ({CmdStreamToMMLUtil.GetOrderStartTick(orderNum)}~{CmdStreamToMMLUtil.GetOrderStartTick(orderNum+1)-1} Tick)");
         }
 
         var loopPointOrder = TxtOutputToMMLUtil.GetLoopPoint(OtherEffects);
@@ -577,14 +578,14 @@ public partial class MainWindow : Window
             AppendLoop(orderSb[loopPointOrder]);
 
         /* Convert FM/SSG, Drum */
-        ConvertFurnaceToMML.ConvertNotesToMML(orderSb);
-        ConvertFurnaceToMML.ConvertDrumsToMML(orderSb);
-
+        ConvertFurnaceToMML.ConvertNotesToMML(orderSbArr);
+        ConvertFurnaceToMML.ConvertDrumsToMML(orderSbArr);
+        
         /* Output results to ResultOutputTextBox */
-        foreach (var ordSb in orderSb)
-            resultOutput.Append(ordSb).AppendLine();
+        foreach (var orderSb in orderSbArr)
+            resultOutput.Append(orderSb).AppendLine();
 
-        PublicValue.NoteChannelsOutput = orderSb;
+        PublicValue.NoteChannelsOutput = orderSbArr;
         ResultOutputTextBox.Text = resultOutput.ToString();
         return true;
 

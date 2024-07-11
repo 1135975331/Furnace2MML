@@ -46,7 +46,7 @@ public static class ConvertFurnaceToMML
         return instSb;
     }
     
-    public static void ConvertNotesToMML(StringBuilder[] orderSb)
+    public static void ConvertNotesToMML(StringBuilder[] orderSbArr)
     {
         var noteCmdsLen = NoteCmds.Length;
         for(var chNum = 0; chNum < noteCmdsLen; chNum++) {
@@ -63,9 +63,9 @@ public static class ConvertFurnaceToMML
             var prevOctave = firstNoteOnCmd.Value1 / 12 - 5;  // note on command on Binary Command Stream can have C-(-5) ~ B-9. C(-5) ~ B(-1) should be excluded.
             
             for(var orderNum = 0; orderNum <= MaxOrderNum; orderNum++)
-                orderSb[orderNum].Append($"{mmlCh}\t");
+                orderSbArr[orderNum].Append($"{mmlCh}\t");
             if(prevOctave != 0)
-                orderSb[0].Append('o').Append(prevOctave).Append(' ');  
+                orderSbArr[0].Append('o').Append(prevOctave).Append(' ');  
             // if(DefaultNoteFractionLength != -1)
             // orderSb[0].Append('l').Append(DefaultNoteFractionLength).Append("   ");
 
@@ -82,25 +82,25 @@ public static class ConvertFurnaceToMML
                     prevNoteCmdOrderNum          = curOrderNum;
                     CurDefaultNoteFractionLength = CmdStreamToMMLUtil.GetDefaultNoteFracLenForThisOrder(noteCmdCh, curOrderNum, i);
                     if(CurDefaultNoteFractionLength != -1)
-                        orderSb[curOrderNum].Append('l').Append(CurDefaultNoteFractionLength).Append("   ");
+                        orderSbArr[curOrderNum].Append('l').Append(CurDefaultNoteFractionLength).Append("   ");
                 }
 
                 // - => ignored
                 switch(cmdType) {
                     case CmdType.HINT_ARP_TIME: ConvertCmdStreamToMML.SetArpSpeed(noteCmd); break;
                     case CmdType.HINT_ARPEGGIO: ConvertCmdStreamToMML.SetArpeggioStatus(noteCmd); break;
-                    case CmdType.INSTRUMENT:    ConvertCmdStreamToMML.ConvertInstrument(noteCmd, tickLen, orderSb[curOrderNum]); break; 
-                    case CmdType.PANNING:       ConvertCmdStreamToMML.ConvertPanning(noteCmd, tickLen, orderSb[curOrderNum]); break;
-                    case CmdType.HINT_VOLUME:   ConvertCmdStreamToMML.ConvertVolume(noteCmdCh, i, tickLen, orderSb[curOrderNum]); break;
-                    case CmdType.NOTE_ON:       ConvertCmdStreamToMML.ConvertNoteOn(noteCmd, tickLen, ref prevOctave, orderSb[curOrderNum]); break;
-                    case CmdType.NOTE_OFF:      ConvertCmdStreamToMML.ConvertNoteOff(tickLen, orderSb[curOrderNum]); break;
-                    case CmdType.HINT_PORTA:    ConvertCmdStreamToMML.ConvertPortamento(noteCmdCh, i, ref prevOctave, orderSb[curOrderNum]); break;
-                    case CmdType.HINT_LEGATO:   ConvertCmdStreamToMML.ConvertLegato(noteCmdCh, i, tickLen, ref prevOctave, orderSb[curOrderNum]); break;
+                    case CmdType.INSTRUMENT:    ConvertCmdStreamToMML.ConvertInstrument(noteCmd, tickLen, orderSbArr[curOrderNum]); break; 
+                    case CmdType.PANNING:       ConvertCmdStreamToMML.ConvertPanning(noteCmd, tickLen, orderSbArr[curOrderNum]); break;
+                    case CmdType.HINT_VOLUME:   ConvertCmdStreamToMML.ConvertVolume(noteCmdCh, i, tickLen, orderSbArr[curOrderNum]); break;
+                    case CmdType.NOTE_ON:       ConvertCmdStreamToMML.ConvertNoteOn(noteCmd, tickLen, ref prevOctave, orderSbArr[curOrderNum]); break;
+                    case CmdType.NOTE_OFF:      ConvertCmdStreamToMML.ConvertNoteOff(tickLen, orderSbArr[curOrderNum]); break;
+                    case CmdType.HINT_PORTA:    ConvertCmdStreamToMML.ConvertPortamento(noteCmdCh, i, ref prevOctave, orderSbArr[curOrderNum]); break;
+                    case CmdType.HINT_LEGATO:   ConvertCmdStreamToMML.ConvertLegato(noteCmdCh, i, tickLen, ref prevOctave, orderSbArr[curOrderNum]); break;
                 }
             }
 
             for(var i = 0; i <= MaxOrderNum; i++)
-                orderSb[i].AppendLine();
+                orderSbArr[i].AppendLine();
         }
     }
 
