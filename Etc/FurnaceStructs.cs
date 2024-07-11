@@ -150,6 +150,7 @@ public struct
             13 => "TM",
             14 => "RM",
             15 => "AP",
+            _  => throw new ArgumentOutOfRangeException(nameof(chNum), chNum, null)
         };
     }
     
