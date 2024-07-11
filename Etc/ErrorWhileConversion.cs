@@ -65,7 +65,7 @@ public static class ErrorWhileConversionMethods
                 
 			NOT_FURNACE_TEXT_EXPORT => "Error: The file selected is not Furnace Text Output.",
 			SYSTEM_NOT_OPNA      => "Error: System is not YM2608(OPNA).",
-			INVALID_VIRT_TEMPO      => "Error: Numerator and Denominator of the Virtual Tempo must be equal.",
+			INVALID_VIRT_TEMPO      => "Error: (Numerator / Denominator) of the Virtual Tempo must be 0.5 or 1.",
 			NOT_FURNACE_CMD_STREAM  => "Error: The file selected is not Furnace Command Stream. (Please check if the first line of the file is '# Furnace Command Stream')",
 			
 			CONVERTER_NOT_SELECTED => "Error: Converter is not selected.",
