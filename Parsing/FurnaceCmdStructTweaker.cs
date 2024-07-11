@@ -318,5 +318,8 @@ public class FurnaceCmdStructTweaker
 
             noteCmdChList.Sort();
         }
+        
+        DrumCmds.Sort();
+    }
     }
 }
