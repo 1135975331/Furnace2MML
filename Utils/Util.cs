@@ -40,7 +40,7 @@ public static partial class Util
 	/// <param name="listLen"></param>
 	/// <typeparam name="T"></typeparam>
 	/// <returns></returns>
-    public static bool RemoveIdxLoop<T>(this List<T> list, T elem, ref int listLen)
+    public static bool RemoveIdxLoop<T>(this List<T> list, ref int listLen, T elem)
     {
         listLen--;
         return list.Remove(elem);
@@ -51,6 +51,13 @@ public static partial class Util
         list.RemoveAt(idx);
         listLen--;
         idx--;
+	}
+    
+	public static void InsertAtIdxLoop<T>(this List<T> list, ref int idx, ref int listLen, T item)
+	{
+        list.Insert(idx+1, item);
+        listLen++;
+        idx++;
 	}
 	
 	// Referenced code from: https://stackoverflow.com/questions/10293236/accessing-the-scrollviewer-of-a-listbox-from-c-sharp
