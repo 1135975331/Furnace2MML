@@ -60,7 +60,7 @@ public static class ConvertFurnaceToMML
             if(firstNoteOnCmd.CmdType == CmdType.NO_NOTE_ON) // if there's no NOTE_ON on the channel
                 continue;
             
-            var prevOctave = firstNoteOnCmd.Value1 / 12;
+            var prevOctave = firstNoteOnCmd.Value1 / 12 - 5;  // note on command on Binary Command Stream can have C-(-5) ~ B-9. C(-5) ~ B(-1) should be excluded.
             
             for(var orderNum = 0; orderNum <= MaxOrderNum; orderNum++)
                 orderSb[orderNum].Append($"{mmlCh}\t");
