@@ -317,4 +317,31 @@ public static class CmdStreamToMMLUtil
     
     public static int GetOrderStartTick(int orderNum)
         => orderNum <= MaxOrderNum ? OrderStartTimes[orderNum].StartTick : EndTick;
+
+    public static FurnaceCommand CloneCommandStruct(FurnaceCommand originalCmd, CmdFieldChangeArg[]? fieldsToChange = null)
+    {
+        var tick    = originalCmd.Tick;
+        var channel = originalCmd.Channel;
+        var cmdType = originalCmd.CmdType;
+        var value1  = originalCmd.Value1;
+        var value2  = originalCmd.Value2;
+
+        if(fieldsToChange == null)
+            return new FurnaceCommand(tick, channel, cmdType, value1, value2);
+        
+        
+        foreach(var fieldToChange in fieldsToChange) {
+            switch(fieldToChange.FieldToChange) {
+                case CmdStructField.TICK:     tick    = fieldToChange.IntValue; break;
+                case CmdStructField.CHANNEL:  channel = (byte)fieldToChange.IntValue; break;
+                case CmdStructField.CMD_TYPE: cmdType = fieldToChange.CmdTypeValue; break;
+                case CmdStructField.VALUE1:   value1  = fieldToChange.IntValue; break;
+                case CmdStructField.VALUE2:   value2  = fieldToChange.IntValue; break;
+                default: throw new ArgumentOutOfRangeException($"Invalid CmdStructField Enum: {fieldToChange.FieldToChange}");
+            }
+        }
+
+        return new FurnaceCommand(tick, channel, cmdType, value1, value2);
+    }
+    
 }
