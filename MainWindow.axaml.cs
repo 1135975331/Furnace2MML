@@ -32,10 +32,15 @@ public partial class MainWindow : Window
 {
     public string CmdFilePath;
     public string TxtOutFilePath;
+
+    private bool isCmdBinSelectedWithExplorer    = false;
+    private bool isTxtOutputSelectedWithExplorer = false;
+    
     public StreamReader Sr;
     public BinaryReader Br;
     
-    private static readonly FilePickerFileType TextFileTypeFilter = new("Text Files") { Patterns = ["*.txt"] };
+    private static readonly FilePickerFileType TextFileTypeFilter = new("Furnace Text Export Files") { Patterns = ["*.txt"] };
+    private static readonly FilePickerFileType BinaryFileTypeFilter = new("Furnace Binary Command Stream Files") { Patterns = ["*.bin"] };
 
     public MainWindow()
     {
@@ -67,34 +72,48 @@ public partial class MainWindow : Window
 
     private async void FileSelect(OutputFileType outputFileType)
     {
+        var fileTypeFilter = outputFileType switch {
+            OutputFileType.TXT_OUTPUT => TextFileTypeFilter,
+            OutputFileType.CMD_STREAM => BinaryFileTypeFilter,
+            _                         => throw new ArgumentOutOfRangeException(nameof(outputFileType), outputFileType, null)
+        };
+        
         var topLevel = GetTopLevel(this);
         var file     = await topLevel.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions {
             Title = "Select a File",
             AllowMultiple = false,
-            FileTypeFilter = [TextFileTypeFilter],
+            FileTypeFilter = [fileTypeFilter],
         });
 
         if(file.Count == 0)
             return;
         
         var filePath = file[0].TryGetLocalPath();
-        if(filePath != null)
-            GetFilePaths(filePath, outputFileType);  //Get the path of specified file
+        if(filePath == null)
+            return;
+        
+        GetFilePathFromFile(filePath, outputFileType);  //Get the path of specified file
+            
+        switch(outputFileType) {
+            case OutputFileType.CMD_STREAM: isCmdBinSelectedWithExplorer    = true; break;
+            case OutputFileType.TXT_OUTPUT: isTxtOutputSelectedWithExplorer = true; break;
+            default:                        throw new ArgumentOutOfRangeException(nameof(outputFileType), outputFileType, null);
+        }
     }
 
-    public void GetFilePaths(string filePath, OutputFileType outputFileType)
+    public void GetFilePathFromFile(string filePath, OutputFileType outputFileType)
     {
         switch(outputFileType) {
             case OutputFileType.CMD_STREAM:
-                CmdFilePath             = filePath;
                 CmdFilePathTextBox.Text = filePath;
+                CmdFilePath             = filePath;
                 
                 if(!Util.GetFileExtensionFromPath(filePath).Equals("bin"))
                     ResultOutputTextBox.Text = GetErrorMessage(FILE_NOT_VALID_FCS);
                 break;
             case OutputFileType.TXT_OUTPUT:
-                TxtOutFilePath             = filePath;
                 TxtOutFilePathTextBox.Text = filePath;
+                TxtOutFilePath             = filePath;
                 
                 if(!Util.GetFileExtensionFromPath(filePath).Equals("txt"))
                     ResultOutputTextBox.Text = GetErrorMessage(FILE_NOT_VALID_TXT);
@@ -102,12 +121,30 @@ public partial class MainWindow : Window
             default:
                 throw new ArgumentOutOfRangeException($"Invalid output file type: {outputFileType}");
         }
-
+    }
+    
+    public void GetFilePathFromTextBox(OutputFileType outputFileType)
+    {
+        switch(outputFileType) {
+            case OutputFileType.CMD_STREAM:
+                CmdFilePath = CmdFilePathTextBox.Text ?? "???";
+                break;
+            case OutputFileType.TXT_OUTPUT:
+                TxtOutFilePath = TxtOutFilePathTextBox.Text ?? "???";
+                break;
+            default:
+                throw new ArgumentOutOfRangeException($"Invalid output file type: {outputFileType}");
+        }
     }
 
     private void StartConvert()
     {
         ClearPreviousData();
+        
+        if(!isCmdBinSelectedWithExplorer) 
+            GetFilePathFromTextBox(OutputFileType.CMD_STREAM);
+        if(!isTxtOutputSelectedWithExplorer)
+            GetFilePathFromTextBox(OutputFileType.TXT_OUTPUT);
         
         var isTxtOutputParseSuccessful = ParseTextOutput(TxtOutFilePath); Sr.Close();
         if(!isTxtOutputParseSuccessful)  // return if the parse method returns false(unsuccessful).
