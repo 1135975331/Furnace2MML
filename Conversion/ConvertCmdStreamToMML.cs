@@ -90,65 +90,98 @@ public static class ConvertCmdStreamToMML
     }
 
     private const int TICK_OF_FRAC1 = 96;
-    private static readonly CmdType[] CmdTypeToFindPrevCmd = [CmdType.HINT_PORTA, CmdType.NOTE_ON];
+    private static readonly CmdType[] CmdTypeToFindPrevCmd = [CmdType.HINT_LEGATO, CmdType.NOTE_ON];
     private static readonly CmdType[] CmdTypeToFindNextCmd = [CmdType.NOTE_ON, CmdType.NOTE_OFF, CmdType.HINT_PORTA, CmdType.HINT_LEGATO];
     public static void ConvertPortamento(List<FurnaceCommand> cmdList, int curCmdIdx, ref int defaultOct,  StringBuilder curOrderSb)
     {
+        // HINT_PORTA에서 포르타멘토 시작, HINT_LEGATO 시점에서 음 상승을 종료하고 도착음 유지.
+        // HINT_LEGATO(도착음 도달시점) 앞에 NOTE_OFF가 있는 경우는 도착음에 도달하기 이전에 NOTE_OFF가 찍혀있는 경우임
+        //   => HINT_PORTA ~ HINT_LEGATO 사이의 시간, 시작음과 도착음을 알고 있으므로 올라가는 중에 NOTE_OFF시 음이 어디까지 올라가다가 끊어지는지 알 수 있음
+        
         var curCmd = cmdList[curCmdIdx];
         
-        // MML 문법: a&&{b e}4
+        // MML Grammar: a&&{b e}4
         if(curCmd.Value1 == -1)
             return;
 
-        var prevCmd = CmdStreamToMMLUtil.GetFirstCertainCmd(cmdList, curCmdIdx, cmd => CmdTypeToFindPrevCmd.Contains(cmd.CmdType), direction: "backward", isCmdFound: out _);  
+        var prevNoteCmd       = CmdStreamToMMLUtil.GetFirstCertainCmd(cmdList, curCmdIdx, cmd => CmdTypeToFindPrevCmd.Contains(cmd.CmdType), direction: "backward", isCmdFound: out _, foundCmdIdx: out _);  
+        var nextCmd           = CmdStreamToMMLUtil.GetFirstCertainCmd(cmdList, curCmdIdx, cmd => CmdTypeToFindNextCmd.Contains(cmd.CmdType), direction: "forward", isCmdFound: out _, foundCmdIdx: out _);  
+        var legatoForThePorta = CmdStreamToMMLUtil.GetFirstCertainCmd(cmdList, curCmdIdx, cmd => cmd.CmdType == CmdType.HINT_LEGATO, direction: "forward", isCmdFound: out _, foundCmdIdx: out var legatoIdx);
+
         
-        var nextCmdForLength = CmdStreamToMMLUtil.GetFirstCertainCmd(cmdList, curCmdIdx, cmd => CmdTypeToFindNextCmd.Contains(cmd.CmdType), direction: "forward", isCmdFound: out _);
+        var portaPlayLength = nextCmd.Tick - curCmd.Tick; 
+        var portaLength     = legatoForThePorta.Tick - curCmd.Tick;
         
-        var portaLength    = nextCmdForLength.Tick - curCmd.Tick;
-        var isPortaLenLong = portaLength > TICK_OF_FRAC1;
+        var isPortaEndBeforeLegato  = portaPlayLength < portaLength;  // NOTE_OFF while portamento 
+        var isPortaLenLong = portaPlayLength > TICK_OF_FRAC1;
+        
+
+        var startPitch     = prevNoteCmd.Value1;
+        var targetPitch    = legatoForThePorta.Value1;
+        var actualEndPitch = GetActualEndPitch();
 
         // Length of Portamento cannot be longer than a whole note + a quarter note(fracLen: 1 + 4), so it should be split into parts.
         if(isPortaLenLong) {
             FormatSplitLongPortamento(ref defaultOct);
         } else {
-            var prevMMLNote = CmdStreamToMMLUtil.GetMMLNote(prevCmd.Value1, ref defaultOct, false); 
-            var curMMLNote  = CmdStreamToMMLUtil.GetMMLNote(curCmd.Value1, ref defaultOct, true);
-            curOrderSb.Append($"&{{{prevMMLNote} {curMMLNote}}}").AppendFracLength(portaLength);
+            var startMMLNote   = CmdStreamToMMLUtil.GetMMLNote(startPitch, ref defaultOct, false); 
+            var targetMMLNote  = CmdStreamToMMLUtil.GetMMLNote(actualEndPitch, ref defaultOct, true);
+            curOrderSb.Append($"&{{{startMMLNote} {targetMMLNote}}}").AppendFracLength(portaPlayLength);
         }
+        
+        if(isPortaEndBeforeLegato) 
+            cmdList[legatoIdx] = new FurnaceCommand(legatoForThePorta.Value1, -2, legatoForThePorta);  // Mark the HINT_LEGATO Command no longer necessary
         
         #region Local Functions
         /* -------------------------------------- Local Functions -------------------------------------------- */
+        int GetActualEndPitch()
+        {
+            if(!isPortaEndBeforeLegato)
+                return targetPitch;
+            
+            var progressPercent = (float)portaPlayLength / portaLength;
+            var deltaPitch      = Math.Abs(targetPitch - startPitch);
+            return (int)(startPitch < targetPitch ? startPitch + deltaPitch * progressPercent : startPitch - deltaPitch * progressPercent);
+        }
+        
         void FormatSplitLongPortamento(ref int defaultOct)
         {
-            var portaLenInFrac1 = (double)portaLength / TICK_OF_FRAC1;
+            var portaLenInFrac1 = (double)portaPlayLength / TICK_OF_FRAC1;
             var splitCount = (int)Math.Ceiling(portaLenInFrac1);
-            var deltaNoteNum = curCmd.Value1 - prevCmd.Value1;
+            var deltaNoteNum = actualEndPitch - startPitch;
             var deltaNoteNumPerFrac1 = (1 / portaLenInFrac1) * deltaNoteNum;
 
-            var prevNoteNum = prevCmd.Value1;
-            var curNoteNum  = prevCmd.Value1;
+            var startNoteNum  = startPitch;
+            var targetNoteNum = startPitch;
             
             for(var i = 1; i <= splitCount; i++) {
                 if(i != splitCount)
-                    curNoteNum += (int)Math.Round(deltaNoteNumPerFrac1);
+                    targetNoteNum += (int)Math.Round(deltaNoteNumPerFrac1);
                 else
-                    curNoteNum = curCmd.Value1;
+                    targetNoteNum = actualEndPitch;
 
-                var prevMMLNote = CmdStreamToMMLUtil.GetMMLNote(prevNoteNum, ref defaultOct, false); 
-                var curMMLNote  = CmdStreamToMMLUtil.GetMMLNote(curNoteNum, ref defaultOct, true);
+                var startMMLNote  = CmdStreamToMMLUtil.GetMMLNote(startNoteNum, ref defaultOct, false); 
+                var targetMMLNote = CmdStreamToMMLUtil.GetMMLNote(targetNoteNum, ref defaultOct, true);
 
-                var length = i == splitCount ? portaLength % TICK_OF_FRAC1 : TICK_OF_FRAC1;
-                curOrderSb.Append($"&{{{prevMMLNote} {curMMLNote}}}").AppendFracLength(length);
+                var length = i == splitCount ? portaPlayLength % TICK_OF_FRAC1 : TICK_OF_FRAC1;
+                curOrderSb.Append($"&{{{startMMLNote} {targetMMLNote}}}").AppendFracLength(length);
 
-                prevNoteNum = curNoteNum;
+                startNoteNum = targetNoteNum;
             }
         }
         #endregion
     }
+    
 
     public static void ConvertLegato(List<FurnaceCommand> cmdList, int curIdx, int tickLen, ref int defaultOct, StringBuilder curOrderSb)
     {
+        // todo HINT_LEGATO가 있을 때 위쪽에 NOTE_OFF와 HINT_PORTA가 발견된다면 해당 HINT_LEGATO는 포르타멘토로 인해 생성된 것. => 해당 HINT_LEGATO는 NOTE_OFF로 취급하고 다음으로 넘어가야함
         var curCmd = cmdList[curIdx];
+        
+        if(curCmd.Value2 == -2) {  // if the command has been marked no longer necessary by ConvertPortamento method
+            ConvertNoteOff(tickLen, curOrderSb);  // then treat the command as NOTE_OFF 
+            return;
+        }
         
         var noteNum = curCmd.Value1;
         var mmlNote = CmdStreamToMMLUtil.GetMMLNote(noteNum, ref defaultOct).ToString();
