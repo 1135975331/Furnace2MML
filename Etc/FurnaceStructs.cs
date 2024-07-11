@@ -238,3 +238,25 @@ public readonly struct OrderStartTime(byte orderNum, int orderStartTick, int ski
     public override string ToString()
         => $"OrderNum: {OrderNum:X2} | Tick: {StartTick} | Skipped Tick: {SkippedTick} (Total: {TotalSkippedTick})";
 }
+
+public readonly struct CmdFieldChangeArg
+{
+    public readonly CmdStructField FieldToChange;
+    public readonly int            IntValue;
+    public readonly CmdType        CmdTypeValue;
+    
+    public CmdFieldChangeArg(CmdStructField fieldToChange, int value)
+    {
+        if(fieldToChange == CmdStructField.CMD_TYPE)
+            throw new InvalidEnumArgumentException($"All CmdStructField Enums but CMD_TYPE is expected, but {fieldToChange} came.");
+        
+        FieldToChange = fieldToChange;
+        IntValue      = value;
+    }
+    
+    public CmdFieldChangeArg(CmdType value)
+    {
+        FieldToChange = CmdStructField.CMD_TYPE;
+        CmdTypeValue  = value;
+    }
+}
