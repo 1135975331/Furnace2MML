@@ -9,12 +9,16 @@ public static class PublicValue
     public static List<InstrumentDefinition> InstDefs = [];
     // public List<Subsong> Subsongs;
     public static SubsongData Subsong;
-    public static string Memo = "";
+    public static int         Zenlen = 96;
+    public static string      Memo   = "";
 
     public static int[]        ChDataStartAddr = [];
     public static byte[]       PresetDelays    = [];
-    public static byte[]       SpeedDialCmads  = [];
+    public static byte[]       SpeedDialCmds  = [];
     public static List<byte>[] ChData          = [];
+
+    public static int LoopStartOrder = -1;
+    public static int LoopStartTick  = -1;
     
     public static List<FurnaceCommand>[] NoteCmds = []; // 배열의 각 원소는 각 채널의 명령어들
     public static List<FurnaceCommand> DrumCmds = [];
