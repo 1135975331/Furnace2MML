@@ -626,9 +626,10 @@ public partial class MainWindow : Window
             orderSbArr[orderNum].AppendLine($"; [{orderNum:X2}|{orderNum:D3}] ({CmdStreamToMMLUtil.GetOrderStartTick(orderNum)}~{CmdStreamToMMLUtil.GetOrderStartTick(orderNum+1)-1} Tick)");
         }
 
-        var loopPointOrder = TxtOutputToMMLUtil.GetLoopPoint(OtherEffects);
-        if(loopPointOrder != -1)
-            AppendLoop(orderSb[loopPointOrder]);
+        LoopStartOrder = TxtOutputToMMLUtil.GetLoopStartOrder(OtherEffects);
+        LoopStartTick = PublicValue.OrderStartTimes[LoopStartOrder].StartTick;
+        if(LoopStartOrder != -1)
+            ConvertFurnaceToMML.AppendLoop(orderSbArr[LoopStartOrder]);
 
         /* Convert FM/SSG, Drum */
         ConvertFurnaceToMML.ConvertNotesToMML(orderSbArr);
