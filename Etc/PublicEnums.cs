@@ -25,3 +25,8 @@ public enum CmdType
     NO_NOTE_ON, SEARCH_STOPPED,
     INVALID,
 }
+
+public enum CmdStructField
+{
+    TICK, CHANNEL, CMD_TYPE, VALUE1, VALUE2
+}
