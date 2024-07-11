@@ -181,6 +181,48 @@ public class FurnaceCmdStructTweaker
         }
         #endregion
     }
+    
+    /// <summary>
+    /// 
+    /// </summary>
+    public void RemoveUnnecessaryPortamentoBinaryCommands()
+    {
+        for(var chNum = 0; chNum < 9; chNum++) {
+            var noteCmdChList    = NoteCmds[chNum];
+            var noteCmdChLen = noteCmdChList.Count;
+            if(noteCmdChLen == 0)
+                continue;
+
+            for(var i = 0; i < noteCmdChLen - 1; i++) {
+                var curCmd = noteCmdChList[i];
+
+                if(curCmd.CmdType == CmdType.HINT_PORTA && curCmd is { Value2: 0 } || curCmd.CmdType == CmdType.PRE_PORTA)
+                    noteCmdChList.RemoveAtIdxLoop(ref i, ref noteCmdChLen);
+            }
+        
+            // value2 == 0x00 인 HINT_PORTA 삭제.
+            // PRE_PORTA의 value2는 preset delay를 나타내는 것으로 추청, 어쩌면 preset delay == porta 지속시간
+        }
+    }
+    
+    public void RemoveUnnecessaryNoteOffCommands()
+    {
+        for(var chNum = 0; chNum < 9; chNum++) {
+            var noteCmdChList    = NoteCmds[chNum];
+            var noteCmdChLen = noteCmdChList.Count;
+            if(noteCmdChLen == 0)
+                continue;
+
+            for(var i = 0; i < noteCmdChLen - 1; i++) {
+                var curCmd = noteCmdChList[i];
+
+                if(curCmd.CmdType == CmdType.NOTE_OFF) {
+                    if(noteCmdChList.Any(otherCmd => otherCmd.Tick == curCmd.Tick && otherCmd.CmdType is CmdType.PRE_PORTA or CmdType.HINT_PORTA))
+                        noteCmdChList.RemoveAtIdxLoop(ref i, ref noteCmdChLen);
+                }
+            }
+        }
+    }
 
     public void RemoveUnnecessaryLegatoCommands()
     {
