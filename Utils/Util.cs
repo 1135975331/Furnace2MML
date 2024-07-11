@@ -26,7 +26,7 @@ public static partial class Util
 			throw new ArgumentException($"4 bytes value (bytesArr.count == 4) is expected. ({bytesArr.Length})");
         
 		// little endian
-		return (bytesArr[3] << 2*3) + (bytesArr[2] << 2*2) + (bytesArr[1] << 2*1) + bytesArr[0];
+		return bytesArr[3] << 8*3 | bytesArr[2] << 8*2 | bytesArr[1] << 8*1 | bytesArr[0];
 	}
 
 	public static string ToEscapedString(this string origin)
