@@ -125,8 +125,8 @@ public static class ConvertFurnaceToMML
 
         var prevNoteCmdOrderNum = -1;
         
-        var curInstNum             = new int[8];        // [channel number, instrument number], instrument number is used to distinguish SSG Drums
-        var drumsChAtIdenticalTick = new List<int[]>(); // List of curInstNum
+        var curInstNum             = new int[8];                                                     // [channel number, instrument number], instrument number is used to distinguish SSG Drums
+        var drumsChAtIdenticalTick = new SortedSet<int[]>(GetDrumsChannelAtIdenticalTickComparer()); // Set of curInstNum
         var drumCmdsLen            = DrumCmds.Count;
         for(var i = 0; i < drumCmdsLen; i++) {
             var drumCmd     = DrumCmds[i];
@@ -178,7 +178,7 @@ public static class ConvertFurnaceToMML
     private static string _prevMMLDrum = "";
     private static int _prevOrderNum = -1;
     private static bool _firstDrumProcessed = false;
-    public static void ConvertDrumNoteOn(List<int[]> chNums, int curOrderNum, int tickLen, StringBuilder sb)
+    public static void ConvertDrumNoteOn(SortedSet<int[]> chNums, int curOrderNum, int tickLen, StringBuilder sb)
     {
         var soundSourceOnly = chNums.Where(elem => elem[1] == 0);
         var withInternalSSG = chNums.Where(elem => elem[1] >= 1);
@@ -234,4 +234,10 @@ public static class ConvertFurnaceToMML
         _prevOrderNum = -1;
         _firstDrumProcessed = false;
     }
+
+    private static Comparer<int[]> GetDrumsChannelAtIdenticalTickComparer() 
+        => Comparer<int[]>.Create((intArr1, intArr2) => {
+            var channelComparison = intArr1[0].CompareTo(intArr2[0]);
+            return channelComparison != 0 ? channelComparison : intArr1[1].CompareTo(intArr2[1]);
+        });
 }
