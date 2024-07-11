@@ -284,10 +284,10 @@ public partial class MainWindow : Window
         var chCountBin = Br.ReadBytes(4);
         var chCount    = Util.GetIntFrom4Bytes(chCountBin);
         
-       // Initialize Data Arrays, they are in the PublicValues.cs
+       // Initialize Data Arrays. These arrays are in the PublicValues.cs
         ChDataStartAddr = new int[chCount];
-        PresetDelays    = new byte[chCount];
-        SpeedDialCmads  = new byte[chCount];
+        PresetDelays    = new byte[16];
+        SpeedDialCmds  = new byte[16];
         ChData          = new List<byte>[chCount];
 
         // Parsing pointers to channel data
@@ -305,7 +305,7 @@ public partial class MainWindow : Window
         // Parsing speed dial commands
         for(var ch=0; ch<chCount; ch++) {
             var binByte = Br.ReadByte();
-            SpeedDialCmads[ch] = binByte;
+            SpeedDialCmds[ch] = binByte;
         }
         
         for(var ch=0; ch<chCount; ch++) {
