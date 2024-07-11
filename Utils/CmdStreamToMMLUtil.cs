@@ -93,7 +93,7 @@ public static class CmdStreamToMMLUtil
     public static StringBuilder GetMMLNote(int noteNum, ref int defaultOct, bool updateDefaultOct = true)
     {
         var sb         = new StringBuilder();
-        var octave     = noteNum / 12;
+        var octave     = noteNum / 12 - 5;  // note on command on Binary Command Stream can have C-(-5) ~ B-9. C(-5) ~ B(-1) should be excluded.
         var pitch      = noteNum % 12;
         var octaveDiff = octave - defaultOct;
 	    
@@ -126,7 +126,7 @@ public static class CmdStreamToMMLUtil
 
 
     public static int ConvertTickrateToTempo(double tickrate)
-        => (int)(tickrate * 2.5);
+        => (int)(tickrate * 2.5) / 2;
 
     public static StringBuilder AppendFracLength(this StringBuilder curOrderSb, int tickLen)
     {
