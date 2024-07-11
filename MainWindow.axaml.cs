@@ -605,27 +605,6 @@ public partial class MainWindow : Window
             return sb.ToString();
         }
 
-        void AppendLoop(StringBuilder ordSb)
-        {
-            var noteCmdListLen = NoteCmds.Length;
-            for(var chNum = 0; chNum < noteCmdListLen; chNum++) {
-                var noteCmdCh = NoteCmds[chNum];
-                if(noteCmdCh.Count == 0)
-                    continue;
-
-                var firstNoteOnCmd = CmdStreamToMMLUtil.GetFirstNoteOn(noteCmdCh);
-                if(firstNoteOnCmd.CmdType == CmdType.NO_NOTE_ON) // if there's no NOTE_ON on the channel
-                    continue;
-
-                ordSb.Append(CmdStreamToMMLUtil.ConvertChannel(chNum));
-            }
-
-            if(DrumCmds.Count != 0)
-                ordSb.Append('K');
-
-            ordSb.Append(" L").AppendLine();
-        }
-
         #endregion
     }
 
