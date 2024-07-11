@@ -143,7 +143,7 @@ public class FurnaceCmdStructTweaker
                 
                 if(hintPortaFound && prePortaFound && hintLegatoFound) { // 같은 틱 내에 해당 3개의 명령이 모두 발견된 경우 Portamento 관련 명령 모두 삭제
                     foreach(var cmd in cmdsToRemove)
-                        noteCmdChList.RemoveIdxLoop(cmd, ref noteCmdChLen);
+                        noteCmdChList.RemoveIdxLoop(ref noteCmdChLen, cmd);
                     
                     i = GetNextTickIdx(noteCmdChList, curTick, out _) - 1;
                 }
