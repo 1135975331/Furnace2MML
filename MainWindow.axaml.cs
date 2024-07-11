@@ -181,46 +181,50 @@ public partial class MainWindow : Window
 #if RELEASE
         try {
 #endif
-        // # Song Information
-        var txtOutputParser = new TxtOutputParsingMethods(Sr);
+            // # Song Information
+            var txtOutputParser = new TxtOutputParsingMethods(Sr);
 
-        while(!Sr.EndOfStream) {
-            var line = Sr.ReadLineCountingLineNum(ref curReadingLineNum);
-            if(string.IsNullOrEmpty(line))
-                continue;
+            while(!Sr.EndOfStream) {
+                var line = Sr.ReadLineCountingLineNum(ref curReadingLineNum);
+                if(string.IsNullOrEmpty(line))
+                    continue;
 
-            // Parse Section (# Song Information, # Sound Chips, # Instruments, etc.)
-            var curSection = line.Count(ch => ch == '#') is 1 or 2 ? line.Trim('#').Trim() : "";
+                // Parse Section (# Song Information, # Sound Chips, # Instruments, etc.)
+                var curSection = line.Count(ch => ch == '#') is 1 or 2 ? line.Trim('#').Trim() : "";
 
-            switch(curSection) {
-                case "Song Information":
-                    SongInfo = txtOutputParser.ParseSongInfoSection(ref curReadingLineNum);
-                    break;
-                case "Song Comments":
-                    Memo = txtOutputParser.ParseSongComment(ref curReadingLineNum);
-                    break;
-                case "Instruments":
-                    InstDefs = txtOutputParser.ParseInstrumentDefinition(ref curReadingLineNum);
-                    break;
-                case "Wavetables": break;
-                case "Samples":    break;
-                case "Subsongs":
-                    Subsong = txtOutputParser.ParseSubsongs(ref curReadingLineNum);
-                    break;
-                case "Patterns":
-                    txtOutputParser.ParsePatterns(ref curReadingLineNum);
-                    break;
+                switch(curSection) {
+                    case "Song Information":
+                        SongInfo = txtOutputParser.ParseSongInfoSection(ref curReadingLineNum);
+                        break;
+                    case "Song Comments":
+                        Memo = txtOutputParser.ParseSongComment(ref curReadingLineNum);
+                        break;
+                    case "Instruments":
+                        InstDefs = txtOutputParser.ParseInstrumentDefinition(ref curReadingLineNum);
+                        break;
+                    case "Wavetables": break;
+                    case "Samples":    break;
+                    case "Subsongs":
+                        Subsong = txtOutputParser.ParseSubsongs(ref curReadingLineNum);
+                        break;
+                    case "Patterns":
+                        txtOutputParser.ParsePatterns(ref curReadingLineNum);
+                        break;
+                }
             }
-        }
 
-        if(!txtOutputParser.CheckIsSystemValid()) {
-            ResultOutputTextBox.Text = GetErrorMessage(SYSTEM_NOT_OPNA);
-            return false;
-        } 
-        if(Subsong.VirtualTempo[0] != Subsong.VirtualTempo[1]) {
-            ResultOutputTextBox.Text = GetErrorMessage(INVALID_VIRT_TEMPO);
-            return false;
-        }
+            if(!txtOutputParser.CheckIsSystemValid()) {
+                ResultOutputTextBox.Text = GetErrorMessage(SYSTEM_NOT_OPNA);
+                return false;
+            }
+
+            switch(Subsong.VirtualTempo[0] / (float)Subsong.VirtualTempo[1]) {
+                case 1: case 0.5f:  
+                    break; 
+                default:
+                    ResultOutputTextBox.Text = GetErrorMessage(INVALID_VIRT_TEMPO);
+                    return false;
+            }
 #if RELEASE
         } catch(Exception e) {
             var errMsg = $"An error has occured while parsing the command stream at line {curReadingLineNum}.\n\nStackTrace: {e.StackTrace}\n\nMsg: {e.Message}\n\n\n\n";
