@@ -384,8 +384,8 @@ public class TxtOutputParsingMethods(StreamReader sr)
     {
         var tickPerUnitChange = PublicValue.TickPerUnitChanges[^1];
 
-        if(tickPerUnitChange.TimeOrderNum <= curOrderNum)
-            return tickPerUnitChange.TimeTick + GetDeltaRowNum() * tickPerUnitChange.TickPerRow - totalSkippedTicksUntilTickPerUnitChange;
+        if(tickPerUnitChange.ChangeTimeOrderNum <= curOrderNum)
+            return tickPerUnitChange.ChangeTimeTick + GetDeltaRowNum() * tickPerUnitChange.TickPerRow - totalSkippedTicksUntilTickPerUnitChange;
         
         throw new InvalidOperationException();
 
@@ -393,13 +393,13 @@ public class TxtOutputParsingMethods(StreamReader sr)
         /* -------------------------------- Local Functions ------------------------------------- */
         int GetDeltaRowNum()
         {
-            var deltaOrderNum = curOrderNum - tickPerUnitChange.TimeOrderNum;
-            var deltaRowNum = PublicValue.Subsong.PatternLen * deltaOrderNum + (curRowNum - tickPerUnitChange.TimeRowNum);
+            var deltaOrderNum = curOrderNum - tickPerUnitChange.ChangeTimeOrderNum;
+            var deltaRowNum = PublicValue.Subsong.PatternLen * deltaOrderNum + (curRowNum - tickPerUnitChange.ChangeTimeRowNum);
             return deltaRowNum;
         }
         #endregion
     }
     
-    private void SetTickPerUnit(int timeTick, int timeOrderNum, int timeRowNum, int speed) 
-        => TickPerUnitChanges.Add(new TickPerUnitChange(timeTick, timeOrderNum, timeRowNum, speed, speed * PublicValue.Subsong.PatternLen));
+    private void SetTickPerUnit(int changeTimeTick, int changeTimeOrderNum, int changeTimeRowNum, int speed, int[] virtTempo) 
+        => TickPerUnitChanges.Add(new TickPerUnitChange(changeTimeTick, changeTimeOrderNum, changeTimeRowNum, speed, virtTempo[0], virtTempo[1]));
 }
