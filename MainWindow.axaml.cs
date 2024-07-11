@@ -460,11 +460,11 @@ public partial class MainWindow : Window
         
         var furnaceCmdStructTweaker = new FurnaceCmdStructTweaker();
         furnaceCmdStructTweaker.InsertNoteOffAtStartOfEachOrder();
-        furnaceCmdStructTweaker.RemoveUnnecessaryPortamentoCommands();
+        furnaceCmdStructTweaker.RemoveUnnecessaryPortamentoBinaryCommands();
         furnaceCmdStructTweaker.RemoveUnnecessaryLegatoCommands();
-        furnaceCmdStructTweaker.FixRetriggerCommands();
+        furnaceCmdStructTweaker.RemoveUnnecessaryArpeggioCommands();
         furnaceCmdStructTweaker.ReorderCommands();
-        
+        furnaceCmdStructTweaker.InsertCmdForZeroLenCmd();
         return true;
     }
     
