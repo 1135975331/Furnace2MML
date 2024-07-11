@@ -10,7 +10,7 @@ public static class TxtOutputToMMLUtil
     /// </summary>
     /// <param name="effList">List of OtherEffects</param>
     /// <returns>Order number of Loop point. <br/> Return -1 if the song doesn't loop.</returns>
-    public static int GetLoopPoint(List<OtherEffect> effList)
+    public static int GetLoopStartOrder(List<OtherEffect> effList)
     {
         foreach(var eff in effList) {
             var effOrder = MiscellaneousConversionUtil.GetOrderNum(eff.Tick);
