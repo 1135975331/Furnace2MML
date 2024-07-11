@@ -162,18 +162,18 @@ public static class ConvertFurnaceToMML
     }
     
     /*
-     * [Drum]  00 - YM2608 Drum Sound Source (without internal SSG drums)
-     *  Kick   01 - @1 Bass Drum
-     *  Snare  01 - @2 Snare Drum 1
-     *  Snare  02 - @64 Snare Drum 2
-     *  Top    01 - @256 Hi-Hat Open
-     *  Top    02 - @512 Crash Cymbal
-     *  Top    03 - @1024 Ride Cymbal
-     *  HiHat  01 - @128 Hi-Hat Close
-     *  Tom    01 - @4 Low Tom
-     *  Tom    02 - @8 Middle Tom
-     *  Tom    03 - @16 High Tom
-     *  Rim    01 - @32 Rim Shot
+     * [Drum][Ch] 00 - YM2608 Drum Sound Source (without internal SSG drums)
+     *  Kick  09  01 - @1    Bass Drum
+     *  Snare 10  01 - @2    Snare Drum 1
+     *  Snare 10  02 - @64   Snare Drum 2
+     *  Top   11  01 - @256  Hi-Hat Open
+     *  Top   11  02 - @512  Crash Cymbal
+     *  Top   11  03 - @1024 Ride Cymbal
+     *  HiHat 12  01 - @128  Hi-Hat Close
+     *  Tom   13  01 - @4    Low Tom
+     *  Tom   13  02 - @8    Middle Tom
+     *  Tom   13  03 - @16   High Tom
+     *  Rim   14  01 - @32   Rim Shot
      */
     private static string _prevMMLDrum = "";
     private static int _prevOrderNum = -1;
