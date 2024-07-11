@@ -18,6 +18,31 @@ public static class MiscellaneousConversionUtil
         return byte.MaxValue;
     }
 
+    public static byte[]? GetRowNum(int tick)
+    {
+        // TickPerUnitChanges.Select(tpuc => tpuc.ChangeTimeTick )
+
+        var tickPerUnitChangesLen = TickPerUnitChanges.Count;
+        for(byte i = 0; i < tickPerUnitChangesLen; i++) {
+            var curTickPerUnitChangeStruct  = TickPerUnitChanges[i];
+            
+            var curChangeTick  = curTickPerUnitChangeStruct.ChangeTimeTick;
+            var nextChangeTick = i+1 < tickPerUnitChangesLen ? TickPerUnitChanges[i+1].ChangeTimeTick : EndTick;
+
+            if(curChangeTick <= tick && tick < nextChangeTick) {
+                var orderNum = GetOrderNum(tick);
+                var orderStartTime = OrderStartTimes[orderNum].StartTick;
+
+                var tickInCurOrder = tick - orderStartTime;
+
+                var rowNumInfo = new[] { (byte)(tickInCurOrder / curTickPerUnitChangeStruct.TickPerRow), (byte)(tickInCurOrder % curTickPerUnitChangeStruct.TickPerRow) };
+                return rowNumInfo;
+            }
+        }
+        
+        return null;
+    }
+
     public static string GetPitchChar(int noteNum, bool isBinCmd = false)
     {
         var octave = noteNum / 12;
