@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using Furnace2MML.Utils;
 
 namespace Furnace2MML.Etc;
