@@ -213,16 +213,19 @@ public struct OtherEffect(int tick, byte channel, byte effType, byte value)
         => $"{Channel:00} | {Tick}: [({Category}: {EffTypeStr}) {EffType:X2}{Value:X2}]";
 }
 
-public readonly struct TickPerUnitChange(int timeTick, int timeOrderNum, int timeRowNum, int tickPerRow, int tickPerOrder)
+public readonly struct TickPerUnitChange(int changeTimeTick, int changeTimeOrderNum, int changeTimeRowNum, int speedValue, int virtTempoNumerator, int virtTempoDenominator)
 {
-    public readonly int TimeTick = timeTick;
-    public readonly int TimeOrderNum = timeOrderNum;
-    public readonly int TimeRowNum = timeRowNum;
-    public readonly int TickPerRow = tickPerRow;  // == Speed Value
-    public readonly int TickPerOrder = tickPerOrder;
+    public readonly int ChangeTimeTick     = changeTimeTick;
+    public readonly int ChangeTimeOrderNum = changeTimeOrderNum;
+    public readonly int ChangeTimeRowNum   = changeTimeRowNum;
+    public readonly int Speed              = speedValue;  // == Speed Value
+    public readonly int VirtTempoNumer     = virtTempoNumerator;
+    public readonly int VirtTempoDenom     = virtTempoDenominator;
+    public readonly int TickPerRow         = (int)(speedValue / ((float)virtTempoNumerator / virtTempoDenominator));  
+    public readonly int TickPerOrder       = (int)(speedValue / ((float)virtTempoNumerator / virtTempoDenominator)) * PublicValue.Subsong.PatternLen;
 
     public override string ToString()
-        => $"Time: {TimeTick}({TimeOrderNum}:{TimeRowNum}) | TPR: {TickPerRow}, TPO: {TickPerOrder}";
+        => $"Time: {ChangeTimeTick}({ChangeTimeOrderNum}:{ChangeTimeRowNum}) | SPD: {Speed}, VT: {VirtTempoNumer}/{VirtTempoDenom} TPR: {TickPerRow}, TPO: {TickPerOrder}";
 }
 
 public readonly struct OrderStartTime(byte orderNum, int orderStartTick, int skippedTick, int totalSkippedTick)
