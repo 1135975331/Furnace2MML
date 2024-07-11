@@ -20,11 +20,8 @@ public class FurnaceCmdStructTweaker
         if(lastLine.Equals(">> END"))  //  There's no duplicates if the lastLine is ">> END"
             return;
         
-        var noteCmds = NoteCmds;
-        var drumCmds = DrumCmds;
-        
         for(var chNum = 0; chNum < 9; chNum++) {
-            var noteCmdCh    = noteCmds[chNum];
+            var noteCmdCh    = NoteCmds[chNum];
             var noteCmdChLen = noteCmdCh.Count;
             if(noteCmdChLen == 0)
                 continue;
@@ -32,7 +29,7 @@ public class FurnaceCmdStructTweaker
             RemoveDuplicatedCommand(noteCmdCh);
         }
         
-        RemoveDuplicatedCommand(drumCmds);
+        RemoveDuplicatedCommand(DrumCmds);
         
         #region Local Functions
         /* -------------------------------- Local Functions ----------------------------------- */
@@ -47,11 +44,8 @@ public class FurnaceCmdStructTweaker
     /// </summary>
     public void InsertNoteOffAtStartOfEachOrder()
     {
-        var noteCmds = NoteCmds;
-        var drumCmds = DrumCmds;
-        
         for(var chNum = 0; chNum < 9; chNum++) {
-            var noteCmdCh    = noteCmds[chNum];
+            var noteCmdCh    = NoteCmds[chNum];
             var noteCmdChLen = noteCmdCh.Count;
             if(noteCmdChLen == 0)
                 continue;
@@ -59,7 +53,7 @@ public class FurnaceCmdStructTweaker
             InsertNoteOffToList(noteCmdCh, true);
         }
         
-        InsertNoteOffToList(drumCmds, false);
+        InsertNoteOffToList(DrumCmds, false);
         
         return;
         
@@ -101,10 +95,8 @@ public class FurnaceCmdStructTweaker
     /// </summary>
     public void RemoveUnnecessaryPortamentoCommands() 
     {
-        var noteCmds = NoteCmds;
-        
         for(var chNum = 0; chNum < 9; chNum++) {
-            var noteCmdChList    = noteCmds[chNum];
+            var noteCmdChList    = NoteCmds[chNum];
             var noteCmdChLen = noteCmdChList.Count;
             if(noteCmdChLen == 0)
                 continue;
@@ -191,10 +183,8 @@ public class FurnaceCmdStructTweaker
 
     public void RemoveUnnecessaryLegatoCommands()
     {
-        var noteCmds = NoteCmds;
-
         for(var chNum = 0; chNum < 9; chNum++) {
-            var noteCmdChList = noteCmds[chNum];
+            var noteCmdChList = NoteCmds[chNum];
             var noteCmdChLen  = noteCmdChList.Count;
             if(noteCmdChLen == 0)
                 continue;
@@ -223,10 +213,8 @@ public class FurnaceCmdStructTweaker
     /// </summary>
     public void FixRetriggerCommands()
     {
-        var noteCmds = NoteCmds;
-
         for(var chNum = 0; chNum < 9; chNum++) {
-            var noteCmdChList = noteCmds[chNum];
+            var noteCmdChList = NoteCmds[chNum];
             var noteCmdChLen  = noteCmdChList.Count;
             if(noteCmdChLen == 0)
                 continue;
@@ -264,10 +252,8 @@ public class FurnaceCmdStructTweaker
 
     public void ReorderCommands()  
     {
-        var noteCmds = NoteCmds;
-        
         for(var chNum = 0; chNum < 9; chNum++) {
-            var noteCmdChList = noteCmds[chNum];
+            var noteCmdChList = NoteCmds[chNum];
             var noteCmdChLen  = noteCmdChList.Count;
             if(noteCmdChLen == 0)
                 continue;
