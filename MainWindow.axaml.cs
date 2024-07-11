@@ -325,89 +325,101 @@ public partial class MainWindow : Window
         for(byte ch=0; ch<chCount; ch++) {
             var curChData    = ChData[ch];
 
-            var curTick = 0;
-            var curVol  = 0xFF;
+            var curTick = Subsong.GetVirtTempoInDecimal() == 1 ? 0 : -1;  // tick value starts with 1 if the Virtual Tempo in Decimal is 0.5. should be subtracted by 1.
+            // var curVol  = 0xFF;
             // var curDelay = -1;
 
-            for(var i=0; i<curChData.Count;) {
+            var curChDataLen = curChData.Count;
+            for(var i=0; i<curChDataLen;) {
                 var curByteVal = curChData[i];
+                
+                var cmdType = CmdType.INVALID;
                 var valueCount = 0;
                 
-                if(curByteVal is >= 0xE0 and <= 0xEF) { // Note Preset Delays
-                    var presetDelayIdx = curByteVal & 0x0F;
-                    var delay          = PresetDelays[presetDelayIdx];
-                    curTick += delay;
-                } else if(curByteVal <= 0xCA) {       // 0x00 ~ 0xCA
-                    var cmdType = curByteVal switch { // 다른 파일에 유틸리티 함수로 만들 것
-                        <= 0xB4 => CmdType.NOTE_ON,   // 0x00 <= curByteVal <= 0xB4 (byte: 0x00 ~ 0xFF)
-                        0xB5    => CmdType.NOTE_OFF,
-                        0xB6    => CmdType.NOTE_OFF_ENV, // Note off env
-                        0xB7    => CmdType.ENV_RELEASE,  // env release
-                        0xB8    => CmdType.INSTRUMENT,
-                        0xBE    => CmdType.PANNING,
-
-                        0xC0 => CmdType.PRE_PORTA,
-                        0xC2 => CmdType.VIBRATO,
-                        0xC3 => CmdType.VIB_RANGE,
-                        0xC4 => CmdType.VIB_SHAPE,
-                        0xC5 => CmdType.PITCH,
-                        0xC6 => CmdType.HINT_ARPEGGIO,
-                        0xC7 => CmdType.HINT_VOLUME,
-                        0xC8 => CmdType.VOL_SLIDE,
-                        0xC9 => CmdType.HINT_PORTA,
-                        0xCA => CmdType.HINT_LEGATO,
-                        // ...
-                        _ => CmdType.INVALID
-                    };
-
-                    valueCount = cmdType switch {
-                        CmdType.NOTE_ON      or 
-                        CmdType.NOTE_OFF     or
-                        CmdType.NOTE_OFF_ENV or
-                        CmdType.ENV_RELEASE => 0,
-                            
-                        CmdType.INSTRUMENT  or
-                        CmdType.VIB_RANGE   or
-                        CmdType.VIB_SHAPE   or
-                        CmdType.PITCH       or
-                        CmdType.HINT_VOLUME or
-                        CmdType.HINT_LEGATO => 1,
-                            
-                        CmdType.PANNING       or
-                        CmdType.PRE_PORTA     or
-                        CmdType.VIBRATO       or
-                        CmdType.HINT_ARPEGGIO or
-                        CmdType.VOL_SLIDE     or
-                        CmdType.HINT_PORTA => 2,
-                            
-                        _ => throw new ArgumentOutOfRangeException()
-                    };
-
-                    var orderNum = MiscellaneousConversionUtil.GetOrderNum(curTick);
-                    var value1   = valueCount >= 1 ? curChData[i+1] : curByteVal;  // value1 = curByteVal when valueCount is 0
-                    var value2   = valueCount >= 2 ? curChData[i+2] : -1;
-                    // var value1   = valueCount >= 1 ? BinCmdStreamParsingMethods.GetValue1(curChData[i+1], cmdType) : curByteVal;
-                    // var value2   = valueCount >= 2 ? BinCmdStreamParsingMethods.GetValue2(curChData[i+2], cmdType) : -1;
-
-                    // if(cmdType.EqualsAny(CmdType.NOTE_ON, CmdType.HINT_PORTA, CmdType.HINT_LEGATO) && ch is >= 0 and <= 5)
-                    // value1 += 12; // Increases octave of FM channels by 1
-
-                    var cmdStruct = new FurnaceCommand(curTick, orderNum, ch, cmdType, value1, value2);
-
-                    switch(ch) {
-                        case >= 0 and <= 8: // 0~5: FM 1~6, 6~8: SSG 1~3
-                            NoteCmds[ch].Add(cmdStruct);
-                            break;
-                        case >= 9 and <= 14: // Drum
-                            DrumCmds.Add(cmdStruct);
-                            break;
-                        // default: ADPCM << Not in use
+                switch(curByteVal) {
+                    case <= 0xCA: {  // 0x00 ~ 0xCA
+                        cmdType = BinCmdStreamParsingMethods.GetCmdType(curByteVal); // 다른 파일에 유틸리티 함수로 만들 것
+                        break;
                     }
+                    case >= 0xD0 and <= 0xDF: {  // Speed Dial Commands
+                        var spdDialCmdIdx = curByteVal & 0x0F;
+                        var spdDialCmdVal = SpeedDialCmds[spdDialCmdIdx];
+
+                        cmdType = spdDialCmdVal switch {
+                            0x9D => CmdType.HINT_ARP_TIME,
+                        
+                            _ => throw new ArgumentOutOfRangeException($"Unknown CmdType (on SpdDialCmds): {cmdType}")
+                        };
+                        break;
+                    }
+                    case >= 0xE0 and <= 0xEF: {  // Note Preset Delays
+                        var presetDelayIdx = curByteVal & 0x0F;
+                        var delay          = PresetDelays[presetDelayIdx];
+                        curTick += delay;
+
+                        i += 1;
+                        continue;
+                    }
+                    case 0xFC: {  // wait (16-bit)   FC 12 34 --> FC: wait (16-bit), 12: firstByte, 34: secondByte
+                        var firstByte  = curChData[i + 1];
+                        var secondByte = curChData[i + 2];
+                        var waitValue  = secondByte << 8 | firstByte;  // Little-Endian
+                        curTick += waitValue;
+                        
+                        i += 3;  // i += 1+2;  ((1 command + 2 values) read)
+                        continue;
+                    }
+                    case 0xFD: {  // wait (8-bit)
+                        var waitValue  = curChData[i + 1];
+                        curTick += waitValue;
+                        
+                        i += 2;  // i += 1+1;  ((1 command + 1 values) read)
+                        continue;
+                    }
+                    case 0xFE: {  // wait (one tick)
+                        curTick += 1;
+                        
+                        i += 1;
+                        continue;
+                    }
+                    case 0xFF:
+                        i += 1;
+                        continue;
                 }
 
+                valueCount = BinCmdStreamParsingMethods.GetValueCount(cmdType);
+
+                var orderNum = MiscellaneousConversionUtil.GetOrderNum(curTick);
+                var value1   = valueCount >= 1 ? curChData[i+1] : curByteVal;  // value1 == curByteVal when valueCount is 0
+                var value2   = valueCount >= 2 ? curChData[i+2] : -1;
+                
+                if(cmdType.EqualsAny(CmdType.NOTE_ON, CmdType.HINT_PORTA, CmdType.HINT_LEGATO) && ch is >= 0 and <= 5)
+                    value1 += 12; // Increases octave of FM channels by 1
+
+                var cmdListRef = ch switch {
+                    >= 0 and <= 8  => NoteCmds[ch],
+                    >= 9 and <= 14 => DrumCmds,
+                    _              => null
+                };
+
+                var cmdStruct = new FurnaceCommand(curTick, ch, cmdType, value1, value2);
+
+                switch(ch) {
+                    case >= 0 and <= 8:  NoteCmds[ch].Add(cmdStruct); break; // 0~5: FM 1~6, 6~8: SSG 1~3
+                    case >= 9 and <= 14: DrumCmds.Add(cmdStruct); break;     // Drum
+                    // default: ADPCM << Not in use
+                }
+                
                 i += 1+valueCount;
             }
         }
+        
+        
+        for(byte chNum = 0; chNum < NoteCmds.Length; chNum++) //  각 채널의 첫 명령의 Tick이 0이 아니면 MML에 쉼표(r)를 넣기 위해 Tick이 0인 명령 삽입
+            if(NoteCmds[chNum].Count != 0 && NoteCmds[chNum][0].Tick != 0)
+                NoteCmds[chNum].Insert(0, new FurnaceCommand(0, 0, chNum, "NOTE_OFF", 0, 0));
+        if(DrumCmds.Count != 0 && DrumCmds[0].Tick != 0)
+            DrumCmds.Insert(0, new FurnaceCommand(0, 0, 16, "NOTE_ON", 0, 0));  // Channel Number outside 9~14 in DrumCmds are regarded as Rest
         
         var furnaceCmdStructTweaker = new FurnaceCmdStructTweaker();
         furnaceCmdStructTweaker.InsertNoteOffAtStartOfEachOrder();
