@@ -278,16 +278,18 @@ public class TxtOutputParsingMethods(StreamReader sr)
     /// <param name="curReadingLineNum">Currently reading line number of the file</param>
     public void ParsePatterns(ref int curReadingLineNum)
     {
-        var effList                = OtherEffects;
-        var patternLen             = PublicValue.Subsong.PatternLen;
-        var curTickPerRow          = PublicValue.Subsong.Speed;
-        var curOrderNum            = byte.MaxValue;
-        var skippedTicks = 0;
-        var totalSkippedTicks      = 0;
+        var effList                                 = OtherEffects;
+        var patternLen                              = PublicValue.Subsong.PatternLen;
+        var curVirtTempo                            = PublicValue.Subsong.VirtualTempo;
+        var curSpeedValue                           = PublicValue.Subsong.Speed;
+        var curTickPerRow                           = (int)(curSpeedValue / Subsong.GetVirtTempoInDecimal());
+        var curOrderNum                             = byte.MaxValue;
+        var skippedTicks                            = 0;
+        var totalSkippedTicks                       = 0;
         var totalSkippedTicksUntilTickPerUnitChange = 0;
-        var orderStartTickAssigned = false;
-
-        SetTickPerUnit(0, 0, 0, curTickPerRow);
+        var orderStartTickAssigned                  = false;
+        
+        SetTickPerUnit(0, 0, 0, curSpeedValue, curVirtTempo);
 
         while(!CmdStreamReader.EndOfStream) {
             var line = CmdStreamReader.ReadLineCountingLineNum(ref curReadingLineNum);
@@ -348,7 +350,7 @@ public class TxtOutputParsingMethods(StreamReader sr)
                         case 0x0F: // Set speed
                             curTickPerRow = effVal;
                             totalSkippedTicksUntilTickPerUnitChange = 0;
-                            SetTickPerUnit(curTick, curOrderNum, curPatternRowNum, effStruct.Value);
+                            SetTickPerUnit(curTick, curOrderNum, curPatternRowNum, effStruct.Value, curVirtTempo);
                             break;
                     }
                 }
