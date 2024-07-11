@@ -46,42 +46,58 @@ public struct SubsongData()
 /// <summary>
 /// Note On/Off, Portamento, Volume, Panning, etc.
 /// </summary>
-public struct FurnaceCommand(int tick, byte orderNum, byte channel, CmdType cmdType, int value1, int value2) : IComparable<FurnaceCommand>
+public struct 
+    FurnaceCommand(int tick, byte channel, CmdType cmdType, int value1, int value2) : IComparable<FurnaceCommand>
 {
-    public readonly int Tick = tick;
-    public readonly int Length;
-    public readonly byte OrderNum = orderNum;  // OrderNum cannot be 0xFF(255)
-    public readonly byte Channel = channel;
-    private readonly string _cmdTypeStr;
-    public readonly CmdType CmdType = cmdType;
-    
-    public int Value1 = value1;
-    public readonly int Value2 = value2;
-    
-    
-    public FurnaceCommand(int tick, byte orderNum, byte channel, string cmdTypeStr, int value1, int value2) : this(tick, orderNum, channel, CmdType.INVALID, value1, value2) 
+    public readonly  int                  Tick     = tick;
+    public readonly  byte                 OrderNum = MiscellaneousConversionUtil.GetOrderNum(tick);  // OrderNum cannot be 0xFF(255)
+    public readonly  byte                 Channel  = channel;
+    private readonly string               _cmdTypeStr;
+    public readonly  CmdType              CmdType = cmdType;
+    public           int                  Value1  = value1;
+    public readonly  int                  Value2  = value2;
+
+
+    public FurnaceCommand(int tick, byte orderNum, byte channel, string cmdTypeStr, int value1, int value2) : this(tick, channel, CmdType.INVALID, value1, value2) 
         => CmdType = GetCmdTypeEnum(cmdTypeStr);
 
-    public FurnaceCommand(int tick, int length, byte orderNum, byte channel, string cmdTypeStr, int value1, int value2) : this(tick, orderNum, channel, cmdTypeStr, value1, value2) 
-        => Length  = length;
+    //  Copy otherCmd except Tick
+    public FurnaceCommand(int tick, FurnaceCommand otherCmd) : this(otherCmd.Tick, otherCmd.Channel, otherCmd.CmdType, otherCmd.Value1, otherCmd.Value2)
+    {
+        Tick     = tick;
+        OrderNum = MiscellaneousConversionUtil.GetOrderNum(tick);
+    }
 
-    //  Copy otherCmd except tick
-    public FurnaceCommand(int tick, FurnaceCommand otherCmd) : this(otherCmd.Tick, otherCmd.Length, otherCmd.OrderNum, otherCmd.Channel, otherCmd._cmdTypeStr, otherCmd.Value1, otherCmd.Value2)
-        => Tick = tick;
+    //  Copy otherCmd except Value1 and Value2 
+    public FurnaceCommand(int value1, int value2, FurnaceCommand otherCmd) : this(otherCmd.Tick, otherCmd.Channel, otherCmd.CmdType, otherCmd.Value1, otherCmd.Value2)
+    {
+        Value1 = value1;
+        Value2 = value2;
+    }
 
     public override string ToString()
     {
+        var rowNumInfo = MiscellaneousConversionUtil.GetRowNum(Tick) ?? [0xFF, 0xFF];
+
         return CmdType switch {
             CmdType.NOTE_ON or CmdType.HINT_LEGATO or CmdType.HINT_PORTA =>
-                 $"{Channel:00}({GetChannelName(Channel)}) | {OrderNum:X2} {Tick}: [{Value1:X2}({MiscellaneousConversionUtil.GetPitchChar(Value1, true)}) {Value2:X2}({Value2:000}) {CmdType}]",
-            _ => $"{Channel:00}({GetChannelName(Channel)}) | {OrderNum:X2} {Tick}: [{Value1:X2}({Value1:000}) {Value2:X2}({Value2:000}) {CmdType}]"
+                 $"{Channel:00}({GetChannelName(Channel)}) | {OrderNum:X2}-{rowNumInfo[0]:X2}/{rowNumInfo[1]:X2} {Tick}: [{Value1:X2}({MiscellaneousConversionUtil.GetPitchChar(Value1, true)}) {Value2:X2}({Value2:000}) {CmdType}]",
+            _ => $"{Channel:00}({GetChannelName(Channel)}) | {OrderNum:X2}-{rowNumInfo[0]:X2}/{rowNumInfo[1]:X2} {Tick}: [{Value1:X2}({Value1:000}) {Value2:X2}({Value2:000}) {CmdType}]"
         };
     }
     // => $"[{Tick} {Channel} {CmdType} {Value1} {Value2}]";
     public int CompareTo(FurnaceCommand other)
     {
         var tickComparison = Tick.CompareTo(other.Tick);
-        return tickComparison != 0 ? tickComparison : GetCmdTypeOrderPriority(CmdType).CompareTo(GetCmdTypeOrderPriority(other.CmdType));
+        if(tickComparison != 0)
+            return tickComparison;
+
+        var cmdTypeComparison = GetCmdTypeOrderPriority(CmdType).CompareTo(GetCmdTypeOrderPriority(other.CmdType));
+        return Channel switch {
+            >= 9 and <= 14 => cmdTypeComparison != 0 ? cmdTypeComparison : Channel.CompareTo(other.Channel),
+            _              => cmdTypeComparison
+        };
+
     }
     
     public override bool Equals(object? obj)
