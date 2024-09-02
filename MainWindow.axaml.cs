@@ -48,7 +48,7 @@ public partial class MainWindow : Window
         this.Loaded  += OnWindowLoad;
         // this.Closing += OnClosing;
 
-        PrintLog.LogTextBox = LogTextBox;
+        PrintLog.InitLogTextRefField(LogTextBox);
         
 		#if DEBUG
         var testFilesDirPath = Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.FullName + @"/FurnaceForTest";

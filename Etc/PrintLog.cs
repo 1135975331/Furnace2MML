@@ -5,9 +5,12 @@ namespace Furnace2MML.Etc;
 
 public static class PrintLog
 {
-    public static TextBox LogTextBox = null!;
+    private static TextBox _logTextBox = null!;
 
-    public static void LogErr(string msg, int newLineCount = 2)
+    public static void InitLogTextRefField(TextBox logTextBox)
+        => _logTextBox = logTextBox;
+
+    public static void LogError(string msg, int newLineCount = 2)
         => Log(msg, "Error", newLineCount);
     public static void LogWarn(string msg, int newLineCount = 2)
         => Log(msg, "Warning", newLineCount);
@@ -15,11 +18,11 @@ public static class PrintLog
         => Log(msg, "Info", newLineCount);
     public static void LogDebug(string msg, int newLineCount = 2)
         => Log(msg, "Debug", newLineCount);
-    public static void LogTr(string msg, int newLineCount = 2)
+    public static void LogTrace(string msg, int newLineCount = 2)
         => Log(msg, "Trace", newLineCount);
 
     private static void Log(string msg, string logType, int newLineCount)
-        => LogTextBox.Text += $"[{GetCurrentTime()}|{logType}] {msg}{new string('\n', newLineCount)}";
+        => _logTextBox.Text += $"[{GetCurrentTime()}|{logType}] {msg}{new string('\n', newLineCount)}";
 
     private static string GetCurrentTime()
     {
