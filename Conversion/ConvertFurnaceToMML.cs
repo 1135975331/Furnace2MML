@@ -78,24 +78,26 @@ public static class ConvertFurnaceToMML
                 var tickLen     = CmdStreamToMMLUtil.GetCmdTickLength(noteCmdCh, i);
                 var cmdType     = noteCmd.CmdType;
 
+                var curOrderSb = orderSbArr[curOrderNum];
+
                 if(curOrderNum != prevNoteCmdOrderNum) {
                     prevNoteCmdOrderNum          = curOrderNum;
                     CurDefaultNoteFractionLength = CmdStreamToMMLUtil.GetDefaultNoteFracLenForThisOrder(noteCmdCh, curOrderNum, i);
                     if(CurDefaultNoteFractionLength != -1)
-                        orderSbArr[curOrderNum].Append('l').Append(CurDefaultNoteFractionLength).Append("   ");
+                        curOrderSb.Append('l').Append(CurDefaultNoteFractionLength).Append("   ");
                 }
 
                 // - => ignored
                 switch(cmdType) {
                     case CmdType.HINT_ARP_TIME: ConvertCmdStreamToMML.SetArpSpeed(noteCmd); break;
                     case CmdType.HINT_ARPEGGIO: ConvertCmdStreamToMML.SetArpeggioStatus(noteCmd); break;
-                    case CmdType.INSTRUMENT:    ConvertCmdStreamToMML.ConvertInstrument(noteCmd, tickLen, orderSbArr[curOrderNum]); break; 
-                    case CmdType.PANNING:       ConvertCmdStreamToMML.ConvertPanning(noteCmd, tickLen, orderSbArr[curOrderNum]); break;
-                    case CmdType.HINT_VOLUME:   ConvertCmdStreamToMML.ConvertVolume(noteCmdCh, i, tickLen, orderSbArr[curOrderNum]); break;
-                    case CmdType.NOTE_ON:       ConvertCmdStreamToMML.ConvertNoteOn(noteCmd, tickLen, ref prevOctave, orderSbArr[curOrderNum]); break;
-                    case CmdType.NOTE_OFF:      ConvertCmdStreamToMML.ConvertNoteOff(tickLen, orderSbArr[curOrderNum]); break;
-                    case CmdType.HINT_PORTA:    ConvertCmdStreamToMML.ConvertPortamento(noteCmdCh, i, ref prevOctave, orderSbArr[curOrderNum]); break;
-                    case CmdType.HINT_LEGATO:   ConvertCmdStreamToMML.ConvertLegato(noteCmdCh, i, tickLen, ref prevOctave, orderSbArr[curOrderNum]); break;
+                    case CmdType.INSTRUMENT:    ConvertCmdStreamToMML.ConvertInstrument(noteCmd, tickLen, curOrderSb); break; 
+                    case CmdType.PANNING:       ConvertCmdStreamToMML.ConvertPanning(noteCmd, tickLen, curOrderSb); break;
+                    case CmdType.HINT_VOLUME:   ConvertCmdStreamToMML.ConvertVolume(noteCmdCh, i, tickLen, curOrderSb); break;
+                    case CmdType.NOTE_ON:       ConvertCmdStreamToMML.ConvertNoteOn(noteCmd, tickLen, ref prevOctave, curOrderSb); break;
+                    case CmdType.NOTE_OFF:      ConvertCmdStreamToMML.ConvertNoteOff(tickLen, curOrderSb); break;
+                    case CmdType.HINT_PORTA:    ConvertCmdStreamToMML.ConvertPortamento(noteCmdCh, i, ref prevOctave, curOrderSb); break;
+                    case CmdType.HINT_LEGATO:   ConvertCmdStreamToMML.ConvertLegato(noteCmdCh, i, tickLen, ref prevOctave, curOrderSb); break;
                 }
             }
             
