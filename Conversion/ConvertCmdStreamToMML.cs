@@ -13,10 +13,34 @@ public static class ConvertCmdStreamToMML
 {
     private static byte _arpValue = 0; // 0: arpeggio disabled
     private static byte _arpTickSpeed = 1;
+    
+    public  static byte VibSpeed        = 0;
+    public  static byte VibDepth        = 0;
+    public  static byte VibShape        = 0;
+    public  static byte VibRange        = 0;
+    private static byte _vibActualDepth = 0;
+    
+    
     public static void SetArpSpeed(FurnaceCommand cmd)
         => _arpTickSpeed = (byte)cmd.Value1;
     public static void SetArpeggioStatus(FurnaceCommand cmd)
         => _arpValue = (byte)cmd.Value1;
+    
+    public static void ConvertVibShape(FurnaceCommand cmd, int tickLen, StringBuilder curOrderSb) 
+        => VibShape = (byte)cmd.Value1;
+    public static void ConvertVibRange(FurnaceCommand cmd, int tickLen, StringBuilder curOrderSb) 
+        => VibRange = (byte)cmd.Value1;
+    
+    public static void ConvertVibrato(FurnaceCommand cmd, int tickLen, StringBuilder curOrderSb)
+    {
+        VibSpeed = (byte)cmd.Value1;
+        VibDepth = (byte)cmd.Value2;
+
+        _vibActualDepth = (byte)(VibDepth / 0xF * VibRange);
+
+        curOrderSb.Append(VibSpeed == 0 || VibDepth == 0 ? "*0" : $"M0,{VibSpeed},{_vibActualDepth},255 *1");
+    }
+
 
     public static void ConvertNoteOn(FurnaceCommand cmd, int tickLen, ref int defaultOct, StringBuilder curOrderSb)
     {
