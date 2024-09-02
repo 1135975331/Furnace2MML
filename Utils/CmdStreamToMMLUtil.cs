@@ -110,7 +110,7 @@ public static class CmdStreamToMMLUtil
     }
 
     /// <summary>
-    /// ExactFractionLength == n분음 표기(1, 2, 4, 8, 16, 32, 64,  3, 6, 12, 24, 48, 96)가 가능한가의 여부
+    /// ExactFractionLength: n분음 표기(1, 2, 4, 8, 16, 32, 64,  3, 6, 12, 24, 48, 96)가 가능한가의 여부
     /// </summary>
     /// <param name="tickLength"></param>
     /// <param name="conversionResult"></param>
