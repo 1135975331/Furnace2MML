@@ -19,7 +19,7 @@ public static class ConvertFurnaceToMML
             var curInstDef = InstDefs[instNum];
 
             if(curInstDef.OperatorCount != 4)
-                PrintLog.LogWarn($"Operator Count of instrument {instNum:X2} is {curInstDef.OperatorCount}, not 4. Some operators may not be converted.");
+                PrintLog.LogWarn($"Operator Count of the instrument 0x{instNum:X2} is {curInstDef.OperatorCount}, not 4. Some operators will not be converted.");
             
             instSb.AppendLine($"@{instNum:000} {curInstDef.Alg} {curInstDef.Fb}")
                .AppendLine($"; AR DR SR RR SL  TL KS ML DT AMS\t{curInstDef.InstName}");
