@@ -84,8 +84,8 @@ public struct
 
         return CmdType switch {
             CmdType.NOTE_ON or CmdType.HINT_LEGATO or CmdType.HINT_PORTA =>
-                 $"{Channel:00}({GetChannelName(Channel)}) | {OrderNum:X2}-{rowNumInfo[0]:X2}/{rowNumInfo[1]:X2} {Tick}: [{Value1:X2}({MiscellaneousConversionUtil.GetPitchChar(Value1, true)}) {Value2:X2}({Value2:000}) {CmdType}]",
-            _ => $"{Channel:00}({GetChannelName(Channel)}) | {OrderNum:X2}-{rowNumInfo[0]:X2}/{rowNumInfo[1]:X2} {Tick}: [{Value1:X2}({Value1:000}) {Value2:X2}({Value2:000}) {CmdType}]"
+                 $"{Channel:00}({GetChannelName(Channel)}) | {OrderNum:X2}-{rowNumInfo[0]:X2}/{rowNumInfo[1]:X2} {Tick+":",-4} [{CmdType,-10} {Value1.ToString("X2")[^2..]}({MiscellaneousConversionUtil.GetPitchChar(Value1, true)}) {Value2.ToString("X2")[^2..]}({Value2:000})]",
+            _ => $"{Channel:00}({GetChannelName(Channel)}) | {OrderNum:X2}-{rowNumInfo[0]:X2}/{rowNumInfo[1]:X2} {Tick+":",-4} [{CmdType,-10} {Value1.ToString("X2")[^2..]}({Value1:000}) {Value2.ToString("X2")[^2..]}({Value2:000})]"
         };
     }
     // => $"[{Tick} {Channel} {CmdType} {Value1} {Value2}]";
