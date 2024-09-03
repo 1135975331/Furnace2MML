@@ -60,6 +60,46 @@ public static partial class Util
         idx++;
 	}
 	
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="dict">Dictionary&lt;key, int&gt;</param>
+	/// <returns>Dictionary key with the largest value</returns>
+	public static T? GetKeyWithLargestValue<T>(Dictionary<T, int> dict) where T : notnull
+	{
+		T?  keyWithTheLargest      = default; // the most frequent key(item)
+		var largestValue = -1;      // count of the most frequent key(item)
+
+		foreach(var curKey in dict.Keys) {
+			var curValue = dict[curKey];
+			if(curValue <= largestValue)
+				continue;
+			
+			largestValue = curValue;
+			keyWithTheLargest      = curKey;
+		}
+		
+		
+		return keyWithTheLargest;
+	}
+	
+	public static int GetIntKeyWithLargestValue(Dictionary<int, int> dict)
+	{
+		var keyWithLargestValue = -1;       // the most frequent key(item)
+		var largestValue = -1;  // count of the most frequent key(item)
+
+		foreach(var curKey in dict.Keys) {
+			var curValue = dict[curKey];
+			if(curValue > largestValue) {
+				largestValue = curValue;
+				keyWithLargestValue   = curKey;
+			} else if(curValue == largestValue)
+				keyWithLargestValue = Math.Min(keyWithLargestValue, curKey);
+		}
+		
+		return keyWithLargestValue;
+	}
+	
 	// Referenced code from: https://stackoverflow.com/questions/10293236/accessing-the-scrollviewer-of-a-listbox-from-c-sharp
 	/*
 	public static Visual GetDescendantByType(Visual element, Type type)
