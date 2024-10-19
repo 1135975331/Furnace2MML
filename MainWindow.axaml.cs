@@ -317,7 +317,7 @@ public partial class MainWindow : Window
             return false;
         }
 
-        // Parsing channel count
+        // Parse channel count
         var chCountBin = Br.ReadBytes(4);
         var chCount    = Util.GetIntFrom4Bytes(chCountBin);
         
@@ -327,19 +327,19 @@ public partial class MainWindow : Window
         SpeedDialCmds  = new byte[16];
         ChData          = new List<byte>[chCount];
 
-        // Parsing pointers to channel data
+        // Parse pointers to channel data
         for(var ch=0; ch<chCount; ch++) {
             var chStartAddrBin = Br.ReadBytes(4);
             ChDataStartAddr[ch] = Util.GetIntFrom4Bytes(chStartAddrBin);
         }
         
-        // Parsing delay presets
+        // Parse delay presets
         for(var ch=0; ch<chCount; ch++) {
             var binByte = Br.ReadByte();
             PresetDelays[ch] = binByte;
         }
         
-        // Parsing speed dial commands
+        // Parse speed dial commands
         for(var ch=0; ch<chCount; ch++) {
             var binByte = Br.ReadByte();
             SpeedDialCmds[ch] = binByte;
