@@ -12,7 +12,7 @@ namespace Furnace2MML.Conversion;
 [SuppressMessage("ReSharper", "InconsistentNaming")]
 public static class ConvertFurnaceToMML
 {
-    public static StringBuilder ConvertInstrument(StringBuilder instSb)
+    public static StringBuilder ConvertInstrument(StringBuilder instSb, bool debugOutput = true)
     {
         var instDefsLen = InstDefs.Count;
         for(var instNum = 0; instNum < instDefsLen; instNum++) {
@@ -22,7 +22,7 @@ public static class ConvertFurnaceToMML
                 PrintLog.LogWarn($"Operator Count of the instrument 0x{instNum:X2} is {curInstDef.OperatorCount}, not 4. Some operators will not be converted.");
             
             instSb.AppendLine($"@{instNum:000} {curInstDef.Alg} {curInstDef.Fb}")
-               .AppendLine($"; AR DR SR RR SL  TL KS ML DT AMS\t{curInstDef.InstName}");
+               .Append(debugOutput ? $"; AR DR SR RR SL  TL KS ML DT AMS\t{curInstDef.InstName}\n" : "");
             
             var ops     = curInstDef.Operators;
             var ams     = curInstDef.Ams;
@@ -36,8 +36,11 @@ public static class ConvertFurnaceToMML
                 var ks = ops[opNum, (int)RS]; // KS == RS
                 var ml = ops[opNum, (int)MULT];
                 var dt = ops[opNum, (int)DT];
-                
-                instSb.AppendLine($"  {ar:00} {dr:00} {sr:00} {rr:00} {sl:00} {tl:000} {ks:00} {ml:00} {dt:00} {ams:00}");
+
+                if(debugOutput)
+                    instSb.AppendLine($"  {ar:00} {dr:00} {sr:00} {rr:00} {sl:00} {tl:000} {ks:00} {ml:00} {dt:00} {ams:00}");
+                else
+                    instSb.AppendLine($"  {ar} {dr} {sr} {rr} {sl} {tl} {ks} {ml} {dt} {ams}");
             }
         }
         

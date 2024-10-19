@@ -579,6 +579,8 @@ public partial class MainWindow : Window
 
     private bool Convert()
     {
+        var debugOutput = DebugOutputCheckbox is { IsChecked: true };
+        
         ResultOutputTextBox.Clear();
         var resultOutput = new StringBuilder();
 
@@ -594,7 +596,7 @@ public partial class MainWindow : Window
         /* Metadata */
         var metaSb = new StringBuilder();
         metaSb.AppendLine(";;; Converted with Furnace2MML").AppendLine()
-              .AppendLine("; Metadata")
+              .AppendLine(debugOutput ? "; Metadata" : "")
               .AppendLine($"#Title\t\t{songName}")
               .AppendLine($"#Composer\t{composer}")
               .AppendLine($"#Arranger\t{arranger}")
@@ -611,19 +613,19 @@ public partial class MainWindow : Window
         PublicValue.MetadataOutput = metaSb;
         
         /* Instrument Definition */
-        resultOutput.AppendLine(";;; Instrument Definition");
-        var instSb = ConvertFurnaceToMML.ConvertInstrument(new StringBuilder());
+        resultOutput.Append(debugOutput ? ";;; Instrument Definition\n" : "");
+        var instSb = ConvertFurnaceToMML.ConvertInstrument(new StringBuilder(), debugOutput);
         resultOutput.Append(instSb);
         PublicValue.InstDefOutput = instSb;
 
 
         /* Initialize Order StringBuilder */
-        resultOutput.AppendLine(";;; Note Channels");
+        resultOutput.Append(debugOutput ? ";;; Note Channels\n" : "");
         var orderSbArrLen = MaxOrderNum + 1;
         var orderSbArr = new StringBuilder[orderSbArrLen];
         for(var orderNum = 0; orderNum < orderSbArrLen; orderNum++) {
             orderSbArr[orderNum] = new StringBuilder();
-            orderSbArr[orderNum].AppendLine($"; [{orderNum:X2}|{orderNum:D3}] ({CmdStreamToMMLUtil.GetOrderStartTick(orderNum)}~{CmdStreamToMMLUtil.GetOrderStartTick(orderNum+1)-1} Tick)");
+            orderSbArr[orderNum].Append(debugOutput ? $"; [{orderNum:X2}|{orderNum:D3}] ({CmdStreamToMMLUtil.GetOrderStartTick(orderNum)}~{CmdStreamToMMLUtil.GetOrderStartTick(orderNum+1)-1} Tick)\n" : "");
         }
 
         LoopStartOrder = TxtOutputToMMLUtil.GetLoopStartOrder(OtherEffects);
