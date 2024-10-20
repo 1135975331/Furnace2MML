@@ -46,13 +46,11 @@ public static class ConvertCmdStreamToMML
         var mmlNote = CmdStreamToMMLUtil.GetMMLNote(noteNum, ref defaultOct);
 
         if(_arpValue == 0) {
-            curOrderSb.Append(mmlNote).AppendFracLength(tickLen);
+            curOrderSb.Append(mmlNote).AppendNoteLength(tickLen);
         } else { // if arpeggio is enabled
             var arpNote1 = CmdStreamToMMLUtil.GetMMLNote(noteNum + (_arpValue / 16), ref defaultOct);
             var arpNote2 = CmdStreamToMMLUtil.GetMMLNote(noteNum + (_arpValue % 16), ref defaultOct);
-            var fracLenSpeed = CmdStreamToMMLUtil.ConvertBetweenTickAndFraction(_arpTickSpeed);
-            curOrderSb.Append($"{{{{{mmlNote}{arpNote1}{arpNote2}}}}}").AppendFracLength(tickLen).Append($",{fracLenSpeed}");
-        }
+            var fracLenSpeed = CmdStreamToMMLUtil.ConvertBetweenTickAndFraction(_arpTickSpeed); curOrderSb.Append($"{{{{{mmlNote}{arpNote1}{arpNote2}}}}}").AppendNoteLength(tickLen).Append($",{fracLenSpeed}"); }
     }
 
     public static void ConvertNoteOff(int tickLen, StringBuilder curOrderSb) => AppendRestForTheCmd(tickLen, curOrderSb);
@@ -96,7 +94,7 @@ public static class ConvertCmdStreamToMML
 
         var pitchStrOrRest = isFoundBackward ? CmdStreamToMMLUtil.GetPitchStr(playingNoteCmd.Value1 % 12) : "r";
         if(tickLen > 0) 
-            curOrderSb.Append(pitchStrOrRest).AppendFracLength(tickLen);
+            curOrderSb.Append(pitchStrOrRest).AppendNoteLength(tickLen);
     }
 
     private const int TICK_OF_FRAC1 = 96;
@@ -136,7 +134,7 @@ public static class ConvertCmdStreamToMML
         } else {
             var startMMLNote   = CmdStreamToMMLUtil.GetMMLNote(startPitch, ref defaultOct, false); 
             var targetMMLNote  = CmdStreamToMMLUtil.GetMMLNote(actualEndPitch, ref defaultOct, true);
-            curOrderSb.Append($"&{{{startMMLNote} {targetMMLNote}}}").AppendFracLength(portaPlayLength);
+            curOrderSb.Append($"&{{{startMMLNote} {targetMMLNote}}}").AppendNoteLength(portaPlayLength);
         }
         
         if(isPortaEndBeforeLegato) 
@@ -174,7 +172,7 @@ public static class ConvertCmdStreamToMML
                 var targetMMLNote = CmdStreamToMMLUtil.GetMMLNote(targetNoteNum, ref defaultOct, true);
 
                 var length = i == splitCount ? portaPlayLength % TICK_OF_FRAC1 : TICK_OF_FRAC1;
-                curOrderSb.Append($"&{{{startMMLNote} {targetMMLNote}}}").AppendFracLength(length);
+                curOrderSb.Append($"&{{{startMMLNote} {targetMMLNote}}}").AppendNoteLength(length);
 
                 startNoteNum = targetNoteNum;
             }
@@ -201,7 +199,7 @@ public static class ConvertCmdStreamToMML
         
         // if(isFound )  // if NOTE_ON or HINT_LEGATO is found, '&' is appended at ConvertVolume method
         curOrderSb.Append('&');
-        curOrderSb.Append(mmlNote).AppendFracLength(tickLen);
+        curOrderSb.Append(mmlNote).AppendNoteLength(tickLen);
     }
 
 
