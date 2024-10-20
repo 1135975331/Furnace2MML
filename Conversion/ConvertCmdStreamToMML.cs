@@ -21,16 +21,12 @@ public static class ConvertCmdStreamToMML
     private static byte _vibActualDepth = 0;
     
     
-    public static void SetArpSpeed(FurnaceCommand cmd)
-        => _arpTickSpeed = (byte)cmd.Value1;
-    public static void SetArpeggioStatus(FurnaceCommand cmd)
-        => _arpValue = (byte)cmd.Value1;
+    public static void SetArpSpeed(FurnaceCommand  cmd, int tickLen, StringBuilder curOrderSb) { _arpTickSpeed = (byte)cmd.Value1; AppendRestForTheCmd(tickLen, curOrderSb); }
+    public static void SetArpStatus(FurnaceCommand cmd, int tickLen, StringBuilder curOrderSb) { _arpValue     = (byte)cmd.Value1; AppendRestForTheCmd(tickLen, curOrderSb); }
     
-    public static void ConvertVibShape(FurnaceCommand cmd, int tickLen, StringBuilder curOrderSb) 
-        => VibShape = (byte)cmd.Value1;
-    public static void ConvertVibRange(FurnaceCommand cmd, int tickLen, StringBuilder curOrderSb) 
-        => VibRange = (byte)cmd.Value1;
-    
+    public static void ConvertVibShape(FurnaceCommand cmd, int tickLen, StringBuilder curOrderSb) { VibShape = (byte)cmd.Value1; AppendRestForTheCmd(tickLen, curOrderSb); }
+    public static void ConvertVibRange(FurnaceCommand cmd, int tickLen, StringBuilder curOrderSb) { VibRange = (byte)cmd.Value1; AppendRestForTheCmd(tickLen, curOrderSb); }
+
     public static void ConvertVibrato(FurnaceCommand cmd, int tickLen, StringBuilder curOrderSb)
     {
         VibSpeed = (byte)cmd.Value1;
@@ -39,6 +35,8 @@ public static class ConvertCmdStreamToMML
         _vibActualDepth = (byte)(VibDepth / 0xF * VibRange);
 
         curOrderSb.Append(VibSpeed == 0 || VibDepth == 0 ? "*0" : $"M0,{VibSpeed},{_vibActualDepth},255 *1");
+        
+        AppendRestForTheCmd(tickLen, curOrderSb);
     }
 
 
@@ -57,11 +55,7 @@ public static class ConvertCmdStreamToMML
         }
     }
 
-    public static void ConvertNoteOff(int tickLen, StringBuilder curOrderSb)
-    {
-        if(tickLen > 0)
-            curOrderSb.Append('r').AppendFracLength(tickLen);
-    }
+    public static void ConvertNoteOff(int tickLen, StringBuilder curOrderSb) => AppendRestForTheCmd(tickLen, curOrderSb);
     
     public static void ConvertPanning(FurnaceCommand cmd, int tickLen, StringBuilder curOrderSb)
     {
@@ -70,8 +64,7 @@ public static class ConvertCmdStreamToMML
 	    
         // curOrderSb.Append(" px").Append((leftPan + rightPan) / 2).Append(' ');
         curOrderSb.Append("px").Append((leftPan + rightPan) / 2);
-        if(tickLen > 0)
-            curOrderSb.Append('r').AppendFracLength(tickLen);
+        AppendRestForTheCmd(tickLen, curOrderSb);
     }
     
     public static void ConvertInstrument(FurnaceCommand cmd, int tickLen, StringBuilder curOrderSb)
@@ -83,8 +76,7 @@ public static class ConvertCmdStreamToMML
         }
 
         curOrderSb.Append($"@{cmd.Value1}");
-        if(tickLen > 0)
-            curOrderSb.Append('r').AppendFracLength(tickLen);
+        AppendRestForTheCmd(tickLen, curOrderSb);
     }
 
     
@@ -219,4 +211,9 @@ public static class ConvertCmdStreamToMML
         _arpTickSpeed = 1;
     }
 
+    private static void AppendRestForTheCmd(int tickLen, StringBuilder curOrderSb)
+    {
+        if(tickLen > 0)
+            curOrderSb.Append('r').AppendNoteLength(tickLen);
+    }
 }
