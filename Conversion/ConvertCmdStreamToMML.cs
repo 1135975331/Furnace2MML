@@ -183,7 +183,6 @@ public static class ConvertCmdStreamToMML
 
     public static void ConvertLegato(List<FurnaceCommand> cmdList, int curIdx, int tickLen, ref int defaultOct, StringBuilder curOrderSb)
     {
-        // todo HINT_LEGATO가 있을 때 위쪽에 NOTE_OFF와 HINT_PORTA가 발견된다면 해당 HINT_LEGATO는 포르타멘토로 인해 생성된 것. => 해당 HINT_LEGATO는 NOTE_OFF로 취급하고 다음으로 넘어가야함
         var curCmd = cmdList[curIdx];
         
         if(curCmd.Value2 == -2) {  // if the command has been marked no longer necessary by ConvertPortamento method
