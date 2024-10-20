@@ -79,7 +79,6 @@ public static partial class Util
 			keyWithTheLargest      = curKey;
 		}
 		
-		
 		return keyWithTheLargest;
 	}
 	
