@@ -85,9 +85,9 @@ public static class ConvertFurnaceToMML
 
                 if(curOrderNum != prevNoteCmdOrderNum) {
                     prevNoteCmdOrderNum          = curOrderNum;
-                    CurDefaultNoteFractionLength = CmdStreamToMMLUtil.GetDefaultNoteFracLenForThisOrder(noteCmdCh, curOrderNum, i);
-                    if(CurDefaultNoteFractionLength != -1)
-                        curOrderSb.Append('l').Append(CurDefaultNoteFractionLength).Append("   ");
+                    CurDefaultNoteLength = CmdStreamToMMLUtil.GetDefaultNoteLenForThisOrder(noteCmdCh, curOrderNum, i);
+                    if(!string.IsNullOrEmpty(CurDefaultNoteLength))
+                        curOrderSb.Append('l').Append(CurDefaultNoteLength).Append("   ");
                 }
 
                 // - => ignored
@@ -144,9 +144,11 @@ public static class ConvertFurnaceToMML
             
             if(curOrderNum != prevNoteCmdOrderNum) {
                 prevNoteCmdOrderNum          = curOrderNum;
-                CurDefaultNoteFractionLength = CmdStreamToMMLUtil.GetDefaultNoteFracLenForThisOrder(DrumCmds, curOrderNum, i);
-                if(CurDefaultNoteFractionLength != -1)
-                    orderSb[curOrderNum].Append('l').Append(CurDefaultNoteFractionLength).Append("   ");
+                CurDefaultNoteLength = CmdStreamToMMLUtil.GetDefaultNoteLenForThisOrder(DrumCmds, curOrderNum, i);
+
+                orderSbToAppendMML.Append('\t');
+                if(!string.IsNullOrEmpty(CurDefaultNoteLength))
+                    orderSbToAppendMML.Append('l').Append(CurDefaultNoteLength);
             }
 
             switch(cmdType) {
@@ -193,7 +195,7 @@ public static class ConvertFurnaceToMML
         
         var soundSourceDrumStr = DrumConversion.ToDrumSoundSource(soundSourceOnly);
         var internalSSGDrumStr = DrumConversion.ToInternalSSGDrum(withInternalSSG);
-        var mmlFracLen = CmdStreamToMMLUtil.FormatNoteLength(tickLen, PublicValue.ValidFractionLength, PublicValue.CurDefaultNoteFractionLength);
+        var mmlFracLen = CmdStreamToMMLUtil.FormatNoteLength(tickLen, PublicValue.ValidFractionLength, PublicValue.CurDefaultNoteLength);
         // var mmlFracLen = CommandToMMLUtil.ConvertBetweenTickAndFraction(tickLen);
 
         var isRest = internalSSGDrumStr.Equals("r");
