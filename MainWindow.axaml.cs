@@ -529,8 +529,8 @@ public partial class MainWindow : Window
         ConvertFurnaceToMML.ConvertDrumsToMML(orderSbArr);
         
         /* Output results to ResultOutputTextBox */
-        foreach (var orderSb in orderSbArr)
-            resultOutput.Append(orderSb).AppendLine();
+        foreach(var orderSb in orderSbArr)
+            resultOutput.Append(orderSb);
 
         PublicValue.NoteChannelsOutput = orderSbArr;
         ResultOutputTextBox.Text = resultOutput.ToString();
