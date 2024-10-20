@@ -211,30 +211,7 @@ public static class CmdStreamToMMLUtil
                 break;
         }
         
-        return GetMostFrequentFracLen();
-        
-        #region Local Functions
-        /* -------------------------------------- Local Function -------------------------------------------- */
-        int GetMostFrequentFracLen()
-        {
-            var maxKey = -1;    // MaxFracLenKey
-            var maxValue = -1;  // MaxFracLenCountValue
-
-            foreach(var curKey in fracLenCounts.Keys) {
-                if(curKey == -1)
-                    continue;
-                
-                var curValue = fracLenCounts[curKey];
-                if(curValue > maxValue) {
-                    maxValue = curValue;
-                    maxKey   = curKey;
-                } else if(curValue == maxValue)
-                    maxKey = Math.Min(maxKey, curKey);
-            }
-            
-            return maxKey;
-        }
-        #endregion
+        return Util.GetKeyWithLargestValue(clockLenCounts);
     }
 
     /// <summary>
