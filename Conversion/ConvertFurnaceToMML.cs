@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -128,8 +129,10 @@ public static class ConvertFurnaceToMML
             return;
 
         // orderSb[0].Append($"R{0} r32\n");
-        for(var i=0; i <= MaxOrderNum; i++)
-            orderSb[i].Append($"R{i}\t");
+        for(var i=0; i <= MaxOrderNum; i++) {
+            if(i % 2 == 0)
+                orderSb[i].Append($"R{i/2}");
+        }
 
         var prevNoteCmdOrderNum = -1;
         
@@ -141,6 +144,8 @@ public static class ConvertFurnaceToMML
             var curOrderNum = drumCmd.OrderNum;
             var tickLen     = CmdStreamToMMLUtil.GetCmdTickLength(DrumCmds, i);
             var cmdType     = drumCmd.CmdType;
+            
+            var orderSbToAppendMML = curOrderNum % 2 == 1 ? orderSb[curOrderNum-1] : orderSb[curOrderNum];
             
             if(curOrderNum != prevNoteCmdOrderNum) {
                 prevNoteCmdOrderNum          = curOrderNum;
@@ -162,13 +167,17 @@ public static class ConvertFurnaceToMML
 
             if(tickLen == 0)
                 continue;
-            
-            ConvertDrumNoteOn(drumsChAtIdenticalTick, curOrderNum, tickLen, orderSb[curOrderNum]);
+
+            ConvertDrumNoteOn(drumsChAtIdenticalTick, curOrderNum, tickLen, orderSbToAppendMML);
             drumsChAtIdenticalTick.Clear();
         }
 
-        for(var i = 0; i <= MaxOrderNum; i++)
-            orderSb[i].AppendLine().AppendLine($"K\tR{i}").AppendLine();
+        for(var i = 0; i <= MaxOrderNum; i += 1) {
+            orderSb[i].AppendLine();
+            if(i % 2 == 0)
+                orderSb[i].AppendLine($"K\tR{i/2}");
+            orderSb[i].AppendLine();
+        }
     }
     
     /*
