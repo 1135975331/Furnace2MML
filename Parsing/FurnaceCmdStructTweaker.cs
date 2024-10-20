@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Furnace2MML.Etc;
 using Furnace2MML.Utils;
 using static Furnace2MML.Etc.PublicValue;
@@ -9,37 +8,6 @@ namespace Furnace2MML.Parsing;
 
 public class FurnaceCmdStructTweaker
 {
-       /// <summary>
-    /// 마지막 줄이 >> LOOP 0 인 경우, Order의 첫 줄에 노트가 있으면 중복되는 Command Stream이 생김
-    /// 이 메소드는 이러한 중복을 제거함
-    /// (중복을 제거하면서 curTick값도 재조정함)
-    /// </summary>
-    /// <param name="curTick"></param>
-    /// <param name="lastLine"></param>
-    public void RemoveDuplicatedCommandsAtTheEnd(ref int curTick, string lastLine)
-    {
-        if(lastLine.Equals(">> END"))  //  There's no duplicates if the lastLine is ">> END"
-            return;
-        
-        for(var chNum = 0; chNum < 9; chNum++) {
-            var noteCmdCh    = NoteCmds[chNum];
-            var noteCmdChLen = noteCmdCh.Count;
-            if(noteCmdChLen == 0)
-                continue;
-            
-            RemoveDuplicatedCommand(noteCmdCh);
-        }
-        
-        RemoveDuplicatedCommand(DrumCmds);
-        
-        #region Local Functions
-        /* -------------------------------- Local Functions ----------------------------------- */
-        void RemoveDuplicatedCommand(List<FurnaceCommand> cmdList) 
-            => cmdList.RemoveAll(cmd => cmd.Tick >= EndTick);
-        #endregion
-    }
- 
-    
     /// <summary>
     /// 각 Order의 시작부분에 NOTE_OFF 명령을 끼워넣는 메소드
     /// </summary>
@@ -91,97 +59,24 @@ public class FurnaceCmdStructTweaker
         #endregion
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    public void RemoveUnnecessaryPortamentoCommands() 
+    public void RemoveUnnecessaryNullNoteOnCommands()
     {
+        // 0xB4 -> note on: null  << 이거 전부 리스트에서 삭제하기
         for(var chNum = 0; chNum < 9; chNum++) {
             var noteCmdChList    = NoteCmds[chNum];
             var noteCmdChLen = noteCmdChList.Count;
             if(noteCmdChLen == 0)
                 continue;
 
-            var curTick     = -1;
-            var cmdsToRemove = new List<FurnaceCommand>();
-            
-            var hintPortaFound  = false;
-            var prePortaFound   = false;
-            var hintLegatoFound = false;
-            
             for(var i = 0; i < noteCmdChLen - 1; i++) {
                 var curCmd = noteCmdChList[i];
-                if(curTick != curCmd.Tick) { // 틱이 바뀌면 초기화
-                    hintPortaFound  = false;
-                    prePortaFound   = false;
-                    hintLegatoFound = false;
-                    curTick         = curCmd.Tick;
-                    cmdsToRemove.Clear();
-                }
 
-                switch(curCmd.CmdType) {
-                    case CmdType.HINT_PORTA:  
-                        hintPortaFound = true;
-                        if(curCmd.Value2 == 0) // If Value2 of the HINT_PORTA is 0, it's useless
-                            noteCmdChList.RemoveAtIdxLoop(ref i, ref noteCmdChLen);
-                        else
-                            cmdsToRemove.Add(curCmd);
-                        break;
-                    case CmdType.PRE_PORTA: 
-                        prePortaFound = true;
-                        noteCmdChList.RemoveAtIdxLoop(ref i, ref noteCmdChLen);
-                        break;
-                    case CmdType.HINT_LEGATO:
-                        hintLegatoFound = true;
-                        if(IsUnnecessaryLegatoCmd(noteCmdChList, i))  // If Value2 of the HINT_PORTA is 0, it's unnecessary
-                            noteCmdChList.RemoveAtIdxLoop(ref i, ref noteCmdChLen);
-                        else
-                            cmdsToRemove.Add(curCmd);
-                        break;
-                }
-                
-                
-                if(hintPortaFound && prePortaFound && hintLegatoFound) { // 같은 틱 내에 해당 3개의 명령이 모두 발견된 경우 Portamento 관련 명령 모두 삭제
-                    foreach(var cmd in cmdsToRemove)
-                        noteCmdChList.RemoveIdxLoop(ref noteCmdChLen, cmd);
-                    
-                    i = GetNextTickIdx(noteCmdChList, curTick, out _) - 1;
-                }
-                //  같은 틱 내에 HINT_PORTA, PRE_PORTA, HINT_LEGATO가 모두 발견되는 경우
-                //  해당 틱 내의 세 명령어를 모두 삭제함
+                if(curCmd.CmdType == CmdType.NOTE_ON && curCmd is { Value1: 0xB4 })
+                    noteCmdChList.RemoveAtIdxLoop(ref i, ref noteCmdChLen);
             }
         }
-        return;
-        
-        #region Local Functions
-        /* --------------------------------- Local Functions ------------------------------------- */
-        bool IsUnnecessaryLegatoCmd(List<FurnaceCommand> cmdList, int curIdx)
-        {
-            var noteOnFound = false;
-            var hintPortaFound = false;
-            for(var i=curIdx-1; i>=0; i--) {
-                var cmd = cmdList[i];
-                
-                switch(cmd.CmdType) {
-                    case CmdType.NOTE_ON:
-                        noteOnFound = true;
-                        break;
-                    case CmdType.HINT_PORTA:
-                        hintPortaFound = true;
-                        break;
-                    case CmdType.NOTE_OFF when (!hintPortaFound):
-                        return true;
-                }
-
-                if(noteOnFound || hintPortaFound)
-                    return false;
-            }
-            
-            return false;
-        }
-        #endregion
     }
-    
+
     /// <summary>
     /// 
     /// </summary>
@@ -202,25 +97,6 @@ public class FurnaceCmdStructTweaker
         
             // value2 == 0x00 인 HINT_PORTA 삭제.
             // PRE_PORTA의 value2는 preset delay를 나타내는 것으로 추청, 어쩌면 preset delay == porta 지속시간
-        }
-    }
-    
-    public void RemoveUnnecessaryNoteOffCommands()
-    {
-        for(var chNum = 0; chNum < 9; chNum++) {
-            var noteCmdChList    = NoteCmds[chNum];
-            var noteCmdChLen = noteCmdChList.Count;
-            if(noteCmdChLen == 0)
-                continue;
-
-            for(var i = 0; i < noteCmdChLen - 1; i++) {
-                var curCmd = noteCmdChList[i];
-
-                if(curCmd.CmdType == CmdType.NOTE_OFF) {
-                    if(noteCmdChList.Any(otherCmd => otherCmd.Tick == curCmd.Tick && otherCmd.CmdType is CmdType.PRE_PORTA or CmdType.HINT_PORTA))
-                        noteCmdChList.RemoveAtIdxLoop(ref i, ref noteCmdChLen);
-                }
-            }
         }
     }
 
@@ -264,48 +140,6 @@ public class FurnaceCmdStructTweaker
             if(curCmd.CmdType == CmdType.HINT_ARPEGGIO)  // if curCmd is HINT_ARPEGGIO 0 0
                 DrumCmds.RemoveAtIdxLoop(ref i, ref noteCmdChLen);
         }
-    }
-
-    /// <summary>
-    /// Remove duplicated and fix invalid value of NOTE_ON command generated by retrigger effect
-    /// </summary>
-    public void FixRetriggerCommands()
-    {
-        for(var chNum = 0; chNum < 9; chNum++) {
-            var noteCmdChList = NoteCmds[chNum];
-            var noteCmdChLen  = noteCmdChList.Count;
-            if(noteCmdChLen == 0)
-                continue;
-
-            FixRetriggerCmds(noteCmdChList, false);
-        }
-        
-        FixRetriggerCmds(DrumCmds, true);
-        
-        return;
-        #region Local Functions
-        /* --------------------------------------- Local Functions -------------------------------------------- */
-        void FixRetriggerCmds(List<FurnaceCommand> cmdList, bool isDrum)
-        {
-            var noteCmdChLen = cmdList.Count;
-            for(var i = 1; i < noteCmdChLen; i++) {
-                var curCmd = cmdList[i];
-                var predicate = isDrum ? new Predicate<FurnaceCommand>(cmd => cmd.CmdType == CmdType.NOTE_ON && cmd.Channel == curCmd.Channel)
-                                       : new Predicate<FurnaceCommand>(cmd => cmd.CmdType == CmdType.NOTE_ON);
-                var prevNoteOnCmd = GetFirstCertainCmd(cmdList, i, predicate, out _, out _, direction: "backward");
-                var nextNoteOnCmd = GetFirstCertainCmd(cmdList, i, predicate, out _, out _, direction: "forward");
-
-                // is invalid note number (Value1 of the NOTE_ON generated by retrigger effect is 2147483647)    0 ~ 119 (C-0 ~ B-9)
-                if(curCmd is not { CmdType: CmdType.NOTE_ON, Value1: < 0 or > 119 })
-                    continue;
-                
-                if(curCmd.Tick == prevNoteOnCmd.Tick || curCmd.Tick == nextNoteOnCmd.Tick)  
-                    cmdList.RemoveAtIdxLoop(ref i, ref noteCmdChLen);
-                else 
-                    cmdList[i] = new FurnaceCommand(curCmd.Tick, prevNoteOnCmd); // FurnaceCommand(int tick, FurnaceCommand otherCmd): Copy otherCmd except tick
-            }
-        }
-        #endregion
     }
 
     public void ReorderCommands()  
