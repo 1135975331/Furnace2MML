@@ -128,18 +128,23 @@ public static class CmdStreamToMMLUtil
     public static int ConvertTickrateToTempo(double tickrate)
         => (int)(tickrate * 2.5) / 2;
 
-    public static StringBuilder AppendFracLength(this StringBuilder curOrderSb, int tickLen)
+    public static StringBuilder AppendNoteLength(this StringBuilder curOrderSb, int tickLen)
     {
         if(tickLen == 0)
             return curOrderSb;
         
-        var mmlFracLen = FormatNoteLength(tickLen, PublicValue.ValidFractionLength, PublicValue.CurDefaultNoteFractionLength);
+        // var mmlFracLen = FormatNoteFracLength(tickLen, PublicValue.ValidFractionLength, PublicValue.CurDefaultNoteFractionLength);
+        var mmlFracLen = FormatNoteLength(tickLen, PublicValue.ValidFractionLength, PublicValue.CurDefaultNoteLength);
         curOrderSb.Append(mmlFracLen);
         return curOrderSb;
     }
-    
 
-    public static StringBuilder FormatNoteLength(int tickLenP, int[] validFractionLength, int defaultFractionLength)
+    public static string FormatNoteInternalClockLength(int tickLenP, int defaultClockLen)
+    {
+        return tickLenP == defaultClockLen ? "" : $"%{tickLenP}";
+    }
+
+    public static StringBuilder FormatNoteLength(int tickLenP, int[] validFractionLength, string defaultFractionLength)
     {
         var tickLen      = tickLenP;
         var isLengthLong = tickLen >= 192; // 길이가 길면 점분음표 표기 시 오류가 발생함
@@ -168,7 +173,30 @@ public static class CmdStreamToMMLUtil
             }
         }
 
-        for(var i = 0; i < fracLenResultList.Count; i++) { // 변환되어 저장된 값에 따라 문자열 만들기
+        var fracLenResultListLen = fracLenResultList.Count;
+
+        if(fracLenResultListLen == 1) {  // Fraction Length
+            var fracLength      = fracLenResultList[0];
+            var isDefaultLength = fracLength.ToString().Equals(defaultFractionLength);
+			
+            var fracLenStr = fracLength.ToString();
+
+            if(!isDefaultLength)
+                strBuilder.Append(fracLenStr);
+        } else {  // Internal Clock Length
+            var isFirstIteration = true;
+            var curTickLen       = tickLenP;
+            
+            while(curTickLen > 255) {
+                strBuilder.Append(isFirstIteration && $"%{255}".Equals(defaultFractionLength) ? "" : $"%{255}").Append('&');
+                curTickLen -= 255;
+                isFirstIteration = false;
+            }
+            strBuilder.Append($"%{curTickLen}".Equals(defaultFractionLength) ? "" : $"%{curTickLen}");
+        }
+
+        /*
+        for(var i = 0; i < fracLenResultListLen; i++) { // 변환되어 저장된 값에 따라 문자열 만들기, tie를 사용해야 하는 경우라면 용량을 줄이기 위해 internal clock을 대신 사용
             var fracLength      = fracLenResultList[i];
             var isDefaultLength = fracLength == defaultFractionLength;
 			
@@ -182,29 +210,64 @@ public static class CmdStreamToMMLUtil
                 strBuilder.Append('&').Append(fracLenStr);
             //DebuggingAndTestingTextBox.AppendText($" &{d}");
         }
+        */
 
         // strBuilder = ReplaceComplicatedLengthStr(strBuilder);  // 복잡하게 변환된 길이를 단순하게 되도록 치환함
 
-        return strBuilder.Remove(0, 1);
+        // return strBuilder.Remove(0, 1);  // 문자열 첫번째 문자에 있는 & 제거
+        return strBuilder;
     }
 
     // private static readonly string[] DefaultFracLenCmdTypes = ["NOTE_ON", "NOTE_OFF", "HINT_LEGATO"];
-    private static readonly CmdType[] DefaultFracLenCmdTypes = [CmdType.NOTE_ON, CmdType.NOTE_OFF, CmdType.HINT_LEGATO];
-    public static int GetDefaultNoteFracLenForThisOrder(List<FurnaceCommand> cmdList, int curOrder, int curIdx)
+    private static readonly CmdType[] CmdTypesToGetDefaultLen = [CmdType.NOTE_ON, CmdType.NOTE_OFF, CmdType.HINT_LEGATO];
+    public static string GetDefaultNoteLenForThisOrder(List<FurnaceCommand> cmdList, int curOrder, int curIdx)
     {
         var nextOrderStartTick = GetOrderStartTick(curOrder+1);
         
-        var fracLenCounts = new Dictionary<int, int>();  // <FracLen, Count>
+        var noteLenCounts = new Dictionary<string, int>();  // <FracLen, Count>
         
         var cmdListLen = cmdList.Count;
         for(var i = curIdx; i < cmdListLen; i++) {
             var curCmd = cmdList[i];
 
-            if(curCmd.CmdType.EqualsAny(DefaultFracLenCmdTypes)) {
-                var fracLen = ConvertBetweenTickAndFraction(GetCmdTickLength(cmdList, i));
+            if(curCmd.CmdType.EqualsAny(CmdTypesToGetDefaultLen)) {
+                var tickLen = GetCmdTickLength(cmdList, i);
+                var fracLen = ConvertBetweenTickAndFraction(tickLen);
+
+                var lenStr = fracLen == -1 ? $"%{Math.Min(tickLen, 255)}" : $"{fracLen}";  // fracLen == -1 : n분음표 길이로 나타낼 수 없는 경우  // internal clock($)의 범위는 1~255 
                 
-                if(!fracLenCounts.TryAdd(fracLen, 1))
-                    fracLenCounts[fracLen]++;
+                if(noteLenCounts.ContainsKey(lenStr))
+                    noteLenCounts[lenStr] += lenStr.Length;
+                else
+                    noteLenCounts.Add(lenStr, lenStr.Length);
+
+            }
+
+            if(curCmd.Tick >= nextOrderStartTick)
+                break;
+        }
+
+        noteLenCounts.Remove("%0");
+        noteLenCounts.Remove("-1");
+
+        return Util.GetKeyWithLargestValue(noteLenCounts) ?? string.Empty;
+    }
+    
+    public static int GetDefaultNoteClockLenForThisOrder(List<FurnaceCommand> cmdList, int curOrder, int curIdx)
+    {
+        var nextOrderStartTick = GetOrderStartTick(curOrder+1);
+        
+        var clockLenCounts = new Dictionary<int, int>();  // <FracLen, Count>
+        
+        var cmdListLen = cmdList.Count;
+        for(var i = curIdx; i < cmdListLen; i++) {
+            var curCmd = cmdList[i];
+
+            if(curCmd.CmdType.EqualsAny(CmdTypesToGetDefaultLen)) {
+                var clockLen = GetCmdTickLength(cmdList, i);
+                
+                if(!clockLenCounts.TryAdd(clockLen, 1))
+                    clockLenCounts[clockLen]++;
             }
 
             if(curCmd.Tick >= nextOrderStartTick)
