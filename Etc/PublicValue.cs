@@ -32,7 +32,7 @@ public static class PublicValue
 	public static readonly int[] ValidFractionLength = [1, 2, 4, 8, 16, 32, 3, 6, 12, 24, 48, 96];
 	// public static readonly long[] ValidFractionLength = { 1, 2, 3, 4, 6, 8, 12, 16, 24, 32, 48, 96 };
     public static readonly byte[] OtherEffectTypes = [0x09, 0x0F, 0xF0,  0x0B, 0x0D, 0xFF];
-    public static int CurDefaultNoteFractionLength = 4;
+    public static string CurDefaultNoteLength = "4";
 
     public static StringBuilder MetadataOutput = null!;
     public static StringBuilder InstDefOutput = null!;
