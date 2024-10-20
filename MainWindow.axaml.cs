@@ -521,9 +521,10 @@ public partial class MainWindow : Window
         }
 
         LoopStartOrder = TxtOutputToMMLUtil.GetLoopStartOrder(OtherEffects);
-        LoopStartTick = PublicValue.OrderStartTimes[LoopStartOrder].StartTick;
-        if(LoopStartOrder != -1)
+        if(LoopStartOrder != -1) {
+            LoopStartTick = PublicValue.OrderStartTimes[LoopStartOrder].StartTick;
             ConvertFurnaceToMML.AppendLoop(orderSbArr[LoopStartOrder]);
+        }
 
         /* Convert FM/SSG, Drum */
         ConvertFurnaceToMML.ConvertNotesToMML(orderSbArr);
