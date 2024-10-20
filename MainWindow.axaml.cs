@@ -375,7 +375,7 @@ public partial class MainWindow : Window
                 
                 switch(curByteVal) {
                     case <= 0xCA: {  // 0x00 ~ 0xCA
-                        cmdType = BinCmdStreamParsingMethods.GetCmdType(curByteVal); // 다른 파일에 유틸리티 함수로 만들 것
+                        cmdType = BinCmdStreamParsingMethods.GetCmdType(curByteVal); 
                         break;
                     }
                     case >= 0xD0 and <= 0xDF: {  // Speed Dial Commands
