@@ -562,9 +562,9 @@ public partial class MainWindow : Window
         var outputText = ResultOutputTextBox.Text;
         CharCountLabel.Content = $"Character Count: {outputText.Length:N0}";
 
-        var sizeKb       = Encoding.Default.GetByteCount(outputText) / 1000f;
-        var limitPercent = sizeKb / 61;
-        SizeLabel.Content = $"Size/SizeLimit:\n    {sizeKb:N2}/61 KB ({limitPercent:P1})";
+        var sizeKiloByte       = Encoding.Default.GetByteCount(outputText) / 1000f;
+        var limitPercent = sizeKiloByte / 61;
+        SizeLabel.Content = $"Size/SizeLimit:\n    {sizeKiloByte:N2}/61 KB ({limitPercent:P1})";
     }
 
     private void ConvertStartButton_Click(object sender, RoutedEventArgs e)
