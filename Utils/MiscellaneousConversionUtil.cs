@@ -45,6 +45,9 @@ public static class MiscellaneousConversionUtil
 
     public static string GetPitchChar(int noteNum, bool isBinCmd = false)
     {
+        if(noteNum == 0xB4)
+            return "NUL";
+        
         var octave = noteNum / 12;
         var pitch  = noteNum % 12;
 
