@@ -565,6 +565,9 @@ public partial class MainWindow : Window
         var sizeKiloByte       = Encoding.Default.GetByteCount(outputText) / 1000f;
         var limitPercent = sizeKiloByte / 61;
         SizeLabel.Content = $"Size/SizeLimit:\n    {sizeKiloByte:N2}/61 KB ({limitPercent:P1})";
+
+        if(limitPercent > 1)
+            LogWarn("Size of the output exceeds 61KB. It may not be compiled due to file size limit(< 61KB). (Try unchecking 'Debug Comments' CheckBox.)");
     }
 
     private void ConvertStartButton_Click(object sender, RoutedEventArgs e)
