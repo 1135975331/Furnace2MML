@@ -306,7 +306,7 @@ public partial class MainWindow : Window
 
         var brBaseStream  = Br.BaseStream;
 
-        // Parsing First 4 bytes: "FCS\0"
+        // Read First 4 bytes: "FCS\0"
         var first4Byte = Br.ReadBytes(4); 
         if(first4Byte.Length != 4) {
             ResultOutputTextBox.Text = GetErrorMessage(FILE_EMPTY);
