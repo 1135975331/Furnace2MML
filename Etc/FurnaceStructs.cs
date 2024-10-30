@@ -228,15 +228,16 @@ public readonly struct TickPerUnitChange(int changeTimeTick, int changeTimeOrder
         => $"Time: {ChangeTimeTick}({ChangeTimeOrderNum}:{ChangeTimeRowNum}) | SPD: {Speed}, VT: {VirtTempoNumer}/{VirtTempoDenom} TPR: {TickPerRow}, TPO: {TickPerOrder}";
 }
 
-public readonly struct OrderStartTime(byte orderNum, int orderStartTick, int skippedTick, int totalSkippedTick)
+public readonly struct OrderStartTime(byte orderNum, int orderStartTick, int skippedTick, int totalSkippedTick, int deltaTickToPrevOrder)
 {
-    public readonly byte OrderNum = orderNum;
-    public readonly int StartTick = orderStartTick;
-    public readonly int SkippedTick = skippedTick;  // Skipped ticks by jump to pattern effects from previous order
-    public readonly int TotalSkippedTick = totalSkippedTick;  
+    public readonly byte OrderNum             = orderNum;
+    public readonly int  StartTick            = orderStartTick;
+    public readonly int  SkippedTick          = skippedTick;  // Skipped ticks by jump to pattern effects from previous order
+    public readonly int  TotalSkippedTick     = totalSkippedTick;
+    public readonly int  DeltaTickToPrevOrder = deltaTickToPrevOrder;
     
     public override string ToString()
-        => $"OrderNum: {OrderNum:X2} | Tick: {StartTick} | Skipped Tick: {SkippedTick} (Total: {TotalSkippedTick})";
+        => $"OrderNum: {OrderNum:X2} | Tick: {StartTick} | Skipped: {SkippedTick} (Total: {TotalSkippedTick}) | Delta: {DeltaTickToPrevOrder}";
 }
 
 public readonly struct CmdFieldChangeArg

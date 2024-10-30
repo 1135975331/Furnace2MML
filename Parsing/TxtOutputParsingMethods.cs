@@ -307,7 +307,8 @@ public class TxtOutputParsingMethods(StreamReader sr)
             var curTick          = GetCurTick(curOrderNum, curPatternRowNum, totalSkippedTicksUntilTickPerUnitChange); 
 
             if(!orderStartTickAssigned) {
-                OrderStartTimes.Add(new OrderStartTime(curOrderNum, curTick, skippedTicks, totalSkippedTicks));
+                var prevOrderStartTick = OrderStartTimes.Count != 0 ? OrderStartTimes[^1].StartTick : 0;
+                OrderStartTimes.Add(new OrderStartTime(curOrderNum, curTick, skippedTicks, totalSkippedTicks, curTick - prevOrderStartTick));
                 skippedTicks = 0;
                 orderStartTickAssigned = true;
             }
