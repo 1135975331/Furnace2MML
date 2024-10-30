@@ -278,7 +278,6 @@ public class TxtOutputParsingMethods(StreamReader sr)
     /// <param name="curReadingLineNum">Currently reading line number of the file</param>
     public void ParsePatterns(ref int curReadingLineNum)
     {
-        var effList                                 = OtherEffects;
         var patternLen                              = PublicValue.Subsong.PatternLen;
         var curVirtTempo                            = PublicValue.Subsong.VirtualTempo;
         var curSpeedValue                           = PublicValue.Subsong.Speed;
@@ -330,7 +329,7 @@ public class TxtOutputParsingMethods(StreamReader sr)
                         continue;
 
                     var effStruct = new OtherEffect(curTick, chNum, effType, effVal);
-                    effList.Add(effStruct);
+                    OtherEffects.Add(effStruct);
 
                     switch(effType) {
                         case 0x0D: // Jump to next pattern
