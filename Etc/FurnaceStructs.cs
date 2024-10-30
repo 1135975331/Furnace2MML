@@ -49,8 +49,7 @@ public struct SubsongData()
 /// <summary>
 /// Note On/Off, Portamento, Volume, Panning, etc.
 /// </summary>
-public struct 
-    FurnaceCommand(int tick, byte channel, CmdType cmdType, int value1, int value2) : IComparable<FurnaceCommand>
+public struct FurnaceCommand(int tick, byte channel, CmdType cmdType, int value1, int value2) : IComparable<FurnaceCommand>
 {
     public readonly  int                  Tick     = tick;
     public readonly  byte                 OrderNum = MiscellaneousConversionUtil.GetOrderNum(tick);  // OrderNum cannot be 0xFF(255)
