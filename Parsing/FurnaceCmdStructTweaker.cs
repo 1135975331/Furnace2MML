@@ -59,9 +59,12 @@ public class FurnaceCmdStructTweaker
         #endregion
     }
 
-    public void RemoveUnnecessaryNullNoteOnCommands()
+    /// <summary>
+    /// Remove all invalid NOTE_ON Commands.
+    /// 0xB5(null) and &lt; 0x48(C-1) are the invalid.
+    /// </summary>
+    public void RemoveInvalidNoteOnCommands()
     {
-        // 0xB4 -> note on: null  << 이거 전부 리스트에서 삭제하기
         for(var chNum = 0; chNum < 9; chNum++) {
             var noteCmdChList    = NoteCmds[chNum];
             var noteCmdChLen = noteCmdChList.Count;
@@ -71,7 +74,7 @@ public class FurnaceCmdStructTweaker
             for(var i = 0; i < noteCmdChLen - 1; i++) {
                 var curCmd = noteCmdChList[i];
 
-                if(curCmd.CmdType == CmdType.NOTE_ON && curCmd is { Value1: 0xB4 })
+                if(curCmd is { CmdType: CmdType.NOTE_ON, Value1: 0xB4 or < 0x48 })
                     noteCmdChList.RemoveAtIdxLoop(ref i, ref noteCmdChLen);
             }
         }

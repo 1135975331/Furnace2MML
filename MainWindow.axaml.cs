@@ -460,7 +460,7 @@ public partial class MainWindow : Window
         
         var furnaceCmdStructTweaker = new FurnaceCmdStructTweaker();
         furnaceCmdStructTweaker.InsertNoteOffAtStartOfEachOrder();
-        furnaceCmdStructTweaker.RemoveUnnecessaryNullNoteOnCommands();
+        furnaceCmdStructTweaker.RemoveInvalidNoteOnCommands();
         furnaceCmdStructTweaker.RemoveUnnecessaryPortamentoBinaryCommands();
         furnaceCmdStructTweaker.RemoveUnnecessaryLegatoCommands();
         furnaceCmdStructTweaker.RemoveUnnecessaryArpeggioCommands();
