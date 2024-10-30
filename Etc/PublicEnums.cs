@@ -12,7 +12,7 @@ public enum OutputFileType
 
 public enum EffectValueType
 {
-    UNUSED, XX, XY 
+    DC, XX, XY   // DC: Don't Care
 }
 
 public enum CmdType
