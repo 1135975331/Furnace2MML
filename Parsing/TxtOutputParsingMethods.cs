@@ -316,7 +316,8 @@ public class TxtOutputParsingMethods(StreamReader sr)
                 var chStr      = splitLine[chNum+1];
                 var splitChStr = chStr.Split(' '); // [0]: Note, [1]: InstCh, [2]: VolCh, [3~]: Effect
 
-                for(var idx = 3; idx < splitChStr.Length; idx++) {
+                var splitChStrLen = splitChStr.Length;
+                for(var idx = 3; idx < splitChStrLen; idx++) {
                     var effTypeStr = splitChStr[idx][..2];
                     var effValStr  = splitChStr[idx][2..];
                     if(effTypeStr.Equals(".."))
