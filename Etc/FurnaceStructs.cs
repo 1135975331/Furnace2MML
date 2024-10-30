@@ -225,7 +225,7 @@ public readonly struct TickPerUnitChange(int changeTimeTick, int changeTimeOrder
     public readonly int TickPerOrder       = (int)(speedValue / ((float)virtTempoNumerator / virtTempoDenominator)) * PublicValue.Subsong.PatternLen;
 
     public override string ToString()
-        => $"Time: {ChangeTimeTick}({ChangeTimeOrderNum}:{ChangeTimeRowNum}) | SPD: {Speed}, VT: {VirtTempoNumer}/{VirtTempoDenom} TPR: {TickPerRow}, TPO: {TickPerOrder}";
+        => $"Time: {ChangeTimeTick}({ChangeTimeOrderNum:X2}:{ChangeTimeRowNum:X2}) | SPD: {Speed}, VT: {VirtTempoNumer}/{VirtTempoDenom} TPR: {TickPerRow}, TPO: {TickPerOrder}";
 }
 
 public readonly struct OrderStartTime(byte orderNum, int orderStartTick, int skippedTick, int totalSkippedTick, int deltaTickToPrevOrder)
