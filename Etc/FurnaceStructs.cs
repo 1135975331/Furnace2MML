@@ -203,8 +203,8 @@ public struct OtherEffect(int tick, byte channel, byte effType, byte value)
         0xF0 => EffectValueType.XX,
         // Song Effects
         0x0B => EffectValueType.XX,
-        0x0D => EffectValueType.UNUSED,
-        0xFF => EffectValueType.UNUSED,
+        0x0D => EffectValueType.DC,
+        0xFF => EffectValueType.DC,
             
         _    => throw new ArgumentOutOfRangeException($"Invalid effect type value: {effType:X2}")
     };
