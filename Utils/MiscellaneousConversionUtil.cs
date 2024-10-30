@@ -29,7 +29,7 @@ public static class MiscellaneousConversionUtil
             var curChangeTick  = curTickPerUnitChangeStruct.ChangeTimeTick;
             var nextChangeTick = i+1 < tickPerUnitChangesLen ? TickPerUnitChanges[i+1].ChangeTimeTick : EndTick;
 
-            if(curChangeTick <= tick && tick < nextChangeTick) {
+            if(curChangeTick < tick && tick <= nextChangeTick) {
                 var orderNum = GetOrderNum(tick);
                 var orderStartTime = OrderStartTimes[orderNum].StartTick;
 
