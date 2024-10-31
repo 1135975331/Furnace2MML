@@ -116,16 +116,17 @@ public static class ConvertCmdStreamToMML
         var nextCmd           = CmdStreamToMMLUtil.GetFirstCertainCmd(cmdList, curCmdIdx, cmd => CmdTypeToFindNextCmd.Contains(cmd.CmdType), direction: "forward", isCmdFound: out _, foundCmdIdx: out _);  
         var legatoForThePorta = CmdStreamToMMLUtil.GetFirstCertainCmd(cmdList, curCmdIdx, cmd => cmd.CmdType == CmdType.HINT_LEGATO, direction: "forward", isCmdFound: out _, foundCmdIdx: out var legatoIdx);
 
+
+        var portaPlayLength = nextCmd.Tick - curCmd.Tick;
+        var portaLength     = legatoIdx == 1 ? nextCmd.Tick - curCmd.Tick : legatoForThePorta.Tick - curCmd.Tick;
         
-        var portaPlayLength = nextCmd.Tick - curCmd.Tick; 
-        var portaLength     = legatoForThePorta.Tick - curCmd.Tick;
-        
-        var isPortaEndBeforeLegato  = portaPlayLength < portaLength;  // NOTE_OFF while portamento 
+        var isPortaEndBeforeLegato  = legatoIdx != -1 && portaPlayLength < portaLength;  // NOTE_OFF while portamento
         var isPortaLenLong = portaPlayLength > TICK_OF_FRAC1;
         
 
         var startPitch     = prevNoteCmd.Value1;
-        var targetPitch    = legatoForThePorta.Value1;
+        var targetPitch    = curCmd.Value1;
+        // var targetPitch    = legatoForThePorta.Value1;
         var actualEndPitch = GetActualEndPitch();
 
         // Length of Portamento cannot be longer than a whole note + a quarter note(fracLen: 1 + 4), so it should be split into parts.
