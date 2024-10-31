@@ -118,7 +118,7 @@ public struct FurnaceCommand(int tick, byte channel, CmdType cmdType, int value1
         => HashCode.Combine(Tick, OrderNum, Channel, CmdType, Value1, Value2);
 
     /// <summary>
-    /// A larger value will be ordered at the back of the array
+    /// A larger value will be ordered at larger index of the array
     /// </summary>
     /// <param name="cmdType"></param>
     /// <returns></returns>
