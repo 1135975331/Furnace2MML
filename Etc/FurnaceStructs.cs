@@ -125,9 +125,9 @@ public struct FurnaceCommand(int tick, byte channel, CmdType cmdType, int value1
     private static int GetCmdTypeOrderPriority(CmdType cmdType)
     {
         return cmdType switch {
-            CmdType.NOTE_ON     => 3,
-            CmdType.NOTE_OFF    => 3,
-            CmdType.HINT_PORTA  => 2,
+            CmdType.NOTE_ON     => 4,
+            CmdType.NOTE_OFF    => 4,
+            CmdType.HINT_PORTA  => 3,
             CmdType.HINT_LEGATO => 2,
             _                   => 1,
         };
