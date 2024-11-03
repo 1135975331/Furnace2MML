@@ -471,13 +471,13 @@ public partial class MainWindow : Window
         ResultOutputTextBox.Clear();
         var resultOutput = new StringBuilder();
 
-        var songName = MetaTitleTextbox.Text.Length != 0 ? MetaTitleTextbox.Text : SongInfo.SongName;
-        var composer = MetaComposerTextbox.Text.Length != 0 ? MetaTitleTextbox.Text : SongInfo.Author;
+        var songName = string.IsNullOrEmpty(MetaTitleTextbox.Text) ? SongInfo.SongName : MetaTitleTextbox.Text;
+        var composer = string.IsNullOrEmpty(MetaComposerTextbox.Text) ? SongInfo.Author : MetaTitleTextbox.Text;
         var arranger = MetaArrangerTextbox.Text;
         var tempo    = int.TryParse(MetaTempoTextbox.Text, out _) ? MetaTempoTextbox.Text : CmdStreamToMMLUtil.ConvertTickrateToTempo(Subsong.TickRate).ToString();
-        var option   = MetaOptionTextbox.Text.Length != 0 ? MetaOptionTextbox.Text : "/v/c";
-        var filename = MetaFilenameTextbox.Text.Length != 0 ? MetaFilenameTextbox.Text : ".M2";
-        var zenlen   = MetaZenlenTextbox.Text.Length != 0 ? MetaZenlenTextbox.Text : PublicValue.Zenlen.ToString();
+        var option   = string.IsNullOrEmpty(MetaOptionTextbox.Text) ? "/v/c" : MetaOptionTextbox.Text;
+        var filename = string.IsNullOrEmpty(MetaFilenameTextbox.Text) ? ".M2" : MetaFilenameTextbox.Text;
+        var zenlen   = string.IsNullOrEmpty(MetaZenlenTextbox.Text) ? PublicValue.Zenlen.ToString() : MetaZenlenTextbox.Text;
         var voldown  = GetVoldownMeta();
 
         /* Metadata */
