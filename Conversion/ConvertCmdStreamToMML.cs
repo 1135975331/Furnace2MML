@@ -259,8 +259,7 @@ public static class ConvertCmdStreamToMML
         // var prevVolumeChangeCmd = CmdStreamToMMLUtil.GetFirstCertainCmd(cmdList, curIdx, cmd => cmd.CmdType == CmdType.HINT_LEGATO, predicateToStopSearching: cmd => CmdTypeToFindVolumeChange.Contains(cmd.CmdType), direction: "backward", isCmdFound: out _);
         
         // if(isFound )  // if NOTE_ON or HINT_LEGATO is found, '&' is appended at ConvertVolume method
-        curOrderSb.Append('&');
-        curOrderSb.Append(mmlNote).AppendNoteLength(tickLen);
+        curOrderSb.Append('&').Append(mmlNote).AppendNoteLength(tickLen);
     }
 
 
