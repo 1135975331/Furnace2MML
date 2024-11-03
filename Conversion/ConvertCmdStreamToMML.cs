@@ -11,32 +11,85 @@ namespace Furnace2MML.Conversion;
 
 public static class ConvertCmdStreamToMML
 {
-    private static byte _arpValue = 0; // 0: arpeggio disabled
+    private static bool _isAmpersandAlreadyAdded = false;
+
+    private static byte _arpValue     = 0; // 0: arpeggio disabled
     private static byte _arpTickSpeed = 1;
-    
-    public  static byte VibSpeed        = 0;
-    public  static byte VibDepth        = 0;
-    public  static byte VibShape        = 0;
-    public  static byte VibRange        = 0;
+
+    private static byte _vibSpeed       = 0;
+    private static byte _vibDepth       = 0;
+    private static byte _vibShape       = 0;
+    private static byte _vibRange       = 0x10;  // Default Range: 0x10 (16)
     private static byte _vibActualDepth = 0;
-    
+
     
     public static void SetArpSpeed(FurnaceCommand  cmd, int tickLen, StringBuilder curOrderSb) { _arpTickSpeed = (byte)cmd.Value1; AppendRestForTheCmd(tickLen, curOrderSb); }
     public static void SetArpStatus(FurnaceCommand cmd, int tickLen, StringBuilder curOrderSb) { _arpValue     = (byte)cmd.Value1; AppendRestForTheCmd(tickLen, curOrderSb); }
-    
-    public static void ConvertVibShape(FurnaceCommand cmd, int tickLen, StringBuilder curOrderSb) { VibShape = (byte)cmd.Value1; AppendRestForTheCmd(tickLen, curOrderSb); }
-    public static void ConvertVibRange(FurnaceCommand cmd, int tickLen, StringBuilder curOrderSb) { VibRange = (byte)cmd.Value1; AppendRestForTheCmd(tickLen, curOrderSb); }
 
-    public static void ConvertVibrato(FurnaceCommand cmd, int tickLen, StringBuilder curOrderSb)
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="cmd"></param>
+    /// <param name="tickLen"></param>
+    /// <param name="curOrderSb"></param>
+    /// <see href="https://pigu-a.github.io/pmddocs/pmdmml.htm#9-1"/>
+    /// <see href="https://pigu-a.github.io/pmddocs/pmdmml.htm#9-2"/>
+    public static void ConvertVibShape(FurnaceCommand cmd, int tickLen, StringBuilder curOrderSb)
     {
-        VibSpeed = (byte)cmd.Value1;
-        VibDepth = (byte)cmd.Value2;
+        _vibShape = (byte)cmd.Value1;
 
-        _vibActualDepth = (byte)(VibDepth / 0xF * VibRange);
+        var mwValue = (byte)cmd.Value1 switch {
+            0x00 => '0', // sine(default) -> triangle1 (MW0)
+            0x01 => '4', // sine(upper)   -> triangle2 (MW4)
+            0x02 => '?', // sine(lower)   -> n/a
+            0x03 => '0', // triangle      -> triangle1 (MW0)
+            0x04 => '1', // ramp up       -> sawtooth  (MW1)
+            0x05 => '?', // ramp down     -> n/a
+            0x06 => '2', // square        -> square    (MW2)
+            0x07 => '3', // random        -> random    (MW3)
+            0x08 => '?', // square(up)    -> n/a
+            0x09 => '?', // square(down)  -> n/a
+            0x0a => '?', // half sine(up) -> n/a
+            0x0b => '?', // half sine(up) -> n/a
+            _    => '?'
+        };
 
-        curOrderSb.Append(VibSpeed == 0 || VibDepth == 0 ? "*0" : $"M0,{VibSpeed},{_vibActualDepth},255 *1");
-        
+        if(mwValue == '?')
+            PrintLog.LogWarn($"Warning: Invalid Vibrato Shape value found.\nExpected Shape value is 0, 1, 3, 4, 6 or 7.\n{MiscellaneousConversionUtil.GetFurnaceCommandPositionInfo(cmd)}\n");
+
+        curOrderSb.Append($"MW{mwValue} ");
+
         AppendRestForTheCmd(tickLen, curOrderSb);
+    }
+    public static void ConvertVibRange(FurnaceCommand cmd, int tickLen, StringBuilder curOrderSb) { _vibRange = (byte)cmd.Value1; AppendRestForTheCmd(tickLen, curOrderSb); }
+
+    private static readonly CmdType[] VibratoCmdTypeToFind = [CmdType.NOTE_ON, CmdType.HINT_LEGATO, CmdType.VIBRATO];  // Command type to find array for vibrato command
+    public static void ConvertVibrato(List<FurnaceCommand> cmdList, int curIdx, int tickLen, StringBuilder curOrderSb)
+    {
+        var cmd = cmdList[curIdx];
+        _vibSpeed = (byte)cmd.Value1;
+        _vibDepth = (byte)cmd.Value2;
+
+        _vibActualDepth = (byte)(_vibRange * (float)_vibDepth / 0xF);
+
+        var mmlVibSpdValue = 0x10 - _vibSpeed;
+
+        if(mmlVibSpdValue < 0)
+            throw new Exception("MML LFO Speed Value is out of the range.");
+
+        var playingNoteCmd = CmdStreamToMMLUtil.GetFirstCertainCmd(cmdList, curIdx, cmdIter => VibratoCmdTypeToFind.Contains(cmdIter.CmdType), predicateToStopSearching: cmd => cmd.CmdType == CmdType.NOTE_OFF, direction: "backward", isCmdFound: out var isFoundInLargerIdx, foundCmdIdx: out _);
+        var nextNoteCmd = CmdStreamToMMLUtil.GetFirstCertainCmd(cmdList, curIdx, cmdIter => VibratoCmdTypeToFind.Contains(cmdIter.CmdType), predicateToStopSearching: cmd => cmd.CmdType == CmdType.NOTE_OFF, direction: "forward", isCmdFound: out _, foundCmdIdx: out _);
+
+        if(!_isAmpersandAlreadyAdded && isFoundInLargerIdx && (tickLen > 0 || (tickLen == 0 && nextNoteCmd.CmdType == CmdType.HINT_LEGATO))) { // Vibrato while note is playing
+            curOrderSb.Append('&');
+            _isAmpersandAlreadyAdded = true;
+        }
+
+        curOrderSb.Append(_vibSpeed == 0 || _vibDepth == 0 ? "*0" : $"M0,{mmlVibSpdValue},{_vibActualDepth},{mmlVibSpdValue} *1");
+
+        var pitchStrOrRest = isFoundInLargerIdx ? CmdStreamToMMLUtil.GetPitchStr(playingNoteCmd.Value1 % 12) : "r";
+        if(tickLen > 0)
+            curOrderSb.Append(pitchStrOrRest).AppendNoteLength(tickLen);
     }
 
 
@@ -51,10 +104,16 @@ public static class ConvertCmdStreamToMML
             var arpNote1 = CmdStreamToMMLUtil.GetMMLNote(noteNum + (_arpValue / 16), ref defaultOct);
             var arpNote2 = CmdStreamToMMLUtil.GetMMLNote(noteNum + (_arpValue % 16), ref defaultOct);
             var fracLenSpeed = CmdStreamToMMLUtil.ConvertBetweenTickAndFraction(_arpTickSpeed); curOrderSb.Append($"{{{{{mmlNote}{arpNote1}{arpNote2}}}}}").AppendNoteLength(tickLen).Append($",{fracLenSpeed}"); }
+
+        _isAmpersandAlreadyAdded = false;
     }
 
-    public static void ConvertNoteOff(int tickLen, StringBuilder curOrderSb) => AppendRestForTheCmd(tickLen, curOrderSb);
-    
+    public static void ConvertNoteOff(int tickLen, StringBuilder curOrderSb)
+    {
+        AppendRestForTheCmd(tickLen, curOrderSb);
+        _isAmpersandAlreadyAdded = false;
+    }
+
     public static void ConvertPanning(FurnaceCommand cmd, int tickLen, StringBuilder curOrderSb)
     {
         var leftPan  = cmd.Value1;
@@ -78,18 +137,20 @@ public static class ConvertCmdStreamToMML
     }
 
     
-    private static readonly CmdType[] CmdTypeToFindVolumeChange = [CmdType.NOTE_ON, CmdType.HINT_LEGATO];
+    private static readonly CmdType[] VolumeChangeCmdTypeToFind = [CmdType.NOTE_ON, CmdType.HINT_LEGATO, CmdType.VIBRATO];  // Command type to find array for volume change command
     public static void ConvertVolume(List<FurnaceCommand> cmdList, int curIdx, int tickLen, StringBuilder curOrderSb)
     {
         var curCmd = cmdList[curIdx];
         var volumeValue = curCmd.Value1;
-        
-        var playingNoteCmd = CmdStreamToMMLUtil.GetFirstCertainCmd(cmdList, curIdx, cmd => CmdTypeToFindVolumeChange.Contains(cmd.CmdType), predicateToStopSearching: cmd => cmd.CmdType == CmdType.NOTE_OFF, direction: "backward", isCmdFound: out var isFoundBackward, foundCmdIdx: out _);
-        var nextNoteCmd    = CmdStreamToMMLUtil.GetFirstCertainCmd(cmdList, curIdx, cmd => CmdTypeToFindVolumeChange.Contains(cmd.CmdType), predicateToStopSearching: cmd => cmd.CmdType == CmdType.NOTE_OFF, direction: "forward", isCmdFound: out _, foundCmdIdx: out _);
-        
-        if(isFoundBackward && (tickLen > 0 || (tickLen == 0 && nextNoteCmd.CmdType == CmdType.HINT_LEGATO)))  // Volume change while note is playing
+
+        var playingNoteCmd = CmdStreamToMMLUtil.GetFirstCertainCmd(cmdList, curIdx, cmdIter => VolumeChangeCmdTypeToFind.Contains(cmdIter.CmdType), predicateToStopSearching: cmd => cmd.CmdType == CmdType.NOTE_OFF, direction: "backward", isCmdFound: out var isFoundBackward, foundCmdIdx: out _);
+        var nextNoteCmd = CmdStreamToMMLUtil.GetFirstCertainCmd(cmdList, curIdx, cmdIter => VolumeChangeCmdTypeToFind.Contains(cmdIter.CmdType), predicateToStopSearching: cmd => cmd.CmdType == CmdType.NOTE_OFF, direction: "forward", isCmdFound: out _, foundCmdIdx: out _);
+
+        if(!_isAmpersandAlreadyAdded && isFoundBackward && (tickLen > 0 || (tickLen == 0 && nextNoteCmd.CmdType == CmdType.HINT_LEGATO))) { // Volume change while note is playing
             curOrderSb.Append('&');
-        
+            _isAmpersandAlreadyAdded = true;
+        }
+
         curOrderSb.Append('V').Append(volumeValue);
 
         var pitchStrOrRest = isFoundBackward ? CmdStreamToMMLUtil.GetPitchStr(playingNoteCmd.Value1 % 12) : "r";
@@ -205,6 +266,8 @@ public static class ConvertCmdStreamToMML
 
     public static void ResetAllFields()
     {
+        _isAmpersandAlreadyAdded = false;
+
         _arpValue = 0;
         _arpTickSpeed = 1;
     }
@@ -213,5 +276,7 @@ public static class ConvertCmdStreamToMML
     {
         if(tickLen > 0)
             curOrderSb.Append('r').AppendNoteLength(tickLen);
+
+        _isAmpersandAlreadyAdded = false;
     }
 }

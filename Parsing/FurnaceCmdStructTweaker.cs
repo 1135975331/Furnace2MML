@@ -177,6 +177,28 @@ public class FurnaceCmdStructTweaker
         }
     }
 
+    /// <summary>
+    /// Value1 and Value2 of the Vibrato Command Stream are reversed.
+    /// This method corrects them.
+    /// </summary>
+    public void CorrectVibratoValueOrder()
+    {
+        for(var chNum = 0; chNum < 9; chNum++) {
+            var noteCmdChList = NoteCmds[chNum];
+            var noteCmdChLen  = noteCmdChList.Count;
+            if(noteCmdChLen == 0)
+                continue;
+
+            for(var i = 0; i < noteCmdChLen; i++) {
+                var curCmd = noteCmdChList[i];
+                if(curCmd.CmdType != CmdType.VIBRATO)
+                    continue;
+
+                noteCmdChList[i] = new FurnaceCommand(curCmd.Value2, curCmd.Value1, curCmd);
+            }
+        }
+    }
+
     public void InsertCmdForZeroLenCmd()
     {
         for(var chNum = 0; chNum < 9; chNum++) {
