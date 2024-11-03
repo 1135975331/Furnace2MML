@@ -325,7 +325,7 @@ public partial class MainWindow : Window
         ChDataStartAddr = new int[chCount];
         PresetDelays    = new byte[16];
         SpeedDialCmds  = new byte[16];
-        ChData          = new List<byte>[chCount];
+        ChBinData          = new List<byte>[chCount];
 
         // Parse pointers to channel data
         for(var ch=0; ch<chCount; ch++) {
@@ -346,36 +346,36 @@ public partial class MainWindow : Window
         }
         
         for(var ch=0; ch<chCount; ch++) {
-            ChData[ch] = [];
+            ChBinData[ch] = [];
             var curChDataEndAddr = ch + 1 < chCount ? ChDataStartAddr[ch + 1] - 1 : brBaseStream.Length-1;
             var curReadingAddr   = brBaseStream.Position;;
             
             while(curReadingAddr < curChDataEndAddr) {
                 curReadingAddr   = brBaseStream.Position;
                 var binByte      = Br.ReadByte();
-                ChData[ch].Add(binByte);
+                ChBinData[ch].Add(binByte);
             }
         }
 
         
         // Convert Binary Data to FurnaceCommand Struct
         for(byte ch=0; ch<chCount; ch++) {
-            var curChData    = ChData[ch];
+            var curChBinData    = ChBinData[ch];
 
             var curTick = Subsong.GetVirtTempoInDecimal() == 1 ? 0 : -1;  // tick value starts with 1 if the Virtual Tempo in Decimal is 0.5. should be subtracted by 1.
             // var curVol  = 0xFF;
             // var curDelay = -1;
 
-            var curChDataLen = curChData.Count;
+            var curChDataLen = curChBinData.Count;
             for(var i=0; i<curChDataLen;) {
-                var curByteVal = curChData[i];
-                
+                var curByteVal = curChBinData[i];
+
                 var cmdType = CmdType.INVALID;
                 var valueCount = 0;
                 
                 switch(curByteVal) {
                     case <= 0xCA: {  // 0x00 ~ 0xCA
-                        cmdType = BinCmdStreamParsingMethods.GetCmdType(curByteVal); 
+                        cmdType = BinCmdStreamParsingMethods.GetCmdType(curByteVal);
                         break;
                     }
                     case >= 0xD0 and <= 0xDF: {  // Speed Dial Commands
@@ -398,8 +398,8 @@ public partial class MainWindow : Window
                         continue;
                     }
                     case 0xFC: {  // wait (16-bit)   FC 12 34 --> FC: wait (16-bit), 12: firstByte, 34: secondByte
-                        var firstByte  = curChData[i + 1];
-                        var secondByte = curChData[i + 2];
+                        var firstByte  = curChBinData[i + 1];
+                        var secondByte = curChBinData[i + 2];
                         var waitValue  = secondByte << 8 | firstByte;  // Little-Endian
                         curTick += waitValue;
                         
@@ -407,7 +407,7 @@ public partial class MainWindow : Window
                         continue;
                     }
                     case 0xFD: {  // wait (8-bit)
-                        var waitValue  = curChData[i + 1];
+                        var waitValue  = curChBinData[i + 1];
                         curTick += waitValue;
                         
                         i += 2;  // i += 1+1;  ((1 command + 1 values) read)
@@ -426,9 +426,8 @@ public partial class MainWindow : Window
 
                 valueCount = BinCmdStreamParsingMethods.GetValueCount(cmdType);
 
-                var orderNum = MiscellaneousConversionUtil.GetOrderNum(curTick);
-                var value1   = valueCount >= 1 ? curChData[i+1] : curByteVal;  // value1 == curByteVal when valueCount is 0
-                var value2   = valueCount >= 2 ? curChData[i+2] : -1;
+                var value1   = valueCount >= 1 ? curChBinData[i+1] : curByteVal;  // value1 == curByteVal when valueCount is 0
+                var value2   = valueCount >= 2 ? curChBinData[i+2] : -1;
                 
                 if(cmdType.EqualsAny(CmdType.NOTE_ON, CmdType.HINT_PORTA, CmdType.HINT_LEGATO) && ch is >= 0 and <= 5)
                     value1 += 12; // Increases octave of FM channels by 1
