@@ -15,7 +15,7 @@ public static class PublicValue
     public static int[]        ChDataStartAddr = [];
     public static byte[]       PresetDelays    = [];
     public static byte[]       SpeedDialCmds  = [];
-    public static List<byte>[] ChData          = [];
+    public static List<byte>[] ChBinData          = [];
 
     public static int LoopStartOrder = -1;
     public static int LoopStartTick  = -1;
