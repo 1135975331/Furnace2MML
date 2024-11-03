@@ -432,12 +432,6 @@ public partial class MainWindow : Window
                 if(cmdType.EqualsAny(CmdType.NOTE_ON, CmdType.HINT_PORTA, CmdType.HINT_LEGATO) && ch is >= 0 and <= 5)
                     value1 += 12; // Increases octave of FM channels by 1
 
-                var cmdListRef = ch switch {
-                    >= 0 and <= 8  => NoteCmds[ch],
-                    >= 9 and <= 14 => DrumCmds,
-                    _              => null
-                };
-
                 var cmdStruct = new FurnaceCommand(curTick, ch, cmdType, value1, value2);
 
                 switch(ch) {
