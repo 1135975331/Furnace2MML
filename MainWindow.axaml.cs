@@ -463,6 +463,8 @@ public partial class MainWindow : Window
         furnaceCmdStructTweaker.RemoveUnnecessaryPortamentoBinaryCommands();
         furnaceCmdStructTweaker.RemoveUnnecessaryLegatoCommands();
         furnaceCmdStructTweaker.RemoveUnnecessaryArpeggioCommands();
+        furnaceCmdStructTweaker.CorrectHintPortaPitch();
+        furnaceCmdStructTweaker.CorrectVibratoValueOrder();
         furnaceCmdStructTweaker.ReorderCommands();
         furnaceCmdStructTweaker.InsertCmdForZeroLenCmd();
         return true;
