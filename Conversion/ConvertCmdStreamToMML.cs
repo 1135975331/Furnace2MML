@@ -269,6 +269,10 @@ public static class ConvertCmdStreamToMML
 
         _arpValue = 0;
         _arpTickSpeed = 1;
+
+        _vibDepth = 0;
+        _vibSpeed = 0;
+        _vibRange = 0x10;
     }
 
     private static void AppendRestForTheCmd(int tickLen, StringBuilder curOrderSb)
