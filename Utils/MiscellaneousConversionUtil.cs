@@ -72,4 +72,7 @@ public static class MiscellaneousConversionUtil
 
         return new StringBuilder(pitchChar).Append(octave).ToString();
     }
+
+    public static string GetFurnaceCommandPositionInfo(FurnaceCommand cmd)
+        => $"[Channel: {cmd.Channel}, Pos(Order-Row): {cmd.OrderNum:X2}-{GetRowNum(cmd.Tick):X2}, Tick: {cmd.Tick}]";
 }
