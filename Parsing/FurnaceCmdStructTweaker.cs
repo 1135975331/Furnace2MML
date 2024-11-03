@@ -61,7 +61,7 @@ public class FurnaceCmdStructTweaker
 
     /// <summary>
     /// Remove all invalid NOTE_ON Commands.
-    /// 0xB5(null) and &lt; 0x48(C-1) are the invalid.
+    /// (0xB4(null) || &lt; 0x48(C-1)) are the invalid.
     /// </summary>
     public void RemoveInvalidNoteOnCommands()
     {
