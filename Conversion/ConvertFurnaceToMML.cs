@@ -97,7 +97,7 @@ public static class ConvertFurnaceToMML
                     case CmdType.HINT_ARPEGGIO: ConvertCmdStreamToMML.SetArpStatus(noteCmd, tickLen, curOrderSb); break;
                     case CmdType.VIB_SHAPE:     ConvertCmdStreamToMML.ConvertVibShape(noteCmd, tickLen, curOrderSb); break;
                     case CmdType.VIB_RANGE:     ConvertCmdStreamToMML.ConvertVibRange(noteCmd, tickLen, curOrderSb); break;
-                    case CmdType.VIBRATO:       ConvertCmdStreamToMML.ConvertVibrato(noteCmd, tickLen, curOrderSb); break;
+                    case CmdType.VIBRATO:       ConvertCmdStreamToMML.ConvertVibrato(noteCmdCh, i, tickLen, curOrderSb); break;
                     case CmdType.INSTRUMENT:    ConvertCmdStreamToMML.ConvertInstrument(noteCmd, tickLen, curOrderSb); break; 
                     case CmdType.PANNING:       ConvertCmdStreamToMML.ConvertPanning(noteCmd, tickLen, curOrderSb); break;
                     case CmdType.HINT_VOLUME:   ConvertCmdStreamToMML.ConvertVolume(noteCmdCh, i, tickLen, curOrderSb); break;
