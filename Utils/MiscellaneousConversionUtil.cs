@@ -1,5 +1,6 @@
 using System;
 using System.Text;
+using Furnace2MML.Etc;
 using static Furnace2MML.Etc.PublicValue;
 namespace Furnace2MML.Utils;
 
