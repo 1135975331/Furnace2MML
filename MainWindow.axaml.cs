@@ -453,10 +453,10 @@ public partial class MainWindow : Window
         
         var furnaceCmdStructTweaker = new FurnaceCmdStructTweaker();
         furnaceCmdStructTweaker.InsertNoteOffAtStartOfEachOrder();
-        furnaceCmdStructTweaker.RemoveInvalidNoteOnCommands();
         furnaceCmdStructTweaker.RemoveUnnecessaryPortamentoBinaryCommands();
         furnaceCmdStructTweaker.RemoveUnnecessaryLegatoCommands();
         furnaceCmdStructTweaker.RemoveUnnecessaryArpeggioCommands();
+        furnaceCmdStructTweaker.RemoveInvalidNoteOnCommands();
         furnaceCmdStructTweaker.CorrectHintPortaPitch();
         furnaceCmdStructTweaker.CorrectVibratoValueOrder();
         furnaceCmdStructTweaker.ReorderCommands();
