@@ -6,7 +6,7 @@ public static class BinCmdStreamParsingMethods
 {
     public static CmdType GetCmdType(byte curByteVal)
     {
-        return curByteVal switch {   // 다른 파일에 유틸리티 함수로 만들 것
+        return curByteVal switch {
             <= 0xB4 => CmdType.NOTE_ON, // 0x00 <= curByteVal <= 0xB4 (byte: 0x00 ~ 0xFF)
             0xB5    => CmdType.NOTE_OFF,
             0xB6    => CmdType.NOTE_OFF_ENV, // Note off env
