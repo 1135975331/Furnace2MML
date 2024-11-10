@@ -74,7 +74,9 @@ public class FurnaceCmdStructTweaker
             for(var i = 0; i < noteCmdChLen - 1; i++) {
                 var curCmd = noteCmdChList[i];
 
-                if(curCmd is { CmdType: CmdType.NOTE_ON, Value1: 0xB4+12 or < 0x48 })  // value1 of NOTE_ON Commands are added by 12(1 octave)
+                var noteOnNullValue = curCmd is { Channel: <= 5 } ? 0xB4+12 : 0xB4; // value1 of Channel 0~5(FM) NOTE_ON Commands are added by 12(1 octave)
+
+                if(curCmd is { CmdType: CmdType.NOTE_ON } && (curCmd.Value1 == noteOnNullValue || curCmd.Value1 < 0x48))
                     noteCmdChList.RemoveAtIdxLoop(ref i, ref noteCmdChLen);
             }
         }
