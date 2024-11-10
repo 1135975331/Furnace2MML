@@ -429,7 +429,7 @@ public partial class MainWindow : Window
                 var value1   = valueCount >= 1 ? curChBinData[i+1] : curByteVal;  // value1 == curByteVal when valueCount is 0
                 var value2   = valueCount >= 2 ? curChBinData[i+2] : -1;
                 
-                if(cmdType.EqualsAny(CmdType.NOTE_ON, CmdType.HINT_PORTA, CmdType.HINT_LEGATO) && ch is >= 0 and <= 5)
+                if(cmdType.EqualsAny(CmdType.NOTE_ON, CmdType.HINT_PORTA, CmdType.HINT_LEGATO) && ch is >= 0 and <= 5)  // Channel 0~5: FM1 ~ FM6
                     value1 += 12; // Increases octave of FM channels by 1
 
                 var cmdStruct = new FurnaceCommand(curTick, ch, cmdType, value1, value2);
