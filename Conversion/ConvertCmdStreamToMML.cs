@@ -19,7 +19,7 @@ public static class ConvertCmdStreamToMML
     private static byte _vibSpeed       = 0;
     private static byte _vibDepth       = 0;
     private static byte _vibShape       = 0;
-    private static byte _vibRange       = 0x10;  // Default Range: 0x10 (16)
+    private static byte _vibRange       = 0x08;  // Default Range: 0x10 (16)
     private static byte _vibActualDepth = 0;
 
 

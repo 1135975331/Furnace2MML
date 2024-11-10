@@ -79,9 +79,6 @@ public static class ConvertFurnaceToMML
             for(var i = 0; i < noteCmdChLen; i++) {
                 var noteCmd     = noteCmdCh[i];
                 var curOrderNum = noteCmd.OrderNum;
-                var tickLen     = CmdStreamToMMLUtil.GetCmdTickLength(noteCmdCh, i);
-                var cmdType     = noteCmd.CmdType;
-
                 var curOrderSb = orderSbArr[curOrderNum];
 
                 if(curOrderNum != prevNoteCmdOrderNum) {
@@ -91,21 +88,7 @@ public static class ConvertFurnaceToMML
                         curOrderSb.Append('l').Append(CurDefaultNoteLength).Append("   ");
                 }
 
-                // - => ignored
-                switch(cmdType) {
-                    case CmdType.HINT_ARP_TIME: ConvertCmdStreamToMML.SetArpSpeed(noteCmd, tickLen, curOrderSb); break;
-                    case CmdType.HINT_ARPEGGIO: ConvertCmdStreamToMML.SetArpStatus(noteCmd, tickLen, curOrderSb); break;
-                    case CmdType.VIB_SHAPE:     ConvertCmdStreamToMML.ConvertVibShape(noteCmd, tickLen, curOrderSb); break;
-                    case CmdType.VIB_RANGE:     ConvertCmdStreamToMML.ConvertVibRange(noteCmd, tickLen, curOrderSb); break;
-                    case CmdType.VIBRATO:       ConvertCmdStreamToMML.ConvertVibrato(noteCmdCh, i, tickLen, curOrderSb); break;
-                    case CmdType.INSTRUMENT:    ConvertCmdStreamToMML.ConvertInstrument(noteCmd, tickLen, curOrderSb); break; 
-                    case CmdType.PANNING:       ConvertCmdStreamToMML.ConvertPanning(noteCmd, tickLen, curOrderSb); break;
-                    case CmdType.HINT_VOLUME:   ConvertCmdStreamToMML.ConvertVolume(noteCmdCh, i, tickLen, curOrderSb); break;
-                    case CmdType.NOTE_ON:       ConvertCmdStreamToMML.ConvertNoteOn(noteCmd, tickLen, ref prevOctave, curOrderSb); break;
-                    case CmdType.NOTE_OFF:      ConvertCmdStreamToMML.ConvertNoteOff(tickLen, curOrderSb); break;
-                    case CmdType.HINT_PORTA:    ConvertCmdStreamToMML.ConvertPortamento(noteCmdCh, i, ref prevOctave, curOrderSb); break;
-                    case CmdType.HINT_LEGATO:   ConvertCmdStreamToMML.ConvertLegato(noteCmdCh, i, tickLen, ref prevOctave, curOrderSb); break;
-                }
+                ConvertCmdStreamToMML.ConvertCmdStream(noteCmdCh, i, ref prevOctave, curOrderSb);
             }
             
             /* Set Channel Instrument at the time of the loop to end of the MML*/
