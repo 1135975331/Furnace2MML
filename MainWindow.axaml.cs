@@ -452,13 +452,14 @@ public partial class MainWindow : Window
             DrumCmds.Insert(0, new FurnaceCommand(0, 0, 16, "NOTE_ON", 0, 0));  // Channel Number outside 9~14 in DrumCmds are regarded as Rest
         
         var furnaceCmdStructTweaker = new FurnaceCmdStructTweaker();
-        furnaceCmdStructTweaker.InsertNoteOffAtStartOfEachOrder();
         furnaceCmdStructTweaker.RemoveUnnecessaryPortamentoBinaryCommands();
         furnaceCmdStructTweaker.RemoveUnnecessaryLegatoCommands();
         furnaceCmdStructTweaker.RemoveUnnecessaryArpeggioCommands();
         furnaceCmdStructTweaker.RemoveInvalidNoteOnCommands();
         furnaceCmdStructTweaker.CorrectHintPortaPitch();
         furnaceCmdStructTweaker.CorrectVibratoValueOrder();
+        furnaceCmdStructTweaker.InsertCmdForZeroLenCmd();
+        furnaceCmdStructTweaker.InsertNoteOffAtStartOfEachOrder();
         furnaceCmdStructTweaker.ReorderCommands();
         furnaceCmdStructTweaker.InsertCmdForZeroLenCmd();
         return true;
