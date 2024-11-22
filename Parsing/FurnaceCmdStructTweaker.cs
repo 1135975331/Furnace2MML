@@ -45,7 +45,7 @@ public class FurnaceCmdStructTweaker
                     var nextCmd         = cmdList[i + 1];
                     var nextCmdOrderNum = nextCmd.OrderNum;
 
-                    if(curCmdOrderNum >= nextCmdOrderNum) // curNoteOrderNum < nextNoteOrderNum 인 경우 아래 코드 실행
+                    if(curCmdOrderNum >= nextCmdOrderNum) // curCmdOrderNum < nextCmdOrderNum 인 경우 아래 코드 실행
                         continue;
                     if(nextCmd.Tick == GetOrderStartTick(curCmdOrderNum+1)) // 다음 Order가 시작하는 틱에 Cmd가 있는 경우
                         continue;
