@@ -239,4 +239,30 @@ public class FurnaceCmdStructTweaker
         }
         #endregion
     }
+
+
+    public void SetTickLen()
+    {
+        for(var chNum = 0; chNum < 9; chNum++) {
+            var noteCmdChList = NoteCmds[chNum];
+            var noteCmdChLen  = noteCmdChList.Count;
+            if(noteCmdChLen == 0)
+                continue;
+
+            SetTickLenLocalFunc(noteCmdChList);
+        }
+
+        SetTickLenLocalFunc(DrumCmds);
+
+        return;
+        #region Local Functions
+        /* --------------------------------------- Local Functions -------------------------------------------- */
+        void SetTickLenLocalFunc(List<FurnaceCommand> cmdList)
+        {
+            var cmdListLen = cmdList.Count;
+            for(var i = 0; i < cmdListLen; i++)
+                cmdList[i] = new FurnaceCommand(CmdStreamToMMLUtil.GetCmdTickLength(cmdList, i), true, cmdList[i]);
+        }
+        #endregion
+    }
 }

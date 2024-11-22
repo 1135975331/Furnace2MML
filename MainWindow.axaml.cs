@@ -461,7 +461,7 @@ public partial class MainWindow : Window
         furnaceCmdStructTweaker.InsertCmdForZeroLenCmd();
         furnaceCmdStructTweaker.InsertNoteOffAtStartOfEachOrder();
         furnaceCmdStructTweaker.ReorderCommands();
-        furnaceCmdStructTweaker.InsertCmdForZeroLenCmd();
+        furnaceCmdStructTweaker.SetTickLen();
         return true;
     }
 
