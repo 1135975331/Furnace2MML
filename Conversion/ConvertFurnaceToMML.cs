@@ -78,6 +78,9 @@ public static class ConvertFurnaceToMML
             var noteCmdChLen = noteCmdCh.Count;
             for(var i = 0; i < noteCmdChLen; i++) {
                 var noteCmd     = noteCmdCh[i];
+                if(noteCmd.IsConverted)
+                    continue;
+
                 var curOrderNum = noteCmd.OrderNum;
                 var curOrderSb = orderSbArr[curOrderNum];
 
