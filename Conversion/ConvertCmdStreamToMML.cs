@@ -45,6 +45,7 @@ public static class ConvertCmdStreamToMML
         }
 
         _isAmpersandAlreadyAdded = false;
+        noteCmdCh[i] = new FurnaceCommand(true, noteCmd);
     }
 
     public static void ResetAllFields()
