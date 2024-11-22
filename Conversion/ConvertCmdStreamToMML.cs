@@ -90,7 +90,7 @@ public static class ConvertCmdStreamToMML
         };
 
         if(mwValue == '?')
-            PrintLog.LogWarn($"Warning: Invalid Vibrato Shape value found.\nExpected Shape value is 0, 1, 3, 4, 6 or 7.\n{MiscellaneousConversionUtil.GetFurnaceCommandPositionInfo(cmd)}\n");
+            PrintLog.LogWarn($"Warning: Invalid Vibrato Shape value found.\nExpected Shape value is 00, 01, 03, 04, 06 or 07.\n{MiscellaneousConversionUtil.GetFurnaceCommandPositionInfo(cmd)}\n");
 
         curOrderSb.Append($"MW{mwValue} ");
 
