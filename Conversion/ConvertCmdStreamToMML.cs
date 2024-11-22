@@ -26,7 +26,8 @@ public static class ConvertCmdStreamToMML
     public static void ConvertCmdStream(List<FurnaceCommand> noteCmdCh, int i, ref int prevOctave, StringBuilder curOrderSb)
     {
         var noteCmd = noteCmdCh[i];
-        var tickLen     = CmdStreamToMMLUtil.GetCmdTickLength(noteCmdCh, i);
+        var tickLen = noteCmd.TickLen;
+        // var tickLen = CmdStreamToMMLUtil.GetCmdTickLength(noteCmdCh, i);
 
         switch(noteCmd.CmdType) {
             case CmdType.HINT_ARP_TIME: SetArpSpeed(noteCmd, tickLen, curOrderSb); break;
