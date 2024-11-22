@@ -49,25 +49,44 @@ public struct SubsongData()
 /// <summary>
 /// Note On/Off, Portamento, Volume, Panning, etc.
 /// </summary>
-public struct FurnaceCommand(int tick, byte channel, CmdType cmdType, int value1, int value2) : IComparable<FurnaceCommand>
+public struct FurnaceCommand : IComparable<FurnaceCommand>
 {
-    public readonly  int                  Tick     = tick;
-    public readonly  byte                 OrderNum = MiscellaneousConversionUtil.GetOrderNum(tick);  // OrderNum cannot be 0xFF(255)
-    public readonly  byte                 Channel  = channel;
-    private readonly string               _cmdTypeStr;
-    public readonly  CmdType              CmdType = cmdType;
-    public           int                  Value1  = value1;
-    public readonly  int                  Value2  = value2;
+    public readonly int     Tick;
+    public readonly int     TickLen  = -1;
+    public readonly byte    OrderNum;  // OrderNum cannot be 0xFF(255)
+    public readonly byte    Channel;
+    public readonly CmdType CmdType;
+    public          int     Value1;
+    public readonly int     Value2;
+    public readonly bool    IsConverted = false;
 
 
-    public FurnaceCommand(int tick, byte orderNum, byte channel, string cmdTypeStr, int value1, int value2) : this(tick, channel, CmdType.INVALID, value1, value2) 
-        => CmdType = GetCmdTypeEnum(cmdTypeStr);
-
-    //  Copy otherCmd except Tick
-    public FurnaceCommand(int tick, FurnaceCommand otherCmd) : this(otherCmd.Tick, otherCmd.Channel, otherCmd.CmdType, otherCmd.Value1, otherCmd.Value2)
+    // This constructor does not initialize TickLen property. (Used for the first initialization of the struct)
+    public FurnaceCommand(int tick, byte channel, CmdType cmdType, int value1, int value2)
     {
         Tick     = tick;
         OrderNum = MiscellaneousConversionUtil.GetOrderNum(tick);
+        Channel  = channel;
+        CmdType  = cmdType;
+        Value1   = value1;
+        Value2   = value2;
+    }
+
+
+    public FurnaceCommand(int tickOrTickLen, byte orderNum, byte channel, string cmdTypeStr, int value1, int value2) : this(tickOrTickLen, channel, CmdType.INVALID, value1, value2)
+        => CmdType = GetCmdTypeEnum(cmdTypeStr);
+
+    //  Copy otherCmd except Tick or Initialize TickLen
+    public FurnaceCommand(int tickOrTickLen, bool isTickLenInitialize, FurnaceCommand otherCmd) : this(otherCmd.Tick, otherCmd.Channel, otherCmd.CmdType, otherCmd.Value1, otherCmd.Value2)
+    {
+        if(isTickLenInitialize)
+            TickLen = tickOrTickLen;
+        else {
+            var oldTick = Tick;
+            Tick     = tickOrTickLen;
+            TickLen  += oldTick - Tick;  // if the Tick value has increased, tickLen should be decreased by delta of oldTick and Tick, and vice versa.
+            OrderNum =  MiscellaneousConversionUtil.GetOrderNum(tickOrTickLen);
+        }
     }
 
     //  Copy otherCmd except Value1 and Value2 
@@ -75,7 +94,16 @@ public struct FurnaceCommand(int tick, byte channel, CmdType cmdType, int value1
     {
         Value1 = value1;
         Value2 = value2;
+        TickLen = otherCmd.TickLen;
     }
+
+    // Copy otherCmd except isProcessed
+    public FurnaceCommand(bool isConverted, FurnaceCommand otherCmd) : this(otherCmd.Tick, otherCmd.Channel, otherCmd.CmdType, otherCmd.Value1, otherCmd.Value2)
+    {
+        IsConverted = isConverted;
+        TickLen = otherCmd.TickLen;
+    }
+
 
     public override string ToString()
     {
@@ -83,10 +111,10 @@ public struct FurnaceCommand(int tick, byte channel, CmdType cmdType, int value1
 
         return CmdType switch {
             CmdType.NOTE_ON or CmdType.HINT_LEGATO or CmdType.HINT_PORTA =>
-                 $"{Channel:00}({GetChannelName(Channel)}) | {OrderNum:X2}-{rowNumInfo[0]:X2}/{rowNumInfo[1]:X2} {Tick+":",-4} [{CmdType,-10} {Value1.ToString("X2")[^2..]}({MiscellaneousConversionUtil.GetPitchChar(Value1, true)}) {Value2.ToString("X2")[^2..]}({Value2:000})]",
+                 $"{Channel:00}({GetChannelName(Channel)}) | {OrderNum:X2}-{rowNumInfo[0]:X2}/{rowNumInfo[1]:X2} {Tick+":",-4} [{CmdType,-12} {Value1.ToString("X2")[^2..]}({MiscellaneousConversionUtil.GetPitchChar(Value1, true)}) {Value2.ToString("X2")[^2..]}({Value2:000})]",
             CmdType.NOTE_OFF =>
-                 $"{Channel:00}({GetChannelName(Channel)}) | {OrderNum:X2}-{rowNumInfo[0]:X2}/{rowNumInfo[1]:X2} {Tick+":",-4} [{CmdType,-10} {Value1.ToString("X2")[^2..]}(OFF) {Value2.ToString("X2")[^2..]}({Value2:000})]",
-            _ => $"{Channel:00}({GetChannelName(Channel)}) | {OrderNum:X2}-{rowNumInfo[0]:X2}/{rowNumInfo[1]:X2} {Tick+":",-4} [{CmdType,-10} {Value1.ToString("X2")[^2..]}({Value1:000}) {Value2.ToString("X2")[^2..]}({Value2:000})]"
+                 $"{Channel:00}({GetChannelName(Channel)}) | {OrderNum:X2}-{rowNumInfo[0]:X2}/{rowNumInfo[1]:X2} {Tick+":",-4} [{CmdType,-12} {Value1.ToString("X2")[^2..]}(OFF) {Value2.ToString("X2")[^2..]}({Value2:000})]",
+            _ => $"{Channel:00}({GetChannelName(Channel)}) | {OrderNum:X2}-{rowNumInfo[0]:X2}/{rowNumInfo[1]:X2} {Tick+":",-4} [{CmdType,-12} {Value1.ToString("X2")[^2..]}({Value1:000}) {Value2.ToString("X2")[^2..]}({Value2:000})]"
         };
     }
     // => $"[{Tick} {Channel} {CmdType} {Value1} {Value2}]";
