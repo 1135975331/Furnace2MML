@@ -36,7 +36,7 @@ public class FurnaceCmdStructTweaker
                 var curCmdOrderNum = curCmd.OrderNum;
                 var nextOrderTick  = GetOrderStartTick(curCmdOrderNum + 1);
                 
-                if(isNoteCmd && curCmd.CmdType is CmdType.NOTE_ON or CmdType.HINT_LEGATO)
+                if(isNoteCmd && curCmd.CmdType is CmdType.NOTE_ON or CmdType.HINT_LEGATO or CmdType.HINT_PORTA)
                     continue;
                 if(curCmdOrderNum >= MaxOrderNum)
                     break;
