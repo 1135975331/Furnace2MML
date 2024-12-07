@@ -147,8 +147,6 @@ public static class CmdStreamToMMLUtil
     public static StringBuilder FormatNoteLength(int tickLenP, int[] validFractionLength, string defaultFractionLength)
     {
         var tickLen      = tickLenP;
-        var isLengthLong = tickLen >= 192; // 길이가 길면 점분음표 표기 시 오류가 발생함
-		
         var strBuilder = new StringBuilder();
 
         var fracLenResultList = new List<int>();
@@ -195,26 +193,6 @@ public static class CmdStreamToMMLUtil
             strBuilder.Append($"%{curTickLen}".Equals(defaultFractionLength) ? "" : $"%{curTickLen}");
         }
 
-        /*
-        for(var i = 0; i < fracLenResultListLen; i++) { // 변환되어 저장된 값에 따라 문자열 만들기, tie를 사용해야 하는 경우라면 용량을 줄이기 위해 internal clock을 대신 사용
-            var fracLength      = fracLenResultList[i];
-            var isDefaultLength = fracLength == defaultFractionLength;
-			
-            var fracLenStr = fracLength.ToString();
-
-            if(i == 0 && isDefaultLength)
-                strBuilder.Append('&');
-            else if(i != 0 && !isLengthLong && fracLength == fracLenResultList[i - 1] * 2) // 현재 분수표기 길이 == 이전 분수표기 길이 * 2 => 점n분음표로 나타낼 수 있는가의 여부
-                strBuilder.Append('.');
-            else
-                strBuilder.Append('&').Append(fracLenStr);
-            //DebuggingAndTestingTextBox.AppendText($" &{d}");
-        }
-        */
-
-        // strBuilder = ReplaceComplicatedLengthStr(strBuilder);  // 복잡하게 변환된 길이를 단순하게 되도록 치환함
-
-        // return strBuilder.Remove(0, 1);  // 문자열 첫번째 문자에 있는 & 제거
         return strBuilder;
     }
 
