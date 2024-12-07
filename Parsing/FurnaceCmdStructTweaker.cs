@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Furnace2MML.Etc;
 using Furnace2MML.Utils;
 using static Furnace2MML.Etc.PublicValue;
@@ -8,6 +9,7 @@ namespace Furnace2MML.Parsing;
 
 public class FurnaceCmdStructTweaker
 {
+    private readonly CmdType[] _noteOffInsertionCmdTypesToFind = [CmdType.HINT_PORTA, CmdType.NOTE_ON, CmdType.NOTE_OFF];
     /// <summary>
     /// 각 Order의 시작부분에 NOTE_OFF 명령을 끼워넣는 메소드
     /// </summary>
@@ -35,9 +37,13 @@ public class FurnaceCmdStructTweaker
                 var curCmd         = cmdList[i];
                 var curCmdOrderNum = curCmd.OrderNum;
                 var nextOrderTick  = GetOrderStartTick(curCmdOrderNum + 1);
-                
-                if(isNoteCmd && curCmd.CmdType is CmdType.NOTE_ON or CmdType.HINT_LEGATO or CmdType.HINT_PORTA)
-                    continue;
+
+                if(isNoteCmd) {
+                    var foundCmd = GetFirstCertainCmd(cmdList, i, cmdIter => _noteOffInsertionCmdTypesToFind.Contains(cmdIter.CmdType), direction: "backward", isCmdFound: out _, foundCmdIdx: out _, isStartIdxInclusive: true);
+                    if(foundCmd.CmdType is CmdType.NOTE_ON or CmdType.HINT_PORTA)  // do not insert NOTE_OFF cmd if the note from previous order is playing yet
+                        continue;
+                }
+
                 if(curCmdOrderNum >= MaxOrderNum)
                     break;
                 
