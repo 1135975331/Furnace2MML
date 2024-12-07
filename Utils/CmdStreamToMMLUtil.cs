@@ -265,15 +265,24 @@ public static class CmdStreamToMMLUtil
     /// <param name="predicateToStopSearching">A condition that stops searching for performance.</param>
     /// <param name="direction">Search direction. Only forward(increasing index) or backward(decreasing index) is valid.</param>
     /// <param name="isCmdFound">if such cmd is found, <c>isCmdFound</c> is <c>true</c>. if cmd is not found, or searching is stopped, <c>isCmdFound</c> is <c>false</c>.</param>
-    /// <exception cref="ArgumentOutOfRangeException">If direction parameter is neither forward nor backward.</exception>
+    /// <param name="isStartIdxInclusive">Start cmd searching including <c>startIdx</c>. Default value is <c>false</c></param>
+    /// <exception cref="ArgumentOutOfRangeException">If direction parameter is neither <c>forward</c> nor <c>backward</c>.</exception>
     /// <returns>The first FurnaceCommand that meets the condition. <br/>
     /// If searching was stopped by <c>predicateToStopSearching</c> condition, returns FurnaceCommand with <c>"SEARCH_STOPPED"</c> CmdType. <br/>
     /// If there is no FurnaceCommand that meet the conditions, returns FurnaceCommand with <c>EndTick</c>Tick and <c>"NOTE_OFF"</c> CmdType.
     /// </returns>
-    public static FurnaceCommand GetFirstCertainCmd(List<FurnaceCommand> cmdList, int startIdx, Predicate<FurnaceCommand> predicateToSearch, out bool isCmdFound, out int foundCmdIdx, Predicate<FurnaceCommand>? predicateToStopSearching = null, string direction = "forward")
+    public static FurnaceCommand GetFirstCertainCmd(List<FurnaceCommand> cmdList, int startIdx, Predicate<FurnaceCommand> predicateToSearch, out bool isCmdFound, out int foundCmdIdx, Predicate<FurnaceCommand>? predicateToStopSearching = null, string direction = "forward", bool isStartIdxInclusive = false)
     {
         var cmdWhenStopped = new FurnaceCommand(-1, 0xFF, 0xFF, "SEARCH_STOPPED", -1, -1);
-        
+
+        if(isStartIdxInclusive) {
+            switch(direction) {
+                case "forward":  startIdx--; break;
+                case "backward": startIdx++; break;
+                default:         throw new ArgumentException($"Invalid direction: {direction}");
+            }
+        }
+
         switch(direction) {
             case "forward": {
                 var listLen = cmdList.Count;
