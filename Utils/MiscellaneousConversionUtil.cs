@@ -75,5 +75,8 @@ public static class MiscellaneousConversionUtil
     }
 
     public static string GetFurnaceCommandPositionInfo(FurnaceCommand cmd)
-        => $"[Channel: {cmd.Channel}, Pos(Order-Row): {cmd.OrderNum:X2}-{GetRowNum(cmd.Tick):X2}, Tick: {cmd.Tick}]";
+    {
+        var rowNumInfo = GetRowNum(cmd.Tick) ?? [0xFF, 0xFF];
+        return $"[Channel: {cmd.Channel}, Pos(Order-Row): {cmd.OrderNum:X2}-{rowNumInfo[0]:X2}, Tick: {cmd.Tick}]";
+    }
 }
