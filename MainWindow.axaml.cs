@@ -11,6 +11,7 @@ using System.Text;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using Avalonia.Media;
 using Avalonia.Platform.Storage;
 using Furnace2MML.Conversion;
 using Furnace2MML.Etc;
