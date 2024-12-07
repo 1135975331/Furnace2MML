@@ -259,10 +259,10 @@ public static class CmdStreamToMMLUtil
     /// Search for the first cmd that meets the condition.
     /// </summary>
     /// <param name="cmdList">List of FurnaceCommand</param>
-    /// <param name="startIdx">Start index to search</param>
+    /// <param name="startIdx">Start index to search (caution: <c>startIdx</c> value is exclusive)</param>
     /// <param name="predicateToSearch"></param>
     /// <param name="foundCmdIdx">index value where the command is found</param>
-    /// <param name="predicateToStopSearching">A condition that stops searching for performance.</param>
+    /// <param name="predicateToStopSearching">A condition that stops searching.</param>
     /// <param name="direction">Search direction. Only forward(increasing index) or backward(decreasing index) is valid.</param>
     /// <param name="isCmdFound">if such cmd is found, <c>isCmdFound</c> is <c>true</c>. if cmd is not found, or searching is stopped, <c>isCmdFound</c> is <c>false</c>.</param>
     /// <param name="isStartIdxInclusive">Start cmd searching including <c>startIdx</c>. Default value is <c>false</c></param>
