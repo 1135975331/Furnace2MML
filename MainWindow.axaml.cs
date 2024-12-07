@@ -545,7 +545,7 @@ public partial class MainWindow : Window
 
             var sb = new StringBuilder();
             sb.Append(fmVoldown.Length != 0 ? $"F{fmVoldown}" : "F20")
-               .Append(ssgVoldown.Length != 0 ? $"S{ssgVoldown}" : "S-10")
+               .Append(ssgVoldown.Length != 0 ? $"S{ssgVoldown}" : "")
                .Append(rhyVoldown.Length != 0 ? $"R{rhyVoldown}" : "");
 
             return sb.ToString();
