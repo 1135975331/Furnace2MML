@@ -101,7 +101,8 @@ public static class ConvertCmdStreamToMML
     }
     private static void ConvertVibRange(FurnaceCommand cmd, int tickLen, StringBuilder curOrderSb) { _vibRange = (byte)cmd.Value1; AppendRestForTheCmd(tickLen, curOrderSb); }
 
-    private static readonly CmdType[] VibratoCmdTypeToFind = [CmdType.NOTE_ON, CmdType.HINT_LEGATO, CmdType.VIBRATO];  // Command type to find array for vibrato command
+    private static readonly CmdType[] VibratoPlayingCmdTypeToFind = [CmdType.NOTE_ON, CmdType.HINT_LEGATO];  // Command type to find array for vibrato command
+    private static readonly CmdType[] VibratoNextCmdTypeToFind = [CmdType.NOTE_ON, CmdType.HINT_LEGATO, CmdType.VIBRATO];  // Command type to find array for vibrato command
     private static void ConvertVibrato(List<FurnaceCommand> cmdList, int curIdx, int tickLen, StringBuilder curOrderSb)
     {
         var cmd = cmdList[curIdx];
@@ -115,17 +116,17 @@ public static class ConvertCmdStreamToMML
         if(mmlVibSpdValue < 0)
             throw new Exception("MML LFO Speed Value is out of the range.");
 
-        var playingNoteCmd = CmdStreamToMMLUtil.GetFirstCertainCmd(cmdList, curIdx, cmdIter => VibratoCmdTypeToFind.Contains(cmdIter.CmdType), predicateToStopSearching: cmd => cmd.CmdType == CmdType.NOTE_OFF, direction: "backward", isCmdFound: out var isFoundInLargerIdx, foundCmdIdx: out _);
-        var nextNoteCmd = CmdStreamToMMLUtil.GetFirstCertainCmd(cmdList, curIdx, cmdIter => VibratoCmdTypeToFind.Contains(cmdIter.CmdType), predicateToStopSearching: cmd => cmd.CmdType == CmdType.NOTE_OFF, direction: "forward", isCmdFound: out _, foundCmdIdx: out _);
+        var playingNoteCmd = CmdStreamToMMLUtil.GetFirstCertainCmd(cmdList, curIdx, cmdIter => VibratoPlayingCmdTypeToFind.Contains(cmdIter.CmdType), predicateToStopSearching: cmd => cmd.CmdType == CmdType.NOTE_OFF, direction: "backward", isCmdFound: out var isFoundInSmallerIdx, foundCmdIdx: out _);
+        var nextNoteCmd = CmdStreamToMMLUtil.GetFirstCertainCmd(cmdList, curIdx, cmdIter => VibratoNextCmdTypeToFind.Contains(cmdIter.CmdType), predicateToStopSearching: cmd => cmd.CmdType == CmdType.NOTE_OFF, direction: "forward", isCmdFound: out _, foundCmdIdx: out _);
 
-        if(!_isAmpersandAlreadyAdded && isFoundInLargerIdx && (tickLen > 0 || (tickLen == 0 && nextNoteCmd.CmdType == CmdType.HINT_LEGATO))) { // Vibrato while note is playing
+        if(!_isAmpersandAlreadyAdded && isFoundInSmallerIdx && (tickLen > 0 || (tickLen == 0 && nextNoteCmd.CmdType == CmdType.HINT_LEGATO))) { // Vibrato while note is playing
             curOrderSb.Append('&');
             _isAmpersandAlreadyAdded = true;
         }
 
         curOrderSb.Append(_vibSpeed == 0 || _vibDepth == 0 ? "*0" : $"M0,{mmlVibSpdValue},{_vibActualDepth},1 *1");
 
-        var pitchStrOrRest = isFoundInLargerIdx ? CmdStreamToMMLUtil.GetPitchStr(playingNoteCmd.Value1 % 12) : "r";
+        var pitchStrOrRest = isFoundInSmallerIdx ? CmdStreamToMMLUtil.GetPitchStr(playingNoteCmd.Value1 % 12) : "r";
         if(tickLen > 0)
             curOrderSb.Append(pitchStrOrRest).AppendNoteLength(tickLen);
     }
