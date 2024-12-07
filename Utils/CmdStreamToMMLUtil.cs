@@ -377,5 +377,18 @@ public static class CmdStreamToMMLUtil
 
         return new FurnaceCommand(tick, channel, cmdType, value1, value2);
     }
-    
+
+    /// <summary>
+    /// Used to convert other command streams that need to be handled during portamento
+    /// </summary>
+    /// <param name="otherCmdWhilePorta"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentOutOfRangeException"></exception>
+    public static string GetMMLForOtherCmdWhilePortamento(FurnaceCommand otherCmdWhilePorta)
+    {
+        return otherCmdWhilePorta.CmdType switch {
+            CmdType.HINT_VOLUME => $"V{otherCmdWhilePorta.Value1}",
+            _                   => throw new ArgumentOutOfRangeException("Invalid CmdType: " + otherCmdWhilePorta.CmdType)
+        };
+    }
 }
