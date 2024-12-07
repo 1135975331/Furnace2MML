@@ -173,7 +173,7 @@ public static class ConvertCmdStreamToMML
     }
 
     
-    private static readonly CmdType[] VolumeChangeCmdTypeToFind = [CmdType.NOTE_ON, CmdType.HINT_LEGATO, CmdType.VIBRATO];  // Command type to find array for volume change command
+    private static readonly CmdType[] VolumeChangeCmdTypeToFind = [CmdType.NOTE_ON, CmdType.HINT_LEGATO];  // Command type to find array for volume change command
     private static void ConvertVolume(List<FurnaceCommand> cmdList, int curIdx, int tickLen, StringBuilder curOrderSb)
     {
         var curCmd = cmdList[curIdx];
