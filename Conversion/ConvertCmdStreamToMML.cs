@@ -32,6 +32,7 @@ public static class ConvertCmdStreamToMML
         switch(noteCmd.CmdType) {
             case CmdType.HINT_ARP_TIME: SetArpSpeed(noteCmd, tickLen, curOrderSb); break;
             case CmdType.HINT_ARPEGGIO: SetArpStatus(noteCmd, tickLen, curOrderSb); break;
+
             case CmdType.VIB_SHAPE:     ConvertVibShape(noteCmd, tickLen, curOrderSb); break;
             case CmdType.VIB_RANGE:     ConvertVibRange(noteCmd, tickLen, curOrderSb); break;
             case CmdType.VIBRATO:       ConvertVibrato(noteCmdCh, i, tickLen, curOrderSb); break;
